@@ -8,6 +8,7 @@
     "limiter": "^2.1.0",
     "mongoose": "^6.4.1",
     "node-fetch": "^2.6.7",
+    "path": "^0.12.7",
     "ws": "^8.8.0"
   },
   "name": "bobot-sales",
@@ -18,7 +19,6 @@
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/humblefool13/BoBot-Sales.git"
