@@ -11,7 +11,7 @@ client.interactions = new Collection();
 require('./handlers/events')(client);
 require('./handlers/interactions')(client);
 
-require('./databases/salesDB')();
+require('./databases/rafflesDB')();
 
 process.on("unhandledRejection", (reason, p) => {
   console.log('[ ANTICRASH ] :: Unhandled Rejection / Catch');
