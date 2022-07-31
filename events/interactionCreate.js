@@ -8,7 +8,7 @@ module.exports = {
     try {
       if (interaction.type === InteractionType.ApplicationCommand) {
         Icommand = interaction.commandName;
-      } else if (interaction.type === InteractionType.MessageComponent && (interaction.customId === "submit" || interaction.customId === "check")) {
+      } else if (interaction.type === InteractionType.MessageComponent && (interaction.customId === "enter" ||interaction.customId === "submit" || interaction.customId === "check")) {
         Icommand = interaction.customId;
       } else {
         return;
