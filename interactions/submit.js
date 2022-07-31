@@ -61,7 +61,7 @@ module.exports = {
       collector.on(async (i) => {
         await i.showModal(modal);
         await i.deferUpdate();
-        const modalfilter = (interaction) => interaction.customId === 'modal';
+        const modalfilter = (modi) => modi.customId === 'modal' && modi.user.id === interaction.user.id;
         const modalSubmit = await interaction.awaitModalSubmit({ modalfilter, time: 60000 });
         if (!modalSubmit) return i.update({
           content: `The wallet was not submitted within the time frame. Please "Dismiss Message" and start again.`,
