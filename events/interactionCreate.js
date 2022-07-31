@@ -6,9 +6,9 @@ module.exports = {
   async execute(client, interaction) {
     let Icommand = "";
     try {
-      if (interaction.type === InteractionType.ApplicationCommand) {
+      if (interaction.type === InteractionType.isChatInputCommand()) {
         Icommand = interaction.commandName;
-      } else if (interaction.type === InteractionType.MessageComponent && (interaction.customId === "enter" ||interaction.customId === "submit" || interaction.customId === "check")) {
+      } else if (interaction.type === InteractionType.MessageComponent && (interaction.customId === "enter" || interaction.customId === "submit" || interaction.customId === "check")) {
         Icommand = interaction.customId;
       } else {
         return;
