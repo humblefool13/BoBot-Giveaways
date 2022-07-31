@@ -57,7 +57,7 @@ module.exports = {
         components: [row]
       });
       const filename = "/" + [interaction.guildId, postChannel.id, sent.id].join("_") + ".txt";
-      const data = [prize, numWinners, endTimestamp, multipleEntries, (requirement ? requirement.id : "NA"), (blacklisted ? blacklisted.id : "NA"), (winnerRole ? winnerRole.id : "NA")].join("\n");
+      const data = [prize, numWinners, endTimestamp, multipleEntries, (requirement ? requirement.id : "NA"), (blacklisted ? blacklisted.id : "NA"), (winnerRole ? winnerRole.id : "NA"), sent.url].join("\n");
       fs.writeFileSync("./giveaways/giveawayConfigs" + filename, data);
       fs.writeFileSync("./giveaways/giveawayEntries" + filename, "");
       return interaction.editReply({
