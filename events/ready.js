@@ -134,13 +134,5 @@ module.exports = {
       });
     };
     setInterval(endGiveaways, 60 * 1000);
-
-    //////////////////////// SUBSCRIPTIONS ////////////////////////
-
-    async function updateSubscriptions() {
-
-    };
-    setInterval(updateSubscriptions, 60 * 1000);
-
   },
 };
