@@ -16,9 +16,12 @@ module.exports = {
       });
       if (subCommand === "view") {
         let rolesString, i = 1;
-        roles.forEach((roleArray) => {
-          rolesString += `\n${i++} <@&${roleArray[0]}> = ${roleArray[1]} entries`;
-        });
+        console.log(roles);
+        if (roles[0].length) {
+          roles.forEach((roleArray) => {
+            rolesString += `\n${i++} <@&${roleArray[0]}> = ${roleArray[1]} entries`;
+          });
+        };
         if (!rolesString) return interaction.editReply("No role has been set for multiple entries in this server yet.");
         return interaction.editReply(`The following role and entries configuration is saved in this server:\n${rolesString}`);
       } else if (subCommand === "remove") {
@@ -50,7 +53,7 @@ module.exports = {
         const role = interaction.options.getRole("role");
         const roleId = role.id;
         const newEntries = interaction.options.getInteger("entries");
-        let found = false, newroles;
+        let found = false, newroles = [];
         roles.forEach((roleArray) => {
           if (roleArray[0] === roleId) found = true;
           if (roleArray[0] !== roleId) newroles.push(roleArray);
