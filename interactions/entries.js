@@ -16,7 +16,6 @@ module.exports = {
       });
       if (subCommand === "view") {
         let rolesString, i = 1;
-        console.log(roles);
         if (roles[0].length) {
           roles.forEach((roleArray) => {
             rolesString += `\n${i++} <@&${roleArray[0]}> = ${roleArray[1]} entries`;
