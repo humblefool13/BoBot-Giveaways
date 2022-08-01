@@ -1,6 +1,5 @@
 const fs = require("fs");
 const config_records = require("../models/configurations.js");
-const sub_records = require("../models/subscriptions.js");
 const XLSX = require("xlsx");
 const wallets_records = require("../models/wallets.js");
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
@@ -73,10 +72,10 @@ module.exports = {
         const location = locationString.split("_");
         do {
           const index = Math.floor(Math.random() * entries.length);
-          if (!winners.includes(entries[index])) {
+          if (!winners.includes(entries[index]) && entries[index].length) {
             winners.push(entries[index]);
           };
-        } while (winners.length !== number && winners.length !== unique);
+        } while (winners.length !== number && winners.length !== unique - 1);
         winners = shuffleArray(winners);
         const channel = await client.guilds.cache.get(location[0]).channels.fetch(location[1]);
         const message = await channel.messages.fetch(location[2]);
@@ -104,20 +103,20 @@ module.exports = {
         });
         const workbook = XLSX.utils.book_new();
         const worksheet = XLSX.utils.aoa_to_sheet(masterArray);
-        XLSX.utils.book_append_sheet(workbook,worksheet,`${prizeName.toLowerCase()}_winners`);
+        XLSX.utils.book_append_sheet(workbook, worksheet, `${prizeName.toLowerCase()}_winners`);
         XLSX.writeFileXLSX(workbook, "./exports.xls");
         const config = await config_records.findOne({
-          server_id:location[0],
+          server_id: location[0],
         });
         const channelID = config.submit_channel;
         const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID);
         const guild = client.guilds.cache.get(location[0]);
         postChannel.send({
-          content:`${prizeName} Giveaway Ended - ${msgUrl}\nThe file with winner data is attached below.`,
-          files:[{
+          content: `${prizeName} Giveaway Ended - ${msgUrl}\nThe file with winner data is attached below.`,
+          files: [{
             attachment: '../export.xlsx',
-            name:`${prizeName}_${guild.name}.xlsx`,
-            description:"The file containing winners and their saved wallets."
+            name: `${prizeName}_${guild.name}.xlsx`,
+            description: "The file containing winners and their saved wallets."
           }],
         });
         if (winnerRole !== "NA") {
@@ -130,7 +129,7 @@ module.exports = {
         fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
         fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
         fs.unlinkSync("./export.xlsx");
-        fs.writeFileSync("./export.xlsx","");
+        fs.writeFileSync("./export.xlsx", "");
       });
     };
     setInterval(endGiveaways, 60 * 1000);
