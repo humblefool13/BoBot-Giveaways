@@ -74,7 +74,6 @@ module.exports = {
           components: [],
         });
         let ens = false;
-        console.log(walletNew);
         if (walletNew.endsWith(".eth")) ens = true;
         if (!ens && (!walletNew.startsWith("0x") || walletNew.length !== 42)) return i.editReply({
           content: `Please enter a valid address. The currently entered one (**${walletNew}**) is invalid.`,

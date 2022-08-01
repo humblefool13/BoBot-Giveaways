@@ -18,7 +18,7 @@ module.exports = {
         let rolesString, i = 1;
         if (roles[0].length) {
           roles.forEach((roleArray) => {
-            rolesString += `\n${i++} <@&${roleArray[0]}> = ${roleArray[1]} entries`;
+            rolesString += `\n${i++}) <@&${roleArray[0]}> = **${roleArray[1]}** entries`;
           });
         };
         if (!rolesString) return interaction.editReply("No role has been set for multiple entries in this server yet.");
