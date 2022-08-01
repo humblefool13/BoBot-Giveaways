@@ -58,24 +58,24 @@ module.exports = {
       };
       const filter = (int) => int.customId === 'submitmodal' && int.user.id === interaction.user.id;
       const collector = await sent.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000, max: 1 });
-      collector.on(async (i) => {
+      collector.on("collect",async (i) => {
         await i.showModal(modal);
-        await i.deferUpdate();
         const modalfilter = (modi) => modi.customId === 'modal' && modi.user.id === interaction.user.id;
-        const modalSubmit = await interaction.awaitModalSubmit({ modalfilter, time: 60000 });
-        if (!modalSubmit) return i.update({
+        const modalSubmit = await i.awaitModalSubmit({ modalfilter, time: 60000 });
+        modalSubmit.deferUpdate();
+        if (!modalSubmit) return i.editReply({
           content: `The wallet was not submitted within the time frame. Please "Dismiss Message" and start again.`,
           components: [],
         });
         const input = modalSubmit.fields.getTextInputValue('walletAddress');
         const walletNew = input.trim();
-        if (walletNew.includes(" ")) return i.update({
+        if (walletNew.includes(" ")) return i.editReply({
           content: `Please enter a valid address. The currently entered one (**${walletNew}**) includes a space \` \`.\nIf you think this is a mistake please contact BoBot Labs.`,
           components: [],
         });
         let ens = false;
         if (walletNew.endsWith(".eth")) ens = true;
-        if (!ens && (!walletNew.startsWith("0x") || !walletNew.length === 42)) return i.update({
+        if (!ens && (!walletNew.startsWith("0x") || !walletNew.length === 42)) return i.editReply({
           content: `Please enter a valid address. The currently entered one (**${walletNew}**) is invalid.`,
           components: [],
         });
@@ -90,12 +90,12 @@ module.exports = {
           }).save().catch((e) => { console.log(e) });
         };
         if (wallet) {
-          return i.update({
+          return i.editReply({
             components: [],
             content: `Done! :white_check_mark:\nYour registered wallet address:\n**${wallet}**\n\nis changed to the new wallet address:\n**${walletNew}**.`,
           });
         } else {
-          return i.update({
+          return i.editReply({
             components: [],
             content: `Congratulations! :tada:\nYou just registered your first wallet address for this server:\n**${walletNew}**. This will be automatically submitted when you win any giveaway!`,
           });

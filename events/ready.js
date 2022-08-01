@@ -1,4 +1,4 @@
-const fs = require("discord.js");
+const fs = require("fs");
 const config_records = require("../models/configurations.js");
 const sub_records = require("../models/subscriptions.js");
 const XLSX = require("xlsx");

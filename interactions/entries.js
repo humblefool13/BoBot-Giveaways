@@ -2,9 +2,9 @@ const configs = require("../models/configurations.js");
 
 module.exports = {
   name: "entries",
-  async execute(client, interaction) {
+  async interact(client, interaction) {
     try {
-      interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ ephemeral: true });
       const subCommand = interaction.options.getSubcommand();
       const config = await configs.findOne({
         server_id: interaction.guildId,

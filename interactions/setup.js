@@ -16,18 +16,18 @@ function makeEmbed(name, guild_icon, guild_id) {
   return embed;
 };
 const row = new ActionRowBuilder()
-.addComponents(
-  new ButtonBuilder()
-  .setLabel("SUBMIT")
-  .setCustomId("submit")
-  .setStyle(ButtonStyle.Success)
-  .setEmoji("📝"),
-  new ButtonBuilder()
-  .setLabel("CHECK")
-  .setCustomId("check")
-  .setStyle(ButtonStyle.Primary)
-  .setEmoji("🔎")
-);
+  .addComponents(
+    new ButtonBuilder()
+      .setLabel("SUBMIT")
+      .setCustomId("submit")
+      .setStyle(ButtonStyle.Success)
+      .setEmoji("📝"),
+    new ButtonBuilder()
+      .setLabel("CHECK")
+      .setCustomId("check")
+      .setStyle(ButtonStyle.Primary)
+      .setEmoji("🔎")
+  );
 
 module.exports = {
   name: "setup",
@@ -46,6 +46,11 @@ module.exports = {
         name: "BOBOT GIVEAWAYS",
         type: ChannelType.GuildCategory,
       });
+      const role = await interaction.guild.roles.create({
+        name: "BoBot Giveaway Manager",
+        color: "#00FFFF",
+        reason: "The role for BoBot Giveaway Manager.",
+      });
       const setupChannel = await interaction.guild.channels.create({
         name: "✅︱bobot-handler",
         parent: category,
@@ -53,6 +58,10 @@ module.exports = {
           {
             id: interaction.guildId,
             deny: [PermissionsBitField.Flags.ViewChannel],
+          },
+          {
+            id: client.user.id,
+            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
           },
         ],
       });
@@ -64,15 +73,15 @@ module.exports = {
             id: interaction.guildId,
             deny: [PermissionsBitField.Flags.ViewChannel],
           },
+          {
+            id: client.user.id,
+            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
+          }, {
+            id: role.id,
+            allow: [PermissionsBitField.Flags.ViewChannel],
+          }
         ],
       });
-      const role = await interaction.guild.roles.create({
-        name: "BoBot Giveaway Manager",
-        color: "#00FFFF",
-        reason: "The role for BoBot Giveaway Manager.",
-      });
-      await outputChannel.permissionOverwrites.create(role.id, { ViewChannel: true });
-      await outputChannel.permissionOverwrites.create(client.user.id, { ViewChannel: true, SendMessages: true, AttachFiles: true});
       await configs.deleteOne({
         server_id: interaction.guildId,
       });
@@ -88,25 +97,40 @@ module.exports = {
       });
       const embed = makeEmbed(interaction.guild.name, interaction.guild.icon, interaction.guildId);
       await setupChannel.send({
-        embeds:[embed],
-        components:[row],
+        embeds: [embed],
+        components: [row],
       });
       await outputChannel.send(":ledger: Please read the following instructions:");
       await interaction.editReply(":ledger: Please read the following instructions:");
       await wait(2000);
-      await outputChannel.send(`1) I have made a role <@&${role.id}> who will be able to use management commands. Giving the role to anyone will allow them to start giveaways and add/edit/remove number of entries for roles. Please head to server settings and put the role on high hierarhcy position for safety. You can rename the role or change color but if the role gets deleted you will have to \`/setup\` again.`);
-      await interaction.followUp(`1) I have made a role <@&${role.id}> who will be able to use management commands. Giving the role to anyone will allow them to start giveaways and add/edit/remove number of entries for roles. Please head to server settings and put the role on high hierarhcy position for safety. You can rename the role or change color but if the role gets deleted you will have to \`/setup\` again.`);
+      await outputChannel.send(`1) I have made a role <@&${role.id}> who will be able to use management commands. Giving the role to anyone will allow them to start giveaways and add/edit/remove number of entries for roles. Please head to server settings and put the role on high hierarchy position for safety. You can rename the role or change color but if the role gets deleted you will have to \`/setup\` again.`);
+      await interaction.followUp({
+        content: `1) I have made a role <@&${role.id}> who will be able to use management commands. Giving the role to anyone will allow them to start giveaways and add/edit/remove number of entries for roles. Please head to server settings and put the role on high hierarchy position for safety. You can rename the role or change color but if the role gets deleted you will have to \`/setup\` again.`,
+        ephemeral: true,
+      });
       await wait(2000);
-      await outputChannel.send(`2) I have made 2 channels :\n:white_small_square: <#${setupChannel.id}>:\nThis channel will be used by people to submit the wallets and view the wallet submitted. Please change the permission of channel and allow the required role to "View Channel".\n\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel you will receive the file with winners' details every time a giveaway ends. Always make sure I have permission to "View Channel" and "Attach Files". Keep this channel private, the giveaway manager role I created can see the channel by default while others cannot.\n\nFeel free to rename the channels or move them to another location/category but if gets deleted you will have to \`/setup\` again.`);
-      await interaction.followUp(`2) I have made 2 channels :\n:white_small_square: <#${setupChannel.id}>:\nThis channel will be used by people to submit the wallets and view the wallet submitted. Please change the permission of channel and allow the required role to "View Channel".\n\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel you will receive the file with winners' details every time a giveaway ends. Always make sure I have permission to "View Channel" and "Attach Files". Keep this channel private, the giveaway manager role I created can see the channel by default while others cannot.\n\nFeel free to rename the channels or move them to another location/category but if gets deleted you will have to \`/setup\` again.`);
+      await outputChannel.send(`2) I have made 2 channels :\n:white_small_square: <#${setupChannel.id}>:\nThis channel will be used by people to submit the wallets and view the wallet submitted. Please change the permission of channel and allow the required role to "View Channel".\n\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel you will receive the file with winners' details every time a giveaway ends. Always make sure I have permission to "View Channel", "Send Messages" and "Attach Files". Keep this channel private, the giveaway manager role I created can see the channel by default while others cannot.\n\nFeel free to rename the channels or move them to another location/category but if gets deleted you will have to \`/setup\` again.`);
+      await interaction.followUp({
+        content: `2) I have made 2 channels :\n:white_small_square: <#${setupChannel.id}>:\nThis channel will be used by people to submit the wallets and view the wallet submitted. Please change the permission of channel and allow the required role to "View Channel".\n\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel you will receive the file with winners' details every time a giveaway ends. Always make sure I have permission to "View Channel", "Send Messages" and "Attach Files". Keep this channel private, the giveaway manager role I created can see the channel by default while others cannot.\n\nFeel free to rename the channels or move them to another location/category but if gets deleted you will have to \`/setup\` again.`,
+        ephemeral: true,
+      });
       await wait(2000);
       await outputChannel.send(`3) The manager role can use \`/entries\` and its subcommands to view/edit/add/remove entries for roles.`);
-      await interaction.followUp(`3) The manager role can use \`/entries\` and its subcommands to view/edit/add/remove entries for roles.`);
+      await interaction.followUp({
+        content: `3) The manager role can use \`/entries\` and its subcommands to view/edit/add/remove entries for roles.`,
+        ephemeral: true,
+      });
       await wait(2000);
       await outputChannel.send(`4) Once your subscription ends, I will keep all configurations and wallets saved for 7 days. If you renew within 7 days, eveything will be smooth and keep working fine with old channels/roles/wallets and no data will be lost. But if the subscription is not renewed within 7 days, I will erase all data **permanently**, after which if you decide to use the bot, the users will have to submit wallets again and you will have to \`/setup\` again.`);
-      await interaction.followUp(`4) Once your subscription ends, I will keep all configurations and wallets saved for 7 days. If you renew within 7 days, eveything will be smooth and keep working fine with old channels/roles/wallets and no data will be lost. But if the subscription is not renewed within 7 days, I will erase all data **permanently**, after which if you decide to use the bot, the users will have to submit wallets again and you will have to \`/setup\` again.`);
+      await interaction.followUp({
+        content: `4) Once your subscription ends, I will keep all configurations and wallets saved for 7 days. If you renew within 7 days, eveything will be smooth and keep working fine with old channels/roles/wallets and no data will be lost. But if the subscription is not renewed within 7 days, I will erase all data **permanently**, after which if you decide to use the bot, the users will have to submit wallets again and you will have to \`/setup\` again.`,
+        ephemeral: true,
+      });
       await wait(2000);
-      return await interaction.followUp(`I have sent a copy of above instructions in <#${outputChannel.id}> for future reference and for other team members to refer to.\n\nIf you ever face any issues, please contact us in our discord server.\nGoodluck! :slight_smile:`);
+      return await interaction.followUp({
+        content: `I have sent a copy of above instructions in <#${outputChannel.id}> for future reference and for other team members to refer to.\n\nIf you ever face any issues, please contact us in our discord server.\nGoodluck! :slight_smile:`,
+        ephemeral: true,
+      });
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
