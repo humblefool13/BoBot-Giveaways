@@ -29,6 +29,7 @@ const row = new ActionRowBuilder()
       .setEmoji("⚠️")
       .setCustomId("dead")
       .setStyle(ButtonStyle.Danger)
+      .setDisabled(true)
   );
 function splitIntoMessages(winners) {
   let arr = [], i = 0;
@@ -112,7 +113,7 @@ module.exports = {
         const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID);
         const guild = client.guilds.cache.get(location[0]);
         postChannel.send({
-          content:`${prizeName} Giveaway Ended - ${msgUrl}`,
+          content:`${prizeName} Giveaway Ended - ${msgUrl}\nThe file with winner data is attached below.`,
           files:[{
             attachment: '../export.xlsx',
             name:`${prizeName}_${guild.name}.xlsx`,
