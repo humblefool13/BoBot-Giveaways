@@ -58,7 +58,7 @@ module.exports = {
       };
       const filter = (int) => int.customId === 'submitmodal' && int.user.id === interaction.user.id;
       const collector = await sent.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000, max: 1 });
-      collector.on("collect",async (i) => {
+      collector.on("collect", async (i) => {
         await i.showModal(modal);
         const modalfilter = (modi) => modi.customId === 'modal' && modi.user.id === interaction.user.id;
         const modalSubmit = await i.awaitModalSubmit({ modalfilter, time: 60000 });
@@ -74,8 +74,9 @@ module.exports = {
           components: [],
         });
         let ens = false;
+        console.log(walletNew);
         if (walletNew.endsWith(".eth")) ens = true;
-        if (!ens && (!walletNew.startsWith("0x") || !walletNew.length === 42)) return i.editReply({
+        if (!ens && (!walletNew.startsWith("0x") || walletNew.length !== 42)) return i.editReply({
           content: `Please enter a valid address. The currently entered one (**${walletNew}**) is invalid.`,
           components: [],
         });
