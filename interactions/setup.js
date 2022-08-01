@@ -25,7 +25,7 @@ const row = new ActionRowBuilder()
     new ButtonBuilder()
       .setLabel("CHECK")
       .setCustomId("check")
-      .setStyle(ButtonStyle.Primary)
+      .setStyle(ButtonStyle.Secondary)
       .setEmoji("🔎")
   );
 
