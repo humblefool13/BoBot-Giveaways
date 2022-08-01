@@ -26,7 +26,7 @@ module.exports = {
       } else if (subCommand === "remove") {
         const role = interaction.options.getRole("role");
         const roleId = role.id;
-        let arr;
+        let arr=[];
         roles.forEach((roleArray) => {
           if (roleArray[0] === roleId) return;
           arr.push(roleArray);
