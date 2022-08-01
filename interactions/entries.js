@@ -45,7 +45,11 @@ module.exports = {
           if (roleArray[0] === roleId) found = true;
         });
         if (found) return interaction.editReply("A configuration already exists for this role, please use `/entries edit` command.");
-        newRoles.push([roleId, newEntries]);
+        if (newRoles[0].length) {
+          newRoles.push([roleId, newEntries])
+        } else {
+          newRoles = [[roleId, newEntries]];
+        };
         config.roles = newRoles;
         await config.save().catch((e) => { });
         return interaction.editReply(`New configuration saved:\n<@&${roleId}> = ${newEntries} Entries.`);
