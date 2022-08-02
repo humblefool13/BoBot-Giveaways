@@ -3,6 +3,16 @@ const config_records = require("../models/configurations.js");
 const wallets_records = require("../models/wallets.js");
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
 
+const row = new ActionRowBuilder()
+  .addComponents(
+    new ButtonBuilder()
+      .setLabel("Ended")
+      .setEmoji("⚠️")
+      .setCustomId("dead")
+      .setStyle(ButtonStyle.Danger)
+      .setDisabled(true)
+  );
+  
 function shuffleArray(array) {
   for (var i = array.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
@@ -20,15 +30,6 @@ function findunique(entries) {
   });
   return unique.length;
 };
-const row = new ActionRowBuilder()
-  .addComponents(
-    new ButtonBuilder()
-      .setLabel("Ended")
-      .setEmoji("⚠️")
-      .setCustomId("dead")
-      .setStyle(ButtonStyle.Danger)
-      .setDisabled(true)
-  );
 function splitWinners(myArray, chunk_size) {
   var index = 0;
   var arrayLength = myArray.length;
@@ -99,11 +100,11 @@ module.exports = {
         const messages = messagesGenerator(splitted);
         await message.reply(`:tada: Congratulations to all **${prizeName}** winners!\n:small_blue_diamond: Unique Entries: ${unique}\n:small_blue_diamond: Total Entries: ${entries.length}`);
         messages.forEach(async (msg) => {
-          await message.reply({
+          await message.channel.send({
             content: msg,
           });
         });
-        await message.reply("Thanks for participating everyone! :slight_smile:");
+        await message.channel.send("Thanks for participating everyone! :slight_smile:");
         const members = await client.guilds.cache.get(location[0]).members.fetch();
         const wallets = await wallets_records.find({
           server_id: location[0],
