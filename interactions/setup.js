@@ -66,7 +66,7 @@ module.exports = {
         ],
       });
       const outputChannel = await interaction.guild.channels.create({
-        name: "✅︱bobot-winners",
+        name: "✅︱bobot-managers",
         parent: category,
         permissionOverwrites: [
           {
@@ -76,7 +76,8 @@ module.exports = {
           {
             id: client.user.id,
             allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
-          }, {
+          },
+          {
             id: role.id,
             allow: [PermissionsBitField.Flags.ViewChannel],
           }

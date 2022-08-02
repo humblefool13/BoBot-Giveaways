@@ -126,7 +126,7 @@ module.exports = {
         const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID);
         const guild = client.guilds.cache.get(location[0]);
         postChannel.send({
-          content: `:alarm_clock: **${prizeName}** Giveaway Ended - ${msgUrl}\nThe file with winner data is attached below.`,
+          content: `:alarm_clock: **${prizeName}** Giveaway Ended -\n${msgUrl}\nThe file with winner data is attached below.`,
           files: [{
             attachment: './export.xlsx',
             name: `${prizeName}_${guild.name}.xlsx`,

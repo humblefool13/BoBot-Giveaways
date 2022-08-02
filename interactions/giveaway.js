@@ -20,7 +20,7 @@ const row = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
       .setLabel("Enter")
-      .setEmoji("990317457187172382")
+      .setEmoji("1004086533910974605")
       .setCustomId("enter")
       .setStyle(ButtonStyle.Primary)
   );
