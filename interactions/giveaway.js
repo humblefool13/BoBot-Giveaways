@@ -61,7 +61,7 @@ module.exports = {
       fs.writeFileSync("./giveaways/giveawayConfigs" + filename, data);
       fs.writeFileSync("./giveaways/giveawayEntries" + filename, "");
       return interaction.editReply({
-        content: `✅" Successfully created the giveaway - ${sent.url}`
+        content: `✅ Successfully created the giveaway - ${sent.url}`
       });
     } catch (e) {
       console.log(e);
