@@ -6,7 +6,7 @@ function makeEmbed(messageEmbed, entries) {
     .setTitle(messageEmbed.title)
     .setDescription(messageEmbed.description)
     .setColor(messageEmbed.hexColor)
-    .setFooter(`Powered by BoBot Labs | ${entries} Entries`);
+    .setFooter({text:`Powered by BoBot Labs | ${entries} Entries`});
   return embed;
 };
 
