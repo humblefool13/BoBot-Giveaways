@@ -54,7 +54,7 @@ module.exports = {
       let entriesString = entries.join("\n");
       fs.writeFileSync(`./giveaways/giveawayEntries/${giveawayEntriesFile}`, entriesString);
       const totalEntriesNew = entries.length;
-      const locationString = giveawayConfigsFile.slice(0, file.length - 4);
+      const locationString = giveawayConfigsFile.slice(0, giveawayConfigsFile.length - 4);
       const location = locationString.split("_");
       const channel = await client.guilds.cache.get(location[0]).channels.fetch(location[1]);
       const message = await channel.messages.fetch(location[2]);
