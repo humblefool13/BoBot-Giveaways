@@ -22,7 +22,7 @@ const row = new ActionRowBuilder()
       .setLabel("Enter")
       .setEmoji("990317457187172382")
       .setCustomId("enter")
-      .setStyle(ButtonStyle.Success)
+      .setStyle(ButtonStyle.Primary)
   );
 
 module.exports = {

@@ -1,5 +1,14 @@
 const fs = require("fs");
 const settings = require("../models/configurations.js");
+const { EmbedBuilder } = require("discord.js");
+function makeEmbed(messageEmbed, entries) {
+  const embed = new EmbedBuilder()
+    .setTitle(messageEmbed.title)
+    .setDescription(messageEmbed.description)
+    .setColor(messageEmbed.hexColor)
+    .setFooter(`Powered by BoBot Labs | ${entries} Entries`);
+  return embed;
+};
 
 module.exports = {
   name: "enter",
@@ -13,8 +22,13 @@ module.exports = {
       if (!giveawayEntriesFile || !giveawayConfigsFile) return interaction.editReply("invalid/unknown giveaway");
       const giveawayConfig = fs.readFileSync(`./giveaways/giveawayConfigs/${giveawayConfigsFile}`, { encoding: 'utf8', flag: 'r' });
       const giveawayEntries = fs.readFileSync(`./giveaways/giveawayEntries/${giveawayEntriesFile}`, { encoding: 'utf8', flag: 'r' });
-      let entries = giveawayEntries.split("\n");
-      if (entries.includes(interaction.member.id)) return interaction.editReply("You have already entered this giveaway.");
+      let entries = [];
+      if (giveawayEntries.length) {
+        entries = giveawayEntries.split("\n");
+        if (entries.includes(interaction.member.id)) return interaction.editReply("You have already entered this giveaway.");
+      } else {
+        entries = [];
+      };
       const configs = giveawayConfig.split("\n");
       const roleConfigs = [configs[4], configs[5]];
       const roles = interaction.member.roles.cache;
@@ -39,6 +53,16 @@ module.exports = {
       };
       let entriesString = entries.join("\n");
       fs.writeFileSync(`./giveaways/giveawayEntries/${giveawayEntriesFile}`, entriesString);
+      const totalEntriesNew = entries.length;
+      const locationString = giveawayConfigsFile.slice(0, file.length - 4);
+      const location = locationString.split("_");
+      const channel = await client.guilds.cache.get(location[0]).channels.fetch(location[1]);
+      const message = await channel.messages.fetch(location[2]);
+      const embed = makeEmbed(message.embeds[0], totalEntriesNew);
+      await message.edit({
+        embeds: [embed],
+        components: message.components,
+      });
       let replyContent;
       if (roleApplicable) {
         replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\nCommon Entry = 1\n${roleApplicable}\nGoodluck! :slight_smile:`;

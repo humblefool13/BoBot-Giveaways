@@ -15,13 +15,13 @@ module.exports = {
         content: `Only <@&${config.role}> can use this command.`
       });
       if (subCommand === "view") {
-        let rolesString, i = 1;
+        let rolesString = "", i = 1;
         if (roles[0].length) {
           roles.forEach((roleArray) => {
             rolesString += `\n${i++}) <@&${roleArray[0]}> = **${roleArray[1]}** entries`;
           });
         };
-        if (!rolesString) return interaction.editReply("No role has been set for multiple entries in this server yet.");
+        if (!rolesString.length) return interaction.editReply("No role has been set for multiple entries in this server yet.");
         return interaction.editReply(`The following role and entries configuration is saved in this server:\n${rolesString}`);
       } else if (subCommand === "remove") {
         const role = interaction.options.getRole("role");

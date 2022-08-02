@@ -30,19 +30,31 @@ const row = new ActionRowBuilder()
       .setStyle(ButtonStyle.Danger)
       .setDisabled(true)
   );
-function splitIntoMessages(winners) {
-  let arr = [], i = 0;
-  const numMessages = Math.ceil(winners.length / 75);
-  do {
-    let str = "";
-    for (j = 1; j <= 75; j++) {
-      if (i === winners.length) return;
-      str = str + `${i + 1} <@${winners[i++]}>, `;
-    };
-    arr.push(str);
-  } while (arr.length !== numMessages);
-  return arr;
+function splitWinners(myArray, chunk_size) {
+  var index = 0;
+  var arrayLength = myArray.length;
+  var tempArray = [];
+  for (index = 0; index < arrayLength; index += chunk_size) {
+    myChunk = myArray.slice(index, index + chunk_size);
+    tempArray.push(myChunk);
+  };
+  return tempArray;
 };
+function messagesGenerator(arr) {
+  let messages = [], count = 0;
+  arr.forEach((messageWinners) => {
+    let str = "";
+    messageWinners.forEach((winnerID) => {
+      str = str + `${++count}) <@${winnerID}>, `;
+    });
+    messages.push(str);
+  });
+  let lastOne = messages[messages.length - 1];
+  lastOne = lastOne.slice(0, lastOne.length - 2) + ".";
+  messages[messages.length - 1] = lastOne;
+  return messages;
+};
+
 
 module.exports = {
   name: 'ready',
@@ -62,7 +74,7 @@ module.exports = {
         const winnerRole = fileData2[6];
         const msgUrl = fileData2[7];
         if (Date.now() < endTimestamp) return;
-        await fs.rename(`./giveaways/giveawayConfigs/${file}`, `./giveaways/giveawayConfigs/processing-${file}`, (e) => { if (e) console.log(e) });
+        fs.rename(`./giveaways/giveawayConfigs/${file}`, `./giveaways/giveawayConfigs/processing-${file}`, (e) => { if (e) console.log(e) });
         const entries1 = fs.readFileSync(`./giveaways/giveawayEntries/${file}`, { encoding: 'utf8', flag: 'r' });
         const entries2 = entries1.split("\n");
         const entries = shuffleArray(entries2);
@@ -75,7 +87,7 @@ module.exports = {
           if (!winners.includes(entries[index]) && entries[index].length) {
             winners.push(entries[index]);
           };
-        } while (winners.length !== number && winners.length !== unique - 1);
+        } while (winners.length !== number && winners.length !== unique);
         winners = shuffleArray(winners);
         const channel = await client.guilds.cache.get(location[0]).channels.fetch(location[1]);
         const message = await channel.messages.fetch(location[2]);
@@ -84,10 +96,11 @@ module.exports = {
           components: [row],
           embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#FF0000").setFooter({ text: "Powered by BoBot Labs" })],
         });
-        const messages = splitIntoMessages(winners);
-        await message.reply(`:tada: Congratulations to all ${prizeName} winners!\nUnique Entries : ${unique}\nTotal Entries : ${entries.length}`);
+        const splitted = splitWinners(winners, 75);
+        const messages = messagesGenerator(splitted);
+        await message.reply(`:tada: Congratulations to all **${prizeName}** winners!\n:small_blue_diamond: Unique Entries: ${unique}\n:small_blue_diamond: Total Entries: ${entries.length}`);
         messages.forEach(async (msg) => {
-          await messages.reply({
+          await message.reply({
             content: msg,
           });
         });
@@ -104,7 +117,7 @@ module.exports = {
         const workbook = XLSX.utils.book_new();
         const worksheet = XLSX.utils.aoa_to_sheet(masterArray);
         XLSX.utils.book_append_sheet(workbook, worksheet, `${prizeName.toLowerCase()}_winners`);
-        XLSX.writeFileXLSX(workbook, "./exports.xls");
+        XLSX.writeFileXLSX(workbook, "./export.xlsx");
         const config = await config_records.findOne({
           server_id: location[0],
         });
@@ -114,7 +127,7 @@ module.exports = {
         postChannel.send({
           content: `${prizeName} Giveaway Ended - ${msgUrl}\nThe file with winner data is attached below.`,
           files: [{
-            attachment: '../export.xlsx',
+            attachment: './export.xlsx',
             name: `${prizeName}_${guild.name}.xlsx`,
             description: "The file containing winners and their saved wallets."
           }],
@@ -129,9 +142,10 @@ module.exports = {
         fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
         fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
         fs.unlinkSync("./export.xlsx");
-        fs.writeFileSync("./export.xlsx", "");
+        fs.open("./export.xlsx", w, () => { });
       });
     };
+    endGiveaways();
     setInterval(endGiveaways, 60 * 1000);
   },
 };
