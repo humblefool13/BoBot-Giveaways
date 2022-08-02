@@ -104,6 +104,7 @@ module.exports = {
             content: msg,
           });
         });
+        await message.reply("Thanks for participating everyone! :slight_smile:");
         const members = await client.guilds.cache.get(location[0]).members.fetch();
         const wallets = await wallets_records.find({
           server_id: location[0],
