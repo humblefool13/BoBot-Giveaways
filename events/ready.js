@@ -125,7 +125,7 @@ module.exports = {
         const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID);
         const guild = client.guilds.cache.get(location[0]);
         postChannel.send({
-          content: `${prizeName} Giveaway Ended - ${msgUrl}\nThe file with winner data is attached below.`,
+          content: `:alarm_clock: **${prizeName}** Giveaway Ended - ${msgUrl}\nThe file with winner data is attached below.`,
           files: [{
             attachment: './export.xlsx',
             name: `${prizeName}_${guild.name}.xlsx`,
@@ -142,7 +142,7 @@ module.exports = {
         fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
         fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
         fs.unlinkSync("./export.xlsx");
-        fs.open("./export.xlsx", w, () => { });
+        fs.open("./export.xlsx", "w", (e,f) => { });
       });
     };
     endGiveaways();
