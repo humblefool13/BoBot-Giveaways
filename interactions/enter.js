@@ -6,7 +6,7 @@ function makeEmbed(messageEmbed, entries) {
     .setTitle(messageEmbed.title)
     .setDescription(messageEmbed.description)
     .setColor(messageEmbed.hexColor)
-    .setFooter({text:`Powered by BoBot Labs | ${entries} Entries`});
+    .setFooter({ text: `Powered by BoBot Labs | ${entries} Entries` });
   return embed;
 };
 
@@ -30,6 +30,7 @@ module.exports = {
         entries = [];
       };
       const configs = giveawayConfig.split("\n");
+      const multipleEntries = configs[3];
       const roleConfigs = [configs[4], configs[5]];
       const roles = interaction.member.roles.cache;
       if (roleConfigs[0] !== "NA" && !roles.has(roleConfigs[0])) return interaction.editReply(`You do not have the required role to enter this giveaway - <@&${roleConfigs[0]}>.`);
@@ -39,16 +40,20 @@ module.exports = {
         server_id: interaction.guildId,
       });
       let roleApplicable = ``;
-      const roleEntries = server_data.roles;
-      roleEntries.forEach((roleArray) => {
-        const role = roleArray[0];
-        const entry = roleArray[1];
-        if (roles.has(role)) {
-          userEntries += entry;
-          roleApplicable += `<@&${role}> = ${entry} entries\n`;
+      if (multipleEntries === "true") {
+        const roleEntries = server_data.roles;
+        roleEntries.forEach((roleArray) => {
+          const role = roleArray[0];
+          const entry = roleArray[1];
+          if (roles.has(role)) {
+            userEntries += entry;
+            roleApplicable += `<@&${role}> = ${entry} entries\n`;
+          };
+        });
+        for (i = 1; i <= userEntries; i++) {
+          entries.push(interaction.member.id);
         };
-      });
-      for (i = 1; i <= userEntries; i++) {
+      } else {
         entries.push(interaction.member.id);
       };
       let entriesString = entries.join("\n");
