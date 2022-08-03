@@ -10,6 +10,13 @@ function makeEmbed(messageEmbed, entries) {
     .setFooter({ text: `Powered by BoBot Labs | ${entries} Entries` });
   return embed;
 };
+function MakeEmbedDes(des) {
+  const embed = new EmbedBuilder()
+    .setColor("#35FF6E")
+    .setDescription(des)
+    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" });
+  return embed;
+};
 
 module.exports = {
   name: "enter",
@@ -26,7 +33,7 @@ module.exports = {
       let entries = [];
       if (giveawayEntries.length) {
         entries = giveawayEntries.split("\n");
-        if (entries.includes(interaction.member.id)) return interaction.editReply("You have already entered this giveaway.");
+        if (entries.includes(interaction.member.id)) return interaction.editReply({ embeds: [MakeEmbedDes("You have already entered this giveaway.")] });
       } else {
         entries = [];
       };
@@ -34,22 +41,22 @@ module.exports = {
       const multipleEntries = configs[3];
       const roleConfigs = [configs[4], configs[5]];
       const walletReq = configs[8];
-      if (walletReq === "YES") {
+      if (walletReq === "Yes") {
         const wallet = await wallets.findOne({
           discord_id: interaction.user.id,
           server_id: interaction.guildId,
         });
-        if (!wallet) return interaction.editReply("You need to save a wallet address before entering this giveaway.");
+        if (!wallet) return interaction.editReply({ embeds: [MakeEmbedDes("You need to save a wallet address before entering this giveaway.")] });
       };
       const roles = interaction.member.roles.cache;
-      if (roleConfigs[0] !== "NA" && !roles.has(roleConfigs[0])) return interaction.editReply(`You do not have the required role to enter this giveaway - <@&${roleConfigs[0]}>.`);
-      if (roleConfigs[1] !== "NA" && roles.has(roleConfigs[1])) return interaction.editReply(`You are blacklisted from entering the giveaway since you have the blacklisted role - <@&${roleConfigs[1]}>.`);
+      if (roleConfigs[0] !== "NA" && !roles.has(roleConfigs[0])) return interaction.editReply({ embeds: [MakeEmbedDes(`You do not have the required role to enter this giveaway - <@&${roleConfigs[0]}>.`)] });
+      if (roleConfigs[1] !== "NA" && roles.has(roleConfigs[1])) return interaction.editReply({ embeds: [MakeEmbedDes(`You are blacklisted from entering the giveaway since you have the blacklisted role - <@&${roleConfigs[1]}>.`)] });
       let userEntries = 1;
       const server_data = await settings.findOne({
         server_id: interaction.guildId,
       });
       let roleApplicable = ``;
-      if (multipleEntries === "true") {
+      if (multipleEntries.toLowerCase().trim() === "true") {
         const roleEntries = server_data.roles;
         roleEntries.forEach((roleArray) => {
           const role = roleArray[0];
@@ -84,26 +91,26 @@ module.exports = {
         replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\nCommon Entry = 1\n\nGoodluck! :slight_smile:`;
       };
       return interaction.editReply({
-        content: replyContent,
+        embeds: [MakeEmbedDes(replyContent)],
       });
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
-          content: "I am facing some issues , the dev has been informed . Please try again in some hours.",
+          content: "I am facing some trouble, the dev has been informed. Please try again in some hours.",
           embeds: [],
           components: [],
           ephemeral: true,
         });
       } else {
         await interaction.reply({
-          content: "I am facing some issues , the dev has been informed . Please try again in some hours.",
+          content: "I am facing some trouble, the dev has been informed. Please try again in some hours.",
           embeds: [],
           components: [],
           ephemeral: true,
         });
       };
-      client.users.cache.get("727498137232736306").send(`Bobot has trouble in add.js -\n\n${e}`);
+      client.users.cache.get("727498137232736306").send(`${client.user.username} has trouble in enter.js -\n\n${e}`);
     };
   }
-};
+}
