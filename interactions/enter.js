@@ -1,5 +1,6 @@
 const fs = require("fs");
 const settings = require("../models/configurations.js");
+const wallets = require("../models/wallets.js");
 const { EmbedBuilder } = require("discord.js");
 function makeEmbed(messageEmbed, entries) {
   const embed = new EmbedBuilder()
@@ -32,6 +33,14 @@ module.exports = {
       const configs = giveawayConfig.split("\n");
       const multipleEntries = configs[3];
       const roleConfigs = [configs[4], configs[5]];
+      const walletReq = configs[8];
+      if (walletReq === "YES") {
+        const wallet = await wallets.findOne({
+          discord_id: interaction.user.id,
+          server_id: interaction.guildId,
+        });
+        if (!wallet) return interaction.editReply("You need to save a wallet address before entering this giveaway.");
+      };
       const roles = interaction.member.roles.cache;
       if (roleConfigs[0] !== "NA" && !roles.has(roleConfigs[0])) return interaction.editReply(`You do not have the required role to enter this giveaway - <@&${roleConfigs[0]}>.`);
       if (roleConfigs[1] !== "NA" && roles.has(roleConfigs[1])) return interaction.editReply(`You are blacklisted from entering the giveaway since you have the blacklisted role - <@&${roleConfigs[1]}>.`);
