@@ -1,4 +1,12 @@
 const configs = require("../models/configurations.js");
+const { EmbedBuilder } = require("discord.js");
+function MakeEmbedDes(des) {
+  const embed = new EmbedBuilder()
+    .setColor("#35FF6E")
+    .setDescription(des)
+    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" });
+  return embed;
+};
 
 module.exports = {
   name: "entries",
@@ -9,10 +17,10 @@ module.exports = {
       const config = await configs.findOne({
         server_id: interaction.guildId,
       });
-      if (!config) return interaction.editReply("Please use `/setup` to start using the bot in this server.");
+      if (!config) return interaction.editReply({ embeds: [MakeEmbedDes("Please use `/setup` to start using the bot in this server.")] });
       let roles = config.roles;
       if (subCommand !== "view" && !interaction.member.roles.cache.has(config.role)) return interaction.editReply({
-        content: `Only <@&${config.role}> can use this command.`
+        embeds: [MakeEmbedDes(`Only <@&${config.role}> can use this command.`)]
       });
       if (subCommand === "view") {
         let rolesString = "", i = 1;
@@ -21,8 +29,8 @@ module.exports = {
             rolesString += `\n${i++}) <@&${roleArray[0]}> = **${roleArray[1]}** entries`;
           });
         };
-        if (!rolesString.length) return interaction.editReply("No role has been set for multiple entries in this server yet.");
-        return interaction.editReply(`The following role and entries configuration is saved in this server:\n${rolesString}`);
+        if (!rolesString.length) return interaction.editReply({ embeds: [MakeEmbedDes("No role has been set for multiple entries in this server yet.")] });
+        return interaction.editReply({ embeds: [MakeEmbedDes(`The following role and entries configuration is saved in this server:\n${rolesString}`)] });
       } else if (subCommand === "remove") {
         const role = interaction.options.getRole("role");
         const roleId = role.id;
@@ -31,10 +39,10 @@ module.exports = {
           if (roleArray[0] === roleId) return;
           arr.push(roleArray);
         });
-        if (arr.length === roles.length) return interaction.editReply("No configuration is saved for this role. Please check the saved configurations using `/entries view` command.");
+        if (arr.length === roles.length) return interaction.editReply({ embeds: [MakeEmbedDes("No configuration is saved for this role. Please check the saved configurations using `/entries view` command.")] });
         config.roles = arr;
         await config.save().catch((e) => { });
-        return interaction.editReply(`The entries for role - <@&${roleId}> has been removed.`);
+        return interaction.editReply({ embeds: [MakeEmbedDes(`The entries for role - <@&${roleId}> has been removed.`)] });
       } else if (subCommand === "set") {
         const role = interaction.options.getRole("role");
         const roleId = role.id;
@@ -43,7 +51,7 @@ module.exports = {
         roles.forEach((roleArray) => {
           if (roleArray[0] === roleId) found = true;
         });
-        if (found) return interaction.editReply("A configuration already exists for this role, please use `/entries edit` command.");
+        if (found) return interaction.editReply({ embeds: [MakeEmbedDes("A configuration already exists for this role, please use `/entries edit` command.")] });
         if (newRoles[0].length) {
           newRoles.push([roleId, newEntries])
         } else {
@@ -51,7 +59,7 @@ module.exports = {
         };
         config.roles = newRoles;
         await config.save().catch((e) => { });
-        return interaction.editReply(`New configuration saved:\n<@&${roleId}> = ${newEntries} Entries.`);
+        return interaction.editReply({ embeds: [MakeEmbedDes(`New configuration saved:\n<@&${roleId}> = ${newEntries} Entries.`)] });
       } else if (subCommand === "edit") {
         const role = interaction.options.getRole("role");
         const roleId = role.id;
@@ -61,30 +69,30 @@ module.exports = {
           if (roleArray[0] === roleId) found = true;
           if (roleArray[0] !== roleId) newroles.push(roleArray);
         });
-        if (!found) return interaction.editReply("No configuration is saved for this role, please use `/entries set` command.");
+        if (!found) return interaction.editReply({ embeds: [MakeEmbedDes("No configuration is saved for this role, please use `/entries set` command.")] });
         newroles.push([roleId, newEntries]);
         config.roles = newroles;
         await config.save().catch((e) => { });
-        return interaction.editReply(`Configuration editted to:\n<@&${roleId}> = ${newEntries} Entries.`);
+        return interaction.editReply({ embeds: [MakeEmbedDes(`Configuration editted to:\n<@&${roleId}> = ${newEntries} Entries.`)] });
       } else return;
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
-          content: "I am facing some issues , the dev has been informed . Please try again in some hours.",
+          content: "I am facing some trouble, the dev has been informed. Please try again in some hours.",
           embeds: [],
           components: [],
           ephemeral: true,
         });
       } else {
         await interaction.reply({
-          content: "I am facing some issues , the dev has been informed . Please try again in some hours.",
+          content: "I am facing some trouble, the dev has been informed. Please try again in some hours.",
           embeds: [],
           components: [],
           ephemeral: true,
         });
       };
-      client.users.cache.get("727498137232736306").send(`Bobot has trouble in add.js -\n\n${e}`);
+      client.users.cache.get("727498137232736306").send(`${client.user.username} has trouble in entries.js -\n\n${e}`);
     };
   }
-};
+}
