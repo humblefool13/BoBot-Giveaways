@@ -18,10 +18,10 @@ module.exports = {
     } catch (e) {
       console.log(e);
       interaction.reply({
-        content: "I am having some trouble , the dev has been informed about it. Please try again in some hours.",
+        content: "I am having some trouble, the dev has been informed about it. Please try again in some hours.",
         ephemeral: true,
       }).then(() => {
-        client.users.cache.get("727498137232736306").send(`Bobot has trouble interactionCreate.js -\n\n${e}`);
+        client.users.cache.get("727498137232736306").send(`${client.user.username} has trouble in interactionCreate.js -\n\n${e}`);
       });
     };
   }, //execute
