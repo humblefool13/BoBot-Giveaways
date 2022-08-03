@@ -107,7 +107,7 @@ module.exports = {
             content: msg,
           });
         });
-        await message.channel.send(`You won the **${prizeName}**!:tada:\nUnique Entries: ${unique}\nTotal Entries: ${entries.length}`);
+        await message.channel.send(`You won the **${prizeName}**!:tada:\n◆ __Unique Entries:__ ${unique}\n◆ __Total Entries:__ ${entries.length}`);
         const members = await client.guilds.cache.get(location[0]).members.fetch();
         const wallets = await wallets_records.find({
           server_id: location[0],
