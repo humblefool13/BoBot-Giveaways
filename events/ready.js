@@ -12,7 +12,6 @@ const row = new ActionRowBuilder()
       .setStyle(ButtonStyle.Danger)
       .setDisabled(true)
   );
-  
 function shuffleArray(array) {
   for (var i = array.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
@@ -50,17 +49,16 @@ function messagesGenerator(arr) {
     messages.push(str);
   });
   let lastOne = messages[messages.length - 1];
-  lastOne = lastOne.slice(0, lastOne.length - 2) + ".";
+  lastOne = lastOne.slice(0, lastOne.length - 2) + "!";
   messages[messages.length - 1] = lastOne;
   return messages;
 };
-
 
 module.exports = {
   name: 'ready',
   once: true,
   async execute(client) {
-    console.log("!!!!! BOBOT RAFFLES IS ON !!!!!");
+    console.log(`!!!!! ${client.user.tag} IS ON !!!!!`);
 
     //////////////////////// GIVEAWAYS ////////////////////////
 
@@ -89,27 +87,32 @@ module.exports = {
           };
         } while (winners.length !== number && winners.length !== unique);
         winners = shuffleArray(winners);
-        const channel = await client.guilds.cache.get(location[0]).channels.fetch(location[1]);
-        const message = await channel.messages.fetch(location[2]);
+        const channel = await client.guilds.cache.get(location[0]).channels.fetch(location[1]).catch((e) => { });
+        const message = await channel.messages.fetch(location[2]).catch((e) => { });
+        if (!message || !channel) {
+          fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
+          fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
+          return;
+        };
         const description = message.embeds[0].description;
         await message.edit({
           components: [row],
-          embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#FF0000").setFooter({ text: "Powered by BoBot Labs" })],
+          embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#FF0000").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" })],
         });
-        const splitted = splitWinners(winners, 75);
+        const splitted = splitWinners(winners, 70);
         const messages = messagesGenerator(splitted);
-        await message.reply(`:tada: Congratulations to all **${prizeName}** winners!\n:small_blue_diamond: Unique Entries: ${unique}\n:small_blue_diamond: Total Entries: ${entries.length}`);
+        let sent = await message.reply(`Congratulations!`);
         messages.forEach(async (msg) => {
           await message.channel.send({
             content: msg,
           });
         });
-        await message.channel.send("Thanks for participating everyone! :slight_smile:");
+        await message.channel.send(`You won the **${prizeName}**!:tada:\nUnique Entries: ${unique}\nTotal Entries: ${entries.length}`);
         const members = await client.guilds.cache.get(location[0]).members.fetch();
         const wallets = await wallets_records.find({
           server_id: location[0],
         });
-        let masterArray = [["Discord ID", "Discord Tag", "Submitted Wallet\n"].join(",")];
+        let masterArray = [["User ID", "User Tag", "Submitted Wallet\n"].join(",")];
         winners.forEach((winner) => {
           const member = members.find((m) => m.id === winner) ? members.find((m) => m.id === winner) : { user: { tag: "Not Found" } };
           const userWallet = wallets.find((saved) => saved.discord_id === winner) ? wallets.find((saved) => saved.discord_id === winner) : { wallet: "Not Submitted" };
@@ -122,21 +125,50 @@ module.exports = {
           server_id: location[0],
         });
         const channelID = config.submit_channel;
-        const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID);
+        const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID).catch((e) => { });
+        if (!postChannel) {
+          fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
+          fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
+          return;
+        };
+        const messageLinkRow = new ActionRowBuilder()
+          .addComponents(
+            new ButtonBuilder()
+              .setLabel("Jump to Giveaway")
+              .setStyle(ButtonStyle.Link)
+              .setURL(msgUrl),
+            new ButtonBuilder()
+              .setLabel("Winners List")
+              .setStyle(ButtonStyle.Link)
+              .setURL(sent.url)
+          );
+        const postDescription = `Giveaway Ended\n:gift: Prize: **${prizeName}**\n:medal: Number of Winners: **${number}**\n:fox: Wallet Required: **${fileData2[8]}**`;
         postChannel.send({
-          content: `:alarm_clock: **${prizeName}** Giveaway Ended -\n${msgUrl}\nThe file with winner data is attached below.`,
           files: [{
             attachment: './export.txt',
             name: `${prizeName}_${guild.name}.txt`,
             description: "The file containing winners and their saved wallets."
           }],
+          embeds: [new EmbedBuilder.setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" })],
+          components: [messageLinkRow],
         });
         if (winnerRole !== "NA") {
-          winners.forEach((winner) => {
-            const member = members.find((m) => m.id === winner);
+          let winnersDuplicate = winners;
+          const interval = setInterval(doRoles, 500);
+          async function giveRole(winnersDuplicate) {
+            if (!winnersDuplicate.length) return;
+            const member = members.find((m) => m.id === winnersDuplicate[winnersDuplicate.length - 1]);
+            winnersDuplicate.pop();
             if (!member) return;
             member.roles.add(winnerRole).catch((e) => { });
-          });
+          };
+          function doRoles() {
+            if (winnersDuplicate.length) {
+              await giveRole(winnersDuplicate);
+            } else {
+              clearInterval(interval);
+            };
+          };
         };
         fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
         fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
