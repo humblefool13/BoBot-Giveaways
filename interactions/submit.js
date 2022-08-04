@@ -48,14 +48,14 @@ module.exports = {
       let sent, wallet;
       if (!find) {
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes("You have not saved any wallet in this server previously. Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button. You can use ENS name.")],
+          embeds: [MakeEmbedDes("You have not saved any wallet in this server previously. Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button.")],
           components: [rownew],
           fetchReply: true
         });
       } else {
         wallet = find.wallet;
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have saved the wallet address:\n\n**${wallet}**\n\nin this server previously. Would you like to change it to some other wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message". You can use ENS name.`)],
+          embeds: [MakeEmbedDes(`You have saved the wallet address:\n\n**${wallet}**\n\nin this server previously. Would you like to change it to some other wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
           components: [rowchange],
           fetchReply: true
         });
