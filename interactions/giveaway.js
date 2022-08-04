@@ -15,7 +15,7 @@ function makeEmbed(prize, numWinners, end, multipleEntries, requirement, blackli
     .setTitle("Active Giveaway")
     .setDescription(str)
     .setColor("#66ff00")
-    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" });
+    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
 };
 const row = new ActionRowBuilder()

@@ -28,7 +28,7 @@ function MakeEmbedDes(des) {
   const embed = new EmbedBuilder()
     .setColor("#35FF6E")
     .setDescription(des)
-    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" });
+    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
 };
 
