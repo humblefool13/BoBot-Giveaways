@@ -101,7 +101,7 @@ module.exports = {
         } else {
           return i.editReply({
             components: [],
-            embeds: [MakeEmbedDes(`Congratulations! :tada:\nYou just registered your first wallet address for this server:\n**${walletNew}**. This will be automatically submitted when you win any giveaway!`)],
+            embeds: [MakeEmbedDes(`Congratulations! :tada:\nYou just registered your first wallet address for this server:\n**${walletNew}**.\nThis will be automatically submitted when you win any giveaway!`)],
           });
         };
       });

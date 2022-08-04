@@ -86,9 +86,9 @@ module.exports = {
       });
       let replyContent;
       if (roleApplicable) {
-        replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\nCommon Entry = 1\n${roleApplicable}\nGoodluck! :slight_smile:`;
+        replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\n${roleApplicable}\nGoodluck! :slight_smile:`;
       } else {
-        replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\nCommon Entry = 1\n\nGoodluck! :slight_smile:`;
+        replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries!\nGoodluck! :slight_smile:`;
       };
       return interaction.editReply({
         embeds: [MakeEmbedDes(replyContent)],
