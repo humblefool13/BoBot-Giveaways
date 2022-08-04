@@ -55,7 +55,7 @@ module.exports = {
       } else {
         wallet = find.wallet;
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have saved the wallet address:\n\n**${wallet}**\n\nin this server previously. Would you like to change it to some other wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button else "Dismiss Message". You can use ENS name.`)],
+          embeds: [MakeEmbedDes(`You have saved the wallet address:\n\n**${wallet}**\n\nin this server previously. Would you like to change it to some other wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message". You can use ENS name.`)],
           components: [rowchange],
           fetchReply: true
         });
