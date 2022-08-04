@@ -12,7 +12,7 @@ function makeEmbed(prize, numWinners, end, multipleEntries, requirement, blackli
   if (winnerRole) str = str + `◆ :military_medal: Role Awarded to Winners: <@&${winnerRole}>\n\n`;
   str = str + `Click the button below to enter the giveaway! :tada:`;
   const embed = new EmbedBuilder()
-    .setTitle("Giveaway [ Active ]")
+    .setTitle("Active Giveaway")
     .setDescription(str)
     .setColor("#66ff00")
     .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" });
