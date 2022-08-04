@@ -149,7 +149,7 @@ module.exports = {
             name: `${prizeName}_${guild.name}.txt`,
             description: "The file containing winners and their saved wallets."
           }],
-          embeds: [new EmbedBuilder.setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" })],
+          embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" })],
           components: [messageLinkRow],
         });
         if (winnerRole !== "NA") {
