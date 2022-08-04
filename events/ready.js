@@ -145,7 +145,7 @@ module.exports = {
         const postDescription = `Giveaway Ended\n:gift: Prize: **${prizeName}**\n:medal: Number of Winners: **${number}**\n:fox: Wallet Required: **${fileData2[8]}**`;
         postChannel.send({
           files: [{
-            attachment: '../export.txt',
+            attachment: './export.txt',
             name: `${prizeName}_${guild.name}.txt`,
             description: "The file containing winners and their saved wallets."
           }],
