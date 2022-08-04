@@ -6,7 +6,7 @@ function makeEmbed(prize, numWinners, end, multipleEntries, requirement, blackli
   if (multipleEntries) emoji = "Yes";
   let emoji2 = "No";
   if (walletReq) emoji2 = "Yes";
-  let str = `◆ :trophy: Prize : ${prize.trim()}\n\n◆ :crown: Number of Winners : ${numWinners}\n\n◆ :stopwatch: Ending On: <t:${parseInt(end / 1000)}:f> ( <t:${parseInt(end / 1000)}:R> )\n\n◆ :busts_in_silhouette: Multiple Entries Enabled: ${emoji}\n\n◆ <:ethereum:997764237025890318> Wallet Required: ${emoji2}\n\n`;
+  let str = `◆ :trophy: Prize : \`${prize.trim()}\`\n\n◆ :crown: Number of Winners : ${numWinners}\n\n◆ :stopwatch: Ending On: <t:${parseInt(end / 1000)}:f> ( <t:${parseInt(end / 1000)}:R> )\n\n◆ :busts_in_silhouette: Multiple Entries Enabled: ${emoji}\n\n◆ <:ethereum:997764237025890318> Wallet Required: ${emoji2}\n\n`;
   if (requirement) str = str + `◆ :lock: Required Role : <@&${requirement}>\n\n`;
   if (blacklisted) str = str + `◆ :x: Blacklisted Role : <@&${blacklisted}>\n\n`;
   if (winnerRole) str = str + `◆ :military_medal: Role Awarded to Winners: <@&${winnerRole}>\n\n`;

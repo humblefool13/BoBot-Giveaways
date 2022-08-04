@@ -144,12 +144,12 @@ module.exports = {
           );
         const postDescription = `Giveaway Ended\n:gift: Prize: **${prizeName}**\n:medal: Number of Winners: **${number}**\n:fox: Wallet Required: **${fileData2[8]}**`;
         postChannel.send({
+          embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
           files: [{
             attachment: './export.txt',
-            name: `${guild.name}_${prizeName}.txt`,
+            name: `${guild.name.toLowerCase().replaceAll(" ","")}_${prizeName.toLowerCase().replaceAll(" ","")}.txt`,
             description: 'File with winners\' data.'
           }],
-          embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
           components: [messageLinkRow],
         });
         if (winnerRole !== "NA") {
