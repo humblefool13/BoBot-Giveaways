@@ -1,6 +1,6 @@
 const wallets = require("../models/wallets.js");
 const subs = require("../models/subscriptions.js");
-const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder } = require('discord.js');
 const rownew = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
