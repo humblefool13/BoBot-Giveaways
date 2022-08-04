@@ -15,18 +15,22 @@ const rowchange = new ActionRowBuilder()
       .setCustomId("submitmodal")
       .setStyle(ButtonStyle.Success),
   );
-
 const modal = new ModalBuilder()
-  .setTitle("Submit Wallet")
+  .setTitle("Submit Wallet Address")
   .setCustomId("modal");
-
 const question = new TextInputBuilder()
   .setCustomId('walletAddress')
   .setLabel("Please enter your wallet address below.")
   .setStyle(TextInputStyle.Short);
-
 const firstActionRow = new ActionRowBuilder().addComponents(question);
 modal.addComponents(firstActionRow);
+function MakeEmbedDes(des) {
+  const embed = new EmbedBuilder()
+    .setColor("#35FF6E")
+    .setDescription(des)
+    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" });
+  return embed;
+};
 
 module.exports = {
   name: "submit",
@@ -36,7 +40,7 @@ module.exports = {
       const sub = subs.findOne({
         server_id: interaction.guildId,
       });
-      if (!sub) return interaction.editReply("The subscription for this server has expired, please renew at the [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to continue using the services.");
+      if (!sub) return interaction.editReply({ embeds: [MakeEmbedDes("The subscription for this server has expired, please renew at the [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to continue using the services.")] });
       const find = await wallets.findOne({
         discord_id: interaction.user.id,
         server_id: interaction.guildId,
@@ -44,14 +48,14 @@ module.exports = {
       let sent, wallet;
       if (!find) {
         sent = await interaction.editReply({
-          content: "You have not saved any wallet in this server previously. Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button. You can use ENS name.",
+          embeds: [MakeEmbedDes("You have not saved any wallet in this server previously. Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button. You can use ENS name.")],
           components: [rownew],
           fetchReply: true
         });
       } else {
         wallet = find.wallet;
         sent = await interaction.editReply({
-          content: `You have saved the wallet:\n\n**${wallet}**\n\nin this server previously. Would you like to change it to some other wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button else "Dismiss Message". You can use ENS name.`,
+          embeds: [MakeEmbedDes(`You have saved the wallet address:\n\n**${wallet}**\n\nin this server previously. Would you like to change it to some other wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button else "Dismiss Message". You can use ENS name.`)],
           components: [rowchange],
           fetchReply: true
         });
@@ -63,20 +67,20 @@ module.exports = {
         const modalfilter = (modi) => modi.customId === 'modal' && modi.user.id === interaction.user.id;
         const modalSubmit = await i.awaitModalSubmit({ modalfilter, time: 60000 }).catch((e) => { });
         if (!modalSubmit) return i.editReply({
-          content: `The wallet was not submitted within the time frame. Please "Dismiss Message" and start again.`,
+          embeds: [MakeEmbedDes(`The wallet was not submitted within the time frame. Please "Dismiss Message" and start again.`)],
           components: [],
         });
         modalSubmit.deferUpdate();
         const input = modalSubmit.fields.getTextInputValue('walletAddress');
         const walletNew = input.trim();
         if (walletNew.includes(" ")) return i.editReply({
-          content: `Please enter a valid address. The currently entered one (**${walletNew}**) includes a space \` \`.\nIf you think this is a mistake please contact BoBot Labs.`,
+          embeds: [MakeEmbedDes(`Please enter a valid address. The currently entered one (**${walletNew}**) includes a space \` \`.`)],
           components: [],
         });
         let ens = false;
-        if (walletNew.endsWith(".eth")) ens = true;
+        if (walletNew.toLowerCase().endsWith(".eth")) ens = true;
         if (!ens && (!walletNew.startsWith("0x") || walletNew.length !== 42)) return i.editReply({
-          content: `Please enter a valid address. The currently entered one (**${walletNew}**) is invalid.`,
+          embeds: [MakeEmbedDes(`Please enter a valid address. The currently entered one (**${walletNew}**) is invalid.`)],
           components: [],
         });
         if (find) {
@@ -92,12 +96,12 @@ module.exports = {
         if (wallet) {
           return i.editReply({
             components: [],
-            content: `Done! :white_check_mark:\nYour registered wallet address:\n**${wallet}**\n\nis changed to the new wallet address:\n**${walletNew}**.`,
+            embeds: [MakeEmbedDes(`Done! :white_check_mark:\nYour previously registered wallet address:\n**${wallet}**\n\nis changed to the new wallet address:\n**${walletNew}**.`)],
           });
         } else {
           return i.editReply({
             components: [],
-            content: `Congratulations! :tada:\nYou just registered your first wallet address for this server:\n**${walletNew}**. This will be automatically submitted when you win any giveaway!`,
+            embeds: [MakeEmbedDes(`Congratulations! :tada:\nYou just registered your first wallet address for this server:\n**${walletNew}**. This will be automatically submitted when you win any giveaway!`)],
           });
         };
       });
