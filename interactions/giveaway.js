@@ -2,20 +2,20 @@ const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionsB
 const configs = require("../models/configurations.js");
 const fs = require("fs");
 function makeEmbed(prize, numWinners, end, multipleEntries, requirement, blacklisted, winnerRole, walletReq) {
-  let emoji = "❌";
-  if (multipleEntries) emoji = "✅";
-  let emoji2 = "❌";
-  if (walletReq) emoji2 = "✅";
-  let str = `:white_small_square: Prize : ${prize.trim()}\n:white_small_square: Number of Winners : ${numWinners}\n:white_small_square: Ending On: <t:${parseInt(end / 1000)}:f> ( <t:${parseInt(end / 1000)}:R> )\n:white_small_square: Multiple Entries Enabled: ${emoji}\n:white_small_square: Wallet Required: ${emoji2}\n`;
-  if (requirement) str = str + `:white_small_square: Required Role : <@&${requirement}>\n`;
-  if (blacklisted) str = str + `:white_small_square: Blacklisted Role : <@&${blacklisted}>\n`;
-  if (winnerRole) str = str + `:white_small_square: Role Awarded to Winners: <@&${winnerRole}>\n`;
-  str = str + `\nClick the button below to enter the giveaway.`;
+  let emoji = "No";
+  if (multipleEntries) emoji = "Yes";
+  let emoji2 = "No";
+  if (walletReq) emoji2 = "Yes";
+  let str = `◆ :trophy: Prize : ${prize.trim()}\n\n◆ :crown: Number of Winners : ${numWinners}\n\n◆ :stopwatch: Ending On: <t:${parseInt(end / 1000)}:f> ( <t:${parseInt(end / 1000)}:R> )\n\n◆ :busts_in_silhouette: Multiple Entries Enabled: ${emoji}\n◆ <:ethereum:997764237025890318> Wallet Required: ${emoji2}\n\n`;
+  if (requirement) str = str + `◆ :lock: Required Role : <@&${requirement}>\n\n`;
+  if (blacklisted) str = str + `◆ :x: Blacklisted Role : <@&${blacklisted}>\n\n`;
+  if (winnerRole) str = str + `◆ :military_medal: Role Awarded to Winners: <@&${winnerRole}>\n\n`;
+  str = str + `Click the button below to enter the giveaway! :tada:`;
   const embed = new EmbedBuilder()
-    .setTitle("Active Giveaway")
+    .setTitle("Giveaway [ Active ]")
     .setDescription(str)
     .setColor("#66ff00")
-    .setFooter({ text: "Powered by BoBot Labs" });
+    .setFooter.setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" });
   return embed;
 };
 const row = new ActionRowBuilder()
@@ -60,11 +60,19 @@ module.exports = {
         components: [row]
       });
       const filename = "/" + [interaction.guildId, postChannel.id, sent.id].join("_") + ".txt";
-      const data = [prize, numWinners, endTimestamp, multipleEntries, (requirement ? requirement.id : "NA"), (blacklisted ? blacklisted.id : "NA"), (winnerRole ? winnerRole.id : "NA"), sent.url, (walletReq ? "YES": "NO")].join("\n");
+      const data = [prize, numWinners, endTimestamp, multipleEntries, (requirement ? requirement.id : "NA"), (blacklisted ? blacklisted.id : "NA"), (winnerRole ? winnerRole.id : "NA"), sent.url, (walletReq ? "Yes" : "No")].join("\n");
       fs.writeFileSync("./giveaways/giveawayConfigs" + filename, data);
       fs.writeFileSync("./giveaways/giveawayEntries" + filename, "");
+      const messageLinkRow = new ActionRowBuilder()
+        .addComponents(
+          new ButtonBuilder()
+            .setLabel("Jump to Giveaway")
+            .setStyle(ButtonStyle.Link)
+            .setURL(sent.url)
+        );
       return interaction.editReply({
-        content: `✅ Successfully created the giveaway - ${sent.url}`
+        content: `✅ Successfully created the giveaway`,
+        components: [messageLinkRow]
       });
     } catch (e) {
       console.log(e);

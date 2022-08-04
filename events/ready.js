@@ -97,7 +97,7 @@ module.exports = {
         const description = message.embeds[0].description;
         await message.edit({
           components: [row],
-          embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#FF0000").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" })],
+          embeds: [new EmbedBuilder().setTitle("Giveaway [ Ended ]").setDescription(description).setColor("#FF0000").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://imgur.com/yie1WVK" })],
         });
         const splitted = splitWinners(winners, 70);
         const messages = messagesGenerator(splitted);
