@@ -120,7 +120,7 @@ module.exports = {
         });
         const guild = client.guilds.cache.get(location[0]);
         let exportString = `${guild.name} - ${prizeName} Winners\n\n` + masterArray.join("\n") + "\n\n© BoBotLabs Giveaway Bot.";
-        fs.writeFileSync(`./exports/${prizeName.replaceAll(" ", "")}_${guild.name.replaceAll(" ", "")}`, exportString);
+        fs.writeFileSync(`./export.txt`, exportString);
         const config = await config_records.findOne({
           server_id: location[0],
         });
@@ -144,7 +144,11 @@ module.exports = {
           );
         const postDescription = `Giveaway Ended\n:gift: Prize: **${prizeName}**\n:medal: Number of Winners: **${number}**\n:fox: Wallet Required: **${fileData2[8]}**`;
         postChannel.send({
-          files: [`./exports/${prizeName.replaceAll(" ", "")}_${guild.name.replaceAll(" ", "")}`],
+          files: [{
+            attachment: './export.txt',
+            name: `${guild.name}_${prizeName}.txt`,
+            description: 'File with winners\' data.'
+          }],
           embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
           components: [messageLinkRow],
         });
@@ -168,7 +172,6 @@ module.exports = {
         };
         fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
         fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
-        fs.unlinkSync(`./exports/${prizeName.replaceAll(" ", "")}_${guild.name.replaceAll(" ", "")}`);
       });
     };
     endGiveaways();
