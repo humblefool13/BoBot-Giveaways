@@ -162,7 +162,7 @@ module.exports = {
             if (!member) return;
             member.roles.add(winnerRole).catch((e) => { });
           };
-          function doRoles() {
+          async function doRoles() {
             if (winnersDuplicate.length) {
               await giveRole(winnersDuplicate);
             } else {
