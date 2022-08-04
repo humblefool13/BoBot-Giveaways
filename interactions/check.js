@@ -31,7 +31,7 @@ module.exports = {
       } else {
         const wallet = find.wallet.trim();
         return interaction.editReply({
-          embeds: [MakeEmbed(`The wallet address :\n**${wallet}**\n[Opensea](<https://opensea.io/${wallet}> 'Click to open Opensea page for this wallet address.')\n[Etherscan](<https://etherscan.io/address/${wallet}> 'Click to open Etherscan page for this wallet address.')\nis set up by you for this server and will be automatically submitted when you win a raffle in this server!`)],
+          embeds: [MakeEmbed(`The wallet address :\n**${wallet}**\n[Opensea](https://opensea.io/${wallet} 'Click to open Opensea page for this wallet address.')\n[Etherscan](https://etherscan.io/address/${wallet} 'Click to open Etherscan page for this wallet address.')\nis set up by you for this server and will be automatically submitted when you win a raffle in this server!`)],
         });
       };
     } catch (e) {
