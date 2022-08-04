@@ -109,20 +109,20 @@ module.exports = {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
-          content: "I am facing some issues , the dev has been informed . Please try again in some hours.",
+          content: "I am facing some trouble, the dev has been informed. Please try again in some hours.",
           embeds: [],
           components: [],
           ephemeral: true,
         });
       } else {
         await interaction.reply({
-          content: "I am facing some issues , the dev has been informed . Please try again in some hours.",
+          content: "I am facing some trouble, the dev has been informed. Please try again in some hours.",
           embeds: [],
           components: [],
           ephemeral: true,
         });
       };
-      client.users.cache.get("727498137232736306").send(`Bobot has trouble in add.js -\n\n${e}`);
+      client.users.cache.get("727498137232736306").send(`${client.user.username} has trouble in submit.js -\n\n${e}`);
     };
   }
 }
