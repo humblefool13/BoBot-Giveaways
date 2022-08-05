@@ -15,24 +15,21 @@ const rowchange = new ActionRowBuilder()
       .setCustomId("submitmodal")
       .setStyle(ButtonStyle.Success),
   );
+const modal = new ModalBuilder()
+  .setTitle("Submit Wallet Address")
+  .setCustomId("modal");
+const question = new TextInputBuilder()
+  .setCustomId('walletAddress')
+  .setLabel("Please enter your wallet address below.")
+  .setStyle(TextInputStyle.Short);
+const firstActionRow = new ActionRowBuilder().addComponents(question);
+modal.addComponents(firstActionRow);
 function MakeEmbedDes(des) {
   const embed = new EmbedBuilder()
     .setColor("#35FF6E")
     .setDescription(des)
     .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
-};
-function makeModal(customId) {
-  const modal = new ModalBuilder()
-    .setTitle("Submit Wallet Address")
-    .setCustomId(customId);
-  const question = new TextInputBuilder()
-    .setCustomId('walletAddress')
-    .setLabel("Please enter your wallet address below.")
-    .setStyle(TextInputStyle.Short);
-  const firstActionRow = new ActionRowBuilder().addComponents(question);
-  modal.addComponents(firstActionRow);
-  return modal;
 };
 
 module.exports = {
@@ -66,10 +63,8 @@ module.exports = {
       const filter = (int) => int.customId === 'submitmodal' && int.user.id === interaction.user.id;
       const collector = await sent.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000, max: 1 });
       collector.on("collect", async (i) => {
-        const customId = `submitmodal${i.user.id}`;
-        const modal = makeModal(customId);
         await i.showModal(modal);
-        const modalfilter = (modi) => modi.customId === customId && modi.user.id === interaction.user.id;
+        const modalfilter = (modi) => modi.customId === 'modal' && modi.user.id === interaction.user.id;
         const modalSubmit = await i.awaitModalSubmit({ filter: modalfilter, time: 60000 }).catch((e) => { });
         if (!modalSubmit) return i.editReply({
           embeds: [MakeEmbedDes(`The wallet was not submitted within the time frame. Please "Dismiss Message" and start again.`)],
