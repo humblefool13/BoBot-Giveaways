@@ -70,7 +70,7 @@ module.exports = {
         const modal = makeModal(customId);
         await i.showModal(modal);
         const modalfilter = (modi) => modi.customId === customId && modi.user.id === interaction.user.id;
-        const modalSubmit = await i.awaitModalSubmit({ modalfilter, time: 60000 }).catch((e) => { });
+        const modalSubmit = await i.awaitModalSubmit({ filter: modalfilter, time: 60000 }).catch((e) => { });
         if (!modalSubmit) return i.editReply({
           embeds: [MakeEmbedDes(`The wallet was not submitted within the time frame. Please "Dismiss Message" and start again.`)],
           components: [],
