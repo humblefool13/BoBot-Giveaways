@@ -101,13 +101,21 @@ module.exports = {
         });
         const splitted = splitWinners(winners, 70);
         const messages = messagesGenerator(splitted);
-        let sent = await message.reply(`Congratulations!`);
+        const send = await message.channel.send("Just pinging to let them know ;)");
         messages.forEach(async (msg) => {
           await message.channel.send({
             content: msg,
+          }).then((sent) => { sent.delete().catch((e) => { }) }).catch((e) => { });
+        });
+        await send.delete().catch((e) => { });
+        await message.reply({
+          embeds: [new EmbedBuilder().setDescription(`Congratulations to all the **${prizeName}** winners! :tada:\n◆ Unique Entries: ${unique}\n◆ Total Entries: ${entries.length}`).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+        });
+        messages.forEach(async (msg) => {
+          await message.channel.send({
+            embeds: [new EmbedBuilder().setDescription(msg).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
           });
         });
-        await message.channel.send(`You won the **${prizeName}**!:tada:\n◆ Unique Entries: ${unique}\n◆ Total Entries: ${entries.length}`);
         const members = await client.guilds.cache.get(location[0]).members.fetch();
         const wallets = await wallets_records.find({
           server_id: location[0],
@@ -147,7 +155,7 @@ module.exports = {
           embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
           files: [{
             attachment: './export.txt',
-            name: `${guild.name.toLowerCase().replaceAll(" ","")}_${prizeName.toLowerCase().replaceAll(" ","")}.txt`,
+            name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prizeName.toLowerCase().replaceAll(" ", "")}.txt`,
             description: 'File with winners\' data.'
           }],
           components: [messageLinkRow],
