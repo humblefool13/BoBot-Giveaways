@@ -88,7 +88,7 @@ module.exports = {
           if (!winners.includes(entries[index]) && entries[index].length) {
             winners.push(entries[index]);
           };
-        } while (winners.length !== numWinners && winners.length !== unique);
+        } while (winners.length < numWinners && winners.length < unique);
         winners = shuffleArray(winners);
         const channel = await client.guilds.cache.get(location[0]).channels.fetch(location[1]).catch((e) => { });
         const message = await channel.messages.fetch(location[2]).catch((e) => { });
