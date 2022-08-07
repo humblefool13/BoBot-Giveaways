@@ -54,7 +54,13 @@ function getEntries(string) {
   let arr = [];
   const split = string.split(",");
   split.forEach((roleEntry) => {
-    const split2 = roleEntry.split(" ");
+    let vari = roleEntry.trim();
+    if (!vari.includes(" ")) {
+      const role = vari.trim().slice(0, vari.indexOf(">") + 1);
+      const entry = vari.slice(vari.indexOf(">") + 1);
+      vari = [role, entry].join(" ");
+    };
+    const split2 = vari.replaceAll("  ", " ").split(" ");
     const entry = Number(split2[1]);
     const role = split2[0].trim().slice(3, split2[0].trim().length - 1);
     arr.push([role, entry])
@@ -112,6 +118,49 @@ module.exports = {
       const rolesReq = interaction.options.getString("req-roles");
       const blacklistedRoles = interaction.options.getString("blacklist-roles");
       const winnerRole = interaction.options.getRole("winner-role-add");
+
+      if (rolesReq) {
+        let roles = 0;
+        for (i = 0; i < rolesReq.length; i++) {
+          const char = rolesReq.charAt(i);
+          const char2 = rolesReq.charAt(i + 1);
+          if (char === "@" && char2 === "&") roles++;
+        };
+        let commas = 0;
+        for (i = 0; i < rolesReq.length; i++) {
+          const char = rolesReq.charAt(i);
+          if (char === ",") commas++;
+        };
+        if (roles - 1 !== commas) return interaction.editReply(`Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
+      };
+      if (blacklistedRoles) {
+        let roles = 0;
+        for (i = 0; i < blacklistedRoles.length; i++) {
+          const char = blacklistedRoles.charAt(i);
+          const char2 = blacklistedRoles.charAt(i + 1);
+          if (char === "@" && char2 === "&") roles++;
+        };
+        let commas = 0;
+        for (i = 0; i < blacklistedRoles.length; i++) {
+          const char = blacklistedRoles.charAt(i);
+          if (char === ",") commas++;
+        };
+        if (roles - 1 !== commas) return interaction.editReply(`Please enter the blacklisted roles in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
+      };
+      if (bonus) {
+        let roles = 0;
+        for (i = 0; i < bonus.length; i++) {
+          const char = bonus.charAt(i);
+          const char2 = bonus.charAt(i + 1);
+          if (char === "@" && char2 === "&") roles++;
+        };
+        let commas = 0;
+        for (i = 0; i < bonus.length; i++) {
+          const char = bonus.charAt(i);
+          if (char === ",") commas++;
+        };
+        if (roles - 1 !== commas) return interaction.editReply(`Please enter the bonus roles in correct format.\nexample:\nFor 1 role: \`@role 5\`\nFor multiple roles: Mention the roles and state number of entries ( **separated by space** ) and the roles **must be separated by commas ","**:\n\`@role1 5, @role2 6, @role3 7 ( ... )\``);
+      };
 
       let reqRoles = "NA", blacklistRoles = "NA", entries = "NA", winnerRoles = "NA", wallet = "No";
       const endTimestamp = findTimestamp(duration.toLowerCase().trim());
