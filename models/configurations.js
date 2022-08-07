@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 
 const format = {
   server_id: String,
-  roles: [[]],
   expired : Boolean,
   expired_timestamp: Number,
   role: String,

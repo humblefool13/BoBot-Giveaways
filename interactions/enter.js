@@ -1,5 +1,4 @@
 const fs = require("fs");
-const settings = require("../models/configurations.js");
 const wallets = require("../models/wallets.js");
 const { EmbedBuilder } = require("discord.js");
 function makeEmbed(messageEmbed, entries) {
@@ -38,9 +37,11 @@ module.exports = {
         entries = [];
       };
       const configs = giveawayConfig.split("\n");
-      const multipleEntries = configs[3];
-      const roleConfigs = [configs[4], configs[5]];
-      const walletReq = configs[8];
+      const walletReq = configs[4];
+      const bonus = configs[7];
+      const blacklistRoles = configs[6];
+      const reqRoles = configs[5];
+      let bonusApplicable = "", userEntries = 1;
       if (walletReq === "Yes") {
         const wallet = await wallets.findOne({
           discord_id: interaction.user.id,
@@ -48,31 +49,39 @@ module.exports = {
         });
         if (!wallet) return interaction.editReply({ embeds: [MakeEmbedDes("You need to save a wallet address before entering this giveaway.")] });
       };
-      const roles = interaction.member.roles.cache;
-      if (roleConfigs[0] !== "NA" && !roles.has(roleConfigs[0])) return interaction.editReply({ embeds: [MakeEmbedDes(`You do not have the required role to enter this giveaway - <@&${roleConfigs[0]}>.`)] });
-      if (roleConfigs[1] !== "NA" && roles.has(roleConfigs[1])) return interaction.editReply({ embeds: [MakeEmbedDes(`You are blacklisted from entering the giveaway since you have the blacklisted role - <@&${roleConfigs[1]}>.`)] });
-      let userEntries = 1;
-      const server_data = await settings.findOne({
-        server_id: interaction.guildId,
-      });
-      let roleApplicable = ``;
-      if (multipleEntries.toLowerCase().trim() === "true") {
-        const roleEntries = server_data.roles;
-        roleEntries.forEach((roleArray) => {
-          const role = roleArray[0];
-          const entry = roleArray[1];
-          if (roles.has(role)) {
+      const memberRoles = interaction.member.roles.cache;
+      if (reqRoles !== "NA") {
+        const req_roles = reqRoles.split(",");
+        let reqFound = false;
+        req_roles.forEach((roleId) => {
+          if (memberRoles.has(roleId)) reqFound = true;
+        });
+        if (!reqFound) return interaction.editReply({ embeds: [MakeEmbedDes(`You do not have any of the required roles to enter this giveaway.`)] });
+      };
+      if (blacklistRoles !== "NA") {
+        const black_roles = blacklistRoles.split(",");
+        let blackFound = false;
+        black_roles.forEach((roleId) => {
+          if (memberRoles.has(roleId)) blackFound = true;
+        });
+        if (blackFound) return interaction.editReply({ embeds: [MakeEmbedDes(`You are blacklisted from entering the giveaway since you have one or more of the blacklisted roles.`)] });
+      };
+      if (bonus !== "NA") {
+        const roleStrings = bonus.split(",");
+        roleStrings.forEach((roleString) => {
+          const roleAndEntries = roleString.split("-");
+          const roleID = roleAndEntries[0];
+          const entry = Number(roleAndEntries[1]);
+          if (memberRoles.has(roleID)) {
             userEntries += entry;
-            roleApplicable += `<@&${role}> = ${entry} entries\n`;
+            bonusApplicable = bonusApplicable + `<@&${roleID}> - ${entry} Entries\n`;
           };
         });
-        for (i = 1; i <= userEntries; i++) {
-          entries.push(interaction.member.id);
-        };
-      } else {
+      };
+      for (i = 1; i <= userEntries; i++) {
         entries.push(interaction.member.id);
       };
-      let entriesString = entries.join("\n");
+      const entriesString = entries.join("\n");
       fs.writeFileSync(`./giveaways/giveawayEntries/${giveawayEntriesFile}`, entriesString);
       const totalEntriesNew = entries.length;
       const locationString = giveawayConfigsFile.slice(0, giveawayConfigsFile.length - 4);
@@ -85,8 +94,8 @@ module.exports = {
         components: message.components,
       });
       let replyContent;
-      if (roleApplicable) {
-        replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\n${roleApplicable}\nGoodluck! :slight_smile:`;
+      if (bonusApplicable) {
+        replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\n${bonusApplicable}\nGoodluck! :slight_smile:`;
       } else {
         replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries!\nGoodluck! :slight_smile:`;
       };

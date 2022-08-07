@@ -1,22 +1,65 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionsBitField } = require("discord.js");
 const configs = require("../models/configurations.js");
-const fs = require("fs");
-function makeEmbed(prize, numWinners, end, multipleEntries, requirement, blacklisted, winnerRole, walletReq) {
-  let emoji = "No";
-  if (multipleEntries) emoji = "Yes";
-  let emoji2 = "No";
-  if (walletReq) emoji2 = "Yes";
-  let str = `◆ :trophy: Prize : \`${prize.trim()}\`\n\n◆ :crown: Number of Winners : ${numWinners}\n\n◆ :stopwatch: Ending On: <t:${parseInt(end / 1000)}:f> ( <t:${parseInt(end / 1000)}:R> )\n\n◆ :busts_in_silhouette: Multiple Entries Enabled: ${emoji}\n\n◆ <:ethereum:997764237025890318> Wallet Required: ${emoji2}\n\n`;
-  if (requirement) str = str + `◆ :lock: Required Role : <@&${requirement}>\n\n`;
-  if (blacklisted) str = str + `◆ :x: Blacklisted Role : <@&${blacklisted}>\n\n`;
-  if (winnerRole) str = str + `◆ :military_medal: Role Awarded to Winners: <@&${winnerRole}>\n\n`;
-  str = str + `Click the button below to enter the giveaway! :tada:`;
+const { writeFileSync } = require("fs");
+function makeEmbed(prize, winners, endTimestamp, walletReq, reqRoles, blacklistRoles, entries, winnerRoles) {
+  let descriptionString = "";
+  descriptionString = descriptionString + `◆ :trophy: **Prize Name** : \`${prize}\`\n\n`;
+  descriptionString = descriptionString + `◆ :crown: **Number of Winners** : ${winners}\n\n`;
+  descriptionString = descriptionString + `◆ :stopwatch: **Ending On** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
+  descriptionString = descriptionString + `◆ <:ethereum:997764237025890318> **Wallet Required** : ${walletReq}\n\n`;
+  if (winnerRoles !== "NA") descriptionString = descriptionString + `◆ :military_medal: **Role Awarded to Winners** : <@&${winnerRoles}>\n\n`;
+  if (reqRoles !== "NA") descriptionString = descriptionString + `◆ :lock: **Must have any of following roles to enter** :\n<@&${reqRoles.join(">, <@&")}>\n\n`;
+  if (blacklistRoles !== "NA") descriptionString = descriptionString + `◆ :x: **Must *not* have any of following roles to enter** :\n<@&${blacklistRoles.join(">, <@&")}>\n\n`;
+  if (entries !== "NA") {
+    descriptionString = descriptionString + "◆ :busts_in_silhouette: **Roles with Multiple Entries** :\n";
+    entries.forEach((roleArray) => {
+      descriptionString = descriptionString + `<@&${roleArray[0]}> - ${roleArray[1]} Entries\n`;
+    });
+    descriptionString = descriptionString + "\n";
+  };
+  descriptionString = descriptionString + "Click the button below to enter the giveaway! :tada:";
   const embed = new EmbedBuilder()
     .setTitle("Active Giveaway")
-    .setDescription(str)
+    .setDescription(descriptionString)
     .setColor("#66ff00")
     .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
+};
+function findTimestamp(durationString) {
+  const split = durationString.split(" ");
+  let timestamp = Date.now();
+  split.forEach((timeString) => {
+    const TimeNumber = Number(timeString.trim().slice(0, timeString.length - 1));
+    if (timeString.includes("d")) {
+      timestamp += TimeNumber * 24 * 60 * 60 * 1000;
+    } else if (timeString.includes("h")) {
+      timestamp += TimeNumber * 60 * 60 * 1000;
+    } else if (timeString.includes("m")) {
+      timestamp += TimeNumber * 60 * 1000;
+    };
+  });
+  return timestamp;
+};
+function parseRoles(string) {
+  let roles = [];
+  const split = string.split(",");
+  split.forEach((role) => {
+    const trim = role.trim();
+    const roleId = trim.slice(3, trim.length - 1);
+    roles.push(roleId);
+  });
+  return roles;
+};
+function getEntries(string) {
+  let arr = [];
+  const split = string.split(",");
+  split.forEach((roleEntry) => {
+    const split2 = roleEntry.split(" ");
+    const entry = Number(split2[1]);
+    const role = split2[0].trim().slice(3, split2[0].trim().length - 1);
+    arr.push([role, entry])
+  });
+  return arr;
 };
 const row = new ActionRowBuilder()
   .addComponents(
@@ -26,6 +69,26 @@ const row = new ActionRowBuilder()
       .setCustomId("enter")
       .setStyle(ButtonStyle.Primary)
   );
+function stringa(roles) {
+  if (typeof roles === "string") {
+    return "NA";
+  } else {
+    const string = roles.join(",");
+    return string;
+  };
+};
+function stringaoa(rolesEntry) {
+  if (typeof roles === "string") {
+    return "NA";
+  } else {
+    let arr = [];
+    rolesEntry.forEach((roleArray) => {
+      const string = roleArray.join("-");
+      arr.push(string);
+    });
+    return arr.join(",");
+  };
+};
 
 module.exports = {
   name: "giveaway",
@@ -39,30 +102,40 @@ module.exports = {
       if (!interaction.member.roles.cache.has(managerRole)) return interaction.editReply({
         content: `Only <@&${managerRole}> can use this command.`
       });
+
       const prize = interaction.options.getString("prize");
-      const postChannel = interaction.options.getChannel('channel');
-      const numWinners = interaction.options.getInteger('winners');
-      const hours = interaction.options.getInteger('hours');
-      const multipleEntries = interaction.options.getBoolean('multiple_entries');
-      const walletReq = interaction.options.getBoolean('req-wallet');
-      const requirement = interaction.options.getRole('req-role');
-      const blacklisted = interaction.options.getRole('blacklist');
-      const winnerRole = interaction.options.getRole('winner-role-add');
-      const endTimestamp = interaction.createdTimestamp + hours * 60 * 60 * 1000;
-      const permissions = postChannel.permissionsFor(client.user.id);
+      const channel = interaction.options.getChannel("channel");
+      const winners = interaction.options.getInteger("winners");
+      const duration = interaction.options.getString("duration");
+      const walletReq = interaction.options.getBoolean("req-wallet");
+      const bonus = interaction.options.getString("bonus-entries");
+      const rolesReq = interaction.options.getString("req-roles");
+      const blacklistedRoles = interaction.options.getString("blacklist-roles");
+      const winnerRole = interaction.options.getRole("winner-role-add");
+
+      let reqRoles = "NA", blacklistRoles = "NA", entries = "NA", winnerRoles = "NA", wallet = "No";
+      const endTimestamp = findTimestamp(duration.toLowerCase().trim());
+      if (rolesReq) reqRoles = parseRoles(rolesReq);
+      if (blacklistedRoles) blacklistRoles = parseRoles(blacklistedRoles);
+      if (bonus) entries = getEntries(bonus);
+      if (winnerRole) winnerRoles = winnerRole.id;
+      if (walletReq) wallet = "Yes";
+
+      const permissions = channel.permissionsFor(client.user.id);
       if (!permissions.has(PermissionsBitField.Flags.ViewChannel)) return interaction.editReply(`Please give me the following permissions in <#${postChannel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
       if (!permissions.has(PermissionsBitField.Flags.SendMessages)) return interaction.editReply(`Please give me the following permissions in <#${postChannel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
       if (!permissions.has(PermissionsBitField.Flags.ReadMessageHistory)) return interaction.editReply(`Please give me the following permissions in <#${postChannel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
       if (!permissions.has(PermissionsBitField.Flags.EmbedLinks)) return interaction.editReply(`Please give me the following permissions in <#${postChannel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-      const embed = makeEmbed(prize, numWinners, endTimestamp, multipleEntries, requirement?.id, blacklisted?.id, winnerRole?.id, walletReq);
+
+      const embed = makeEmbed(prize, winners, endTimestamp, wallet, reqRoles, blacklistRoles, entries, winnerRoles);
       const sent = await postChannel.send({
         embeds: [embed],
         components: [row]
       });
       const filename = "/" + [interaction.guildId, postChannel.id, sent.id].join("_") + ".txt";
-      const data = [prize, numWinners, endTimestamp, multipleEntries, (requirement ? requirement.id : "NA"), (blacklisted ? blacklisted.id : "NA"), (winnerRole ? winnerRole.id : "NA"), sent.url, (walletReq ? "Yes" : "No")].join("\n");
-      fs.writeFileSync("./giveaways/giveawayConfigs" + filename, data);
-      fs.writeFileSync("./giveaways/giveawayEntries" + filename, "");
+      const data = [prize, winners, endTimestamp, winnerRoles, wallet, stringa(reqRoles), stringa(blacklistRoles), stringaoa(entries), sent.url].join("\n");
+      writeFileSync("./giveaways/giveawayConfigs" + filename, data);
+      writeFileSync("./giveaways/giveawayEntries" + filename, "");
       const messageLinkRow = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
