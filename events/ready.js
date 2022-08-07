@@ -1,7 +1,8 @@
 const fs = require("fs");
 const config_records = require("../models/configurations.js");
 const wallets_records = require("../models/wallets.js");
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType  } = require("discord.js");
+const sub_records = require("../models/subscriptions.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType } = require("discord.js");
 
 const row = new ActionRowBuilder()
   .addComponents(
@@ -163,16 +164,16 @@ module.exports = {
               .setStyle(ButtonStyle.Link)
               .setURL(sent.url)
           );
-          const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n:fox: Wallet Required: **${walletReq}**`;
-          postChannel.send({
-            embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
-            files: [{
-              attachment: './export.txt',
-              name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
-              description: 'File with winners\' data.'
-            }],
-            components: [messageLinkRow],
-          });
+        const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n:fox: Wallet Required: **${walletReq}**`;
+        postChannel.send({
+          embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+          files: [{
+            attachment: './export.txt',
+            name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
+            description: 'File with winners\' data.'
+          }],
+          components: [messageLinkRow],
+        });
         if (winnerRole !== "NA") {
           let winnersDuplicate = winners;
           const interval = setInterval(doRoles, 800);
@@ -197,5 +198,47 @@ module.exports = {
     };
     endGiveaways();
     setInterval(endGiveaways, 60 * 1000);
+
+    async function checkSubs() {
+      const subs = await sub_records.find();
+      subs.forEach(async (sub) => {
+        const end_timestamp = sub.end_timestamp;
+        if (Date.now() < end_timestamp) return;
+        await sub_records.deleteOne({
+          server_id: sub.server_id,
+        }).catch((e) => {
+          console.log(e);
+        });
+        const config = await config_records.findOne({
+          server_id: sub.server_id,
+        }).catch((e) => {
+          console.log(e);
+        });
+        if (!config) return;
+        config.expired = true;
+        config.expired_timestamp = Date.now();
+        await config.save().catch((e) => { });
+      });
+      const configs = await config_records.find({
+        expired: true,
+      });
+      configs.forEach(async (config) => {
+        const timestamp = config.expired_timestamp;
+        const diff = Date.now() - timestamp;
+        if (diff < 1000 * 60 * 60 * 24 * 7) return;
+        await config_records.deleteOne({
+          server_id: config.server_id,
+        }).catch((e) => {
+          console.log(e);
+        });
+        await wallets_records.deleteMany({
+          server_id: config.server_id,
+        }).catch((e) => {
+          console.log(e);
+        });
+      });
+    };
+    checkSubs();
+    setInterval(checkSubs, 10 * 60 * 1000);
   },
 };
