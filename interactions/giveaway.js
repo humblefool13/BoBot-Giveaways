@@ -1,5 +1,6 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionsBitField } = require("discord.js");
 const configs = require("../models/configurations.js");
+const subs = require("../models/subscriptions.js");
 const { writeFileSync } = require("fs");
 function makeEmbed(prize, winners, endTimestamp, walletReq, reqRoles, blacklistRoles, entries, winnerRoles) {
   let descriptionString = "";
@@ -95,12 +96,25 @@ function stringaoa(rolesEntry) {
     return arr.join(",");
   };
 };
+function MakeEmbedDes(des) {
+  const embed = new EmbedBuilder()
+    .setColor("#35FF6E")
+    .setDescription(des)
+    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
+  return embed;
+};
 
 module.exports = {
   name: "giveaway",
   async interact(client, interaction) {
     try {
       await interaction.deferReply({ ephemeral: true });
+      const sub = subs.findOne({
+        server_id: interaction.guildId,
+      });
+      if (!sub) return interaction.editReply({
+        embeds: [MakeEmbedDes("The subscription for this server has expired, please renew at the [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to continue using the services.")],
+      });
       const getRole = await configs.findOne({
         server_id: interaction.guildId,
       });
