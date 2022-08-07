@@ -1,7 +1,7 @@
 const fs = require("fs");
 const config_records = require("../models/configurations.js");
 const wallets_records = require("../models/wallets.js");
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType  } = require("discord.js");
 
 const row = new ActionRowBuilder()
   .addComponents(
@@ -59,6 +59,7 @@ module.exports = {
   once: true,
   async execute(client) {
     console.log(`!!!!! ${client.user.tag} IS ON !!!!!`);
+    client.user.setActivity('Your Giveaways!', { type: ActivityType.Watching });
 
     //////////////////////// GIVEAWAYS ////////////////////////
 
