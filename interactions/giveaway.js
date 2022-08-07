@@ -84,7 +84,7 @@ function stringa(roles) {
   };
 };
 function stringaoa(rolesEntry) {
-  if (typeof roles === "string") {
+  if (typeof rolesEntry === "string") {
     return "NA";
   } else {
     let arr = [];
