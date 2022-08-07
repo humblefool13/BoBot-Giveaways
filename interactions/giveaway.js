@@ -3,15 +3,15 @@ const configs = require("../models/configurations.js");
 const { writeFileSync } = require("fs");
 function makeEmbed(prize, winners, endTimestamp, walletReq, reqRoles, blacklistRoles, entries, winnerRoles) {
   let descriptionString = "";
-  descriptionString = descriptionString + `◆ :trophy: **Prize Name** : \`${prize}\`\n\n`;
-  descriptionString = descriptionString + `◆ :crown: **Number of Winners** : ${winners}\n\n`;
-  descriptionString = descriptionString + `◆ :stopwatch: **Ending On** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
-  descriptionString = descriptionString + `◆ <:ethereum:997764237025890318> **Wallet Required** : ${walletReq}\n\n`;
-  if (winnerRoles !== "NA") descriptionString = descriptionString + `◆ :military_medal: **Role Awarded to Winners** : <@&${winnerRoles}>\n\n`;
-  if (reqRoles !== "NA") descriptionString = descriptionString + `◆ :lock: **Must have any of following roles to enter** :\n<@&${reqRoles.join(">, <@&")}>\n\n`;
-  if (blacklistRoles !== "NA") descriptionString = descriptionString + `◆ :x: **Must *not* have any of following roles to enter** :\n<@&${blacklistRoles.join(">, <@&")}>\n\n`;
+  descriptionString = descriptionString + `:trophy: **Prize Name** : \`${prize}\`\n\n`;
+  descriptionString = descriptionString + `:crown: **Number of Winners** : ${winners}\n\n`;
+  descriptionString = descriptionString + `:stopwatch: **Ending On** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
+  descriptionString = descriptionString + `<:ethereum:997764237025890318> **Wallet Required** : ${walletReq}\n\n`;
+  if (winnerRoles !== "NA") descriptionString = descriptionString + `:military_medal: **Role Awarded to Winners** : <@&${winnerRoles}>\n\n`;
+  if (reqRoles !== "NA") descriptionString = descriptionString + `:lock: **Must have any of these roles** :\n<@&${reqRoles.join(">, <@&")}>\n\n`;
+  if (blacklistRoles !== "NA") descriptionString = descriptionString + `:x: **Must __*not*__ have any of these roles** :\n<@&${blacklistRoles.join(">, <@&")}>\n\n`;
   if (entries !== "NA") {
-    descriptionString = descriptionString + "◆ :busts_in_silhouette: **Roles with Multiple Entries** :\n";
+    descriptionString = descriptionString + ":busts_in_silhouette: **Roles with Multiple Entries** :\n";
     entries.forEach((roleArray) => {
       descriptionString = descriptionString + `<@&${roleArray[0]}> - ${roleArray[1]} Entries\n`;
     });
