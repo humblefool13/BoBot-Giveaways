@@ -112,7 +112,7 @@ module.exports = {
         });
         await send.delete().catch((e) => { });
         const sent = await message.reply({
-          embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n◆ :bust_in_silhouette: Unique Entries: ${unique}\n◆ :busts_in_silhouette: Total Entries: ${entries.length}`).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+          embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n◆ :bust_in_silhouette: Unique Entries: ${unique}\n◆ :busts_in_silhouette: Total Entries: ${entries.length}`).setColor("#8A45FF")],
         });
         messages.forEach(async (msg) => {
           await message.channel.send({
@@ -167,7 +167,7 @@ module.exports = {
             embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
             files: [{
               attachment: './export.txt',
-              name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prizeName.toLowerCase().replaceAll(" ", "")}.txt`,
+              name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
               description: 'File with winners\' data.'
             }],
             components: [messageLinkRow],
