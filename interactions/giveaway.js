@@ -171,17 +171,17 @@ module.exports = {
       if (walletReq) wallet = "Yes";
 
       const permissions = channel.permissionsFor(client.user.id);
-      if (!permissions.has(PermissionsBitField.Flags.ViewChannel)) return interaction.editReply(`Please give me the following permissions in <#${postChannel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-      if (!permissions.has(PermissionsBitField.Flags.SendMessages)) return interaction.editReply(`Please give me the following permissions in <#${postChannel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-      if (!permissions.has(PermissionsBitField.Flags.ReadMessageHistory)) return interaction.editReply(`Please give me the following permissions in <#${postChannel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-      if (!permissions.has(PermissionsBitField.Flags.EmbedLinks)) return interaction.editReply(`Please give me the following permissions in <#${postChannel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
+      if (!permissions.has(PermissionsBitField.Flags.ViewChannel)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
+      if (!permissions.has(PermissionsBitField.Flags.SendMessages)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
+      if (!permissions.has(PermissionsBitField.Flags.ReadMessageHistory)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
+      if (!permissions.has(PermissionsBitField.Flags.EmbedLinks)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
 
       const embed = makeEmbed(prize, winners, endTimestamp, wallet, reqRoles, blacklistRoles, entries, winnerRoles);
-      const sent = await postChannel.send({
+      const sent = await channel.send({
         embeds: [embed],
         components: [row]
       });
-      const filename = "/" + [interaction.guildId, postChannel.id, sent.id].join("_") + ".txt";
+      const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
       const data = [prize, winners, endTimestamp, winnerRoles, wallet, stringa(reqRoles), stringa(blacklistRoles), stringaoa(entries), sent.url].join("\n");
       writeFileSync("./giveaways/giveawayConfigs" + filename, data);
       writeFileSync("./giveaways/giveawayEntries" + filename, "");
