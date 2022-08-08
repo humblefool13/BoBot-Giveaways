@@ -16,6 +16,14 @@ function MakeEmbedDes(des) {
     .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
 };
+function findunique(entries) {
+  let unique = [];
+  entries.forEach((entry) => {
+    if (unique.includes(entry)) return;
+    unique.push(entry);
+  });
+  return unique.length;
+};
 
 module.exports = {
   name: "enter",
@@ -83,12 +91,12 @@ module.exports = {
       };
       const entriesString = entries.join("\n");
       fs.writeFileSync(`./giveaways/giveawayEntries/${giveawayEntriesFile}`, entriesString);
-      const totalEntriesNew = entries.length;
       const locationString = giveawayConfigsFile.slice(0, giveawayConfigsFile.length - 4);
       const location = locationString.split("_");
       const channel = await client.guilds.cache.get(location[0]).channels.fetch(location[1]);
+      const uniqueEntries = findunique(entries);
       const message = await channel.messages.fetch(location[2]);
-      const embed = makeEmbed(message.embeds[0], totalEntriesNew);
+      const embed = makeEmbed(message.embeds[0], uniqueEntries);
       await message.edit({
         embeds: [embed],
         components: message.components,
