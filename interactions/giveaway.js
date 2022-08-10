@@ -22,7 +22,7 @@ function makeEmbed(prize, winners, endTimestamp, walletReq, reqRoles, blacklistR
   const embed = new EmbedBuilder()
     .setTitle("Active Giveaway")
     .setDescription(descriptionString)
-    .setColor("#66ff00")
+    .setColor("#35FF6E")
     .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
 };
