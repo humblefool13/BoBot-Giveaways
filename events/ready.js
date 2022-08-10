@@ -3,7 +3,7 @@ const config_records = require("../models/configurations.js");
 const wallets_records = require("../models/wallets.js");
 const sub_records = require("../models/subscriptions.js");
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType } = require("discord.js");
-
+let i = 1;
 const row = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
@@ -102,20 +102,25 @@ module.exports = {
         const description = message.embeds[0].description;
         await message.edit({
           components: [row],
-          embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#FF0000").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+          embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
         });
         const splitted = splitWinners(winners, 70);
         const messages = messagesGenerator(splitted);
-        const send = await message.channel.send("Just pinging to let them know ;)");
         messages.forEach(async (msg) => {
           await message.channel.send({
             content: msg,
           }).then((sent) => { sent.delete().catch((e) => { }) }).catch((e) => { });
         });
-        await send.delete().catch((e) => { });
-        const sent = await message.reply({
-          embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n◆ :bust_in_silhouette: Unique Entries: ${unique}\n◆ :busts_in_silhouette: Total Entries: ${entries.length}`).setColor("#8A45FF")],
-        });
+        let sent;
+        if (unique !== entries.length) {
+          sent = await message.reply({
+            embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Unique Entries: ${unique}\n:busts_in_silhouette: Total Entries: ${entries.length}`).setColor("#8A45FF")],
+          });
+        } else {
+          sent = await message.reply({
+            embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Entries: ${unique}`).setColor("#8A45FF")],
+          });
+        };
         messages.forEach(async (msg) => {
           await message.channel.send({
             embeds: [new EmbedBuilder().setDescription(msg).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
@@ -127,22 +132,22 @@ module.exports = {
           const wallets = await wallets_records.find({
             server_id: location[0],
           });
-          masterArray = [["User ID", "User Tag", "Submitted Wallet\n"].join(",")];
+          masterArray = [["User Tag", "Submitted Wallet\n"].join(",")];
           winners.forEach((winner) => {
             const member = members.find((m) => m.id === winner) ? members.find((m) => m.id === winner) : { user: { tag: "Not Found" } };
             const userWallet = wallets.find((saved) => saved.discord_id === winner) ? wallets.find((saved) => saved.discord_id === winner) : { wallet: "Not Submitted" };
-            masterArray.push([winner, member.user.tag, userWallet.wallet].join(","));
+            masterArray.push([member.user.tag, userWallet.wallet].join(","));
           });
         } else {
-          masterArray = [["User ID", "User Tag\n"].join(",")];
+          masterArray = ["User Tag\n"];
           winners.forEach((winner) => {
             const member = members.find((m) => m.id === winner) ? members.find((m) => m.id === winner) : { user: { tag: "Not Found" } };
-            masterArray.push([winner, member.user.tag].join(","));
+            masterArray.push(member.user.tag);
           });
         };
         const guild = client.guilds.cache.get(location[0]);
         const exportString = `${guild.name} - ${prize} Winners\n\n` + masterArray.join("\n") + "\n\n© BoBotLabs Giveaway Bot.";
-        fs.writeFileSync(`./export.txt`, exportString);
+        fs.writeFileSync(`./exports/export${i}.txt`, exportString);
         const config = await config_records.findOne({
           server_id: location[0],
         });
@@ -168,7 +173,7 @@ module.exports = {
         postChannel.send({
           embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
           files: [{
-            attachment: './export.txt',
+            attachment: `./exports/export${i}.txt`,
             name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
             description: 'File with winners\' data.'
           }],
@@ -192,6 +197,8 @@ module.exports = {
             };
           };
         };
+        ++i;
+        if (i === 11) i = 1;
         fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
         fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
       });
