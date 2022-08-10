@@ -68,6 +68,8 @@ module.exports = {
       const giveawaysConfigsDir = fs.readdirSync("./giveaways/giveawayConfigs");
       giveawaysConfigsDir.forEach(async (file) => {
         if (file.includes("processing")) return;
+        ++i;
+        if (i === 11) i = 1;
         const fileData1 = fs.readFileSync(`./giveaways/giveawayConfigs/${file}`, { encoding: 'utf8', flag: 'r' });
         const fileData2 = fileData1.split("\n");
         const endTimestamp = Number(fileData2[2]);
@@ -197,8 +199,6 @@ module.exports = {
             };
           };
         };
-        ++i;
-        if (i === 11) i = 1;
         fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
         fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
       });
