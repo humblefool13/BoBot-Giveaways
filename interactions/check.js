@@ -31,7 +31,7 @@ module.exports = {
       } else {
         const wallet = find.wallet.trim();
         return interaction.editReply({
-          embeds: [MakeEmbed(`The wallet address :\n**${wallet}**\nis set up by you for this server and will be automatically submitted when you win a raffle in this server!`)],
+          embeds: [MakeEmbed(`The wallet address:\n\n**${wallet}**\n\nis set up by you for this server and will be automatically submitted when you win a raffle in this server!`)],
         });
       };
     } catch (e) {

@@ -82,7 +82,7 @@ module.exports = {
           const entry = Number(roleAndEntries[1]);
           if (memberRoles.has(roleID)) {
             userEntries += entry;
-            bonusApplicable = bonusApplicable + `<@&${roleID}> - ${entry} Entries\n`;
+            bonusApplicable = bonusApplicable + `<@&${roleID}> = +${entry} Entries\n`;
           };
         });
       };

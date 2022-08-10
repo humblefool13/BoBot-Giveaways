@@ -14,7 +14,7 @@ function makeEmbed(prize, winners, endTimestamp, walletReq, reqRoles, blacklistR
   if (entries !== "NA") {
     descriptionString = descriptionString + ":busts_in_silhouette: **Roles with Multiple Entries** :\n";
     entries.forEach((roleArray) => {
-      descriptionString = descriptionString + `<@&${roleArray[0]}> - ${roleArray[1]} Entries\n`;
+      descriptionString = descriptionString + `<@&${roleArray[0]}> = +${roleArray[1]} Entries\n`;
     });
     descriptionString = descriptionString + "\n";
   };
