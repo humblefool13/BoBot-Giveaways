@@ -68,13 +68,13 @@ module.exports = {
       const giveawaysConfigsDir = fs.readdirSync("./giveaways/giveawayConfigs");
       giveawaysConfigsDir.forEach(async (file) => {
         if (file.includes("processing")) return;
-        ++i;
-        ++i;
-        if (i === 11) i = 1;
         const fileData1 = fs.readFileSync(`./giveaways/giveawayConfigs/${file}`, { encoding: 'utf8', flag: 'r' });
         const fileData2 = fileData1.split("\n");
         const endTimestamp = Number(fileData2[2]);
         if (Date.now() < endTimestamp) return;
+        ++i;
+        ++i;
+        if (i === 11) i = 1;
         const prize = fileData2[0];
         const numWinners = fileData2[1];
         const winnerRole = fileData2[3];
