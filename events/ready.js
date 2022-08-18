@@ -69,6 +69,7 @@ module.exports = {
       giveawaysConfigsDir.forEach(async (file) => {
         if (file.includes("processing")) return;
         ++i;
+        ++i;
         if (i === 11) i = 1;
         const fileData1 = fs.readFileSync(`./giveaways/giveawayConfigs/${file}`, { encoding: 'utf8', flag: 'r' });
         const fileData2 = fileData1.split("\n");
@@ -77,7 +78,6 @@ module.exports = {
         const prize = fileData2[0];
         const numWinners = fileData2[1];
         const winnerRole = fileData2[3];
-        const walletReq = fileData2[4];
         const msgUrl = fileData2[8];
         fs.rename(`./giveaways/giveawayConfigs/${file}`, `./giveaways/giveawayConfigs/processing-${file}`, (e) => { if (e) console.log(e) });
         const entries1 = fs.readFileSync(`./giveaways/giveawayEntries/${file}`, { encoding: 'utf8', flag: 'r' });
@@ -128,28 +128,22 @@ module.exports = {
             embeds: [new EmbedBuilder().setDescription(msg).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
           });
         });
-        const members = await client.guilds.cache.get(location[0]).members.fetch();
-        let masterArray = [];
-        if (walletReq === "Yes") {
-          const wallets = await wallets_records.find({
-            server_id: location[0],
-          });
-          masterArray = [["User Tag", "Submitted Wallet\n"].join(",")];
-          winners.forEach((winner) => {
-            const member = members.find((m) => m.id === winner) ? members.find((m) => m.id === winner) : { user: { tag: "Not Found" } };
-            const userWallet = wallets.find((saved) => saved.discord_id === winner) ? wallets.find((saved) => saved.discord_id === winner) : { wallet: "Not Submitted" };
-            masterArray.push([member.user.tag, userWallet.wallet].join(","));
-          });
-        } else {
-          masterArray = ["User Tag\n"];
-          winners.forEach((winner) => {
-            const member = members.find((m) => m.id === winner) ? members.find((m) => m.id === winner) : { user: { tag: "Not Found" } };
-            masterArray.push(member.user.tag);
-          });
-        };
-        const guild = client.guilds.cache.get(location[0]);
+        const members = await client.guilds.cache.get(location[0]).members.fetch().catch((e)=>{});
+        let masterArrayWallet = [["User Tag", "Submitted Wallet\n"].join(",")];
+        let masterArray = [["User Tag", "User ID\n"].join(",")];
+        const wallets = await wallets_records.find({
+          server_id: location[0],
+        });
+        winners.forEach((winner) => {
+          const member = members.find((m) => m.id === winner) ? members.find((m) => m.id === winner) : { user: { tag: "Not Found" } };
+          const userWallet = wallets.find((saved) => saved.discord_id === winner) ? wallets.find((saved) => saved.discord_id === winner) : { wallet: "Not Submitted" };
+          masterArrayWallet.push([member.user.tag, userWallet.wallet].join(","));
+          masterArray.push([member.user.tag, winner].join(","));
+        });
         const exportString = `${guild.name} - ${prize} Winners\n\n` + masterArray.join("\n") + "\n\n© BoBotLabs Giveaway Bot.";
+        const exportStringWallet = `${guild.name} - ${prize} Winners Wallet Addresses\n\n` + masterArrayWallet.join("\n") + "\n\n© BoBotLabs Giveaway Bot.";
         fs.writeFileSync(`./exports/export${i}.txt`, exportString);
+        fs.writeFileSync(`./exports/export${i + 1}.txt`, exportStringWallet);
         const config = await config_records.findOne({
           server_id: location[0],
         });
@@ -171,13 +165,19 @@ module.exports = {
               .setStyle(ButtonStyle.Link)
               .setURL(sent.url)
           );
-        const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n:fox: Wallet Required: **${walletReq}**`;
-        postChannel.send({
+        const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**`;
+        await postChannel.send({
           embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+        });
+        postChannel.send({
           files: [{
             attachment: `./exports/export${i}.txt`,
             name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
             description: 'File with winners\' data.'
+          }, {
+            attachment: `./exports/export${i + 1}.txt`,
+            name: `Wallets-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
+            description: 'File with winners\' wallet data.'
           }],
           components: [messageLinkRow],
         });
