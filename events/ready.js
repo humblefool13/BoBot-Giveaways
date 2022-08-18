@@ -129,6 +129,7 @@ module.exports = {
           });
         });
         const members = await client.guilds.cache.get(location[0]).members.fetch().catch((e)=>{});
+        const guild = client.guilds.cache.get(location[0]);
         let masterArrayWallet = [["User Tag", "Submitted Wallet\n"].join(",")];
         let masterArray = [["User Tag", "User ID\n"].join(",")];
         const wallets = await wallets_records.find({
