@@ -6,9 +6,9 @@ const { ChannelType, PermissionsBitField, EmbedBuilder, ButtonBuilder, ButtonSty
 function makeEmbed(name, guild_icon, guild_id) {
   const embed = new EmbedBuilder()
     .setTitle("Wallet Address Submission")
-    .setDescription(`Hello there! :wave:\n\n<a:hexstar:1002639618409250836> __**${name}**__ uses BoBot Lab's Giveaway Bot for most advanced giveaways and post giveaways operations.\n<a:hexstar:1002639618409250836> Everytime you win a giveaway, your wallet address is instantly and automatically submitted.\n\nTo faciliate above please submit your wallet using the **Submit** button below!\n\nPlease make sure you enter the wallet address you want to be submitted to projects for the WLs you win.\n**[ :warning: Burner wallet highly recommended :warning: ]**`)
+    .setDescription(`Hello there! :wave:\n\n<a:hexstar:1002639618409250836> __**${name}**__ uses BoBot Lab's Giveaway Bot for most advanced giveaways and post giveaways operations.\n<a:hexstar:1002639618409250836> Everytime you win a giveaway, your wallet address is instantly and automatically submitted.\n\nTo faciliate above please submit your wallet using the **Submit** button below!\n\nPlease make sure you enter the wallet address you want to be submitted to projects for the WLs you win.\n\n**[ :warning: Burner wallet highly recommended :warning: ]**`)
     .setColor("#35FF6E")
-    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
+    .setFooter({ text: "Powered by bobotlabs.xyz" });
   if (guild_icon.startsWith("a_")) {
     embed.setThumbnail(`https://cdn.discordapp.com/icons/${guild_id}/${guild_icon}.gif`);
   } else {
@@ -29,13 +29,13 @@ const row = new ActionRowBuilder()
       .setStyle(ButtonStyle.Primary)
       .setEmoji("🔎")
   );
-  function MakeEmbedDes(des) {
-    const embed = new EmbedBuilder()
-      .setColor("#35FF6E")
-      .setDescription(des)
-      .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
-    return embed;
-  };
+function MakeEmbedDes(des) {
+  const embed = new EmbedBuilder()
+    .setColor("#35FF6E")
+    .setDescription(des)
+    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
+  return embed;
+};
 
 module.exports = {
   name: "setup",
@@ -49,7 +49,7 @@ module.exports = {
       const sub = await subs.findOne({
         server_id: interaction.guildId,
       });
-      if (!sub) return interaction.editReply({embeds:[MakeEmbedDes("This discord server does not has a valid subscription. Please contact at [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to get a subscription/renew an expired subscription.")]});
+      if (!sub) return interaction.editReply({ embeds: [MakeEmbedDes("This discord server does not has a valid subscription. Please contact at [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to get a subscription/renew an expired subscription.")] });
       const category = await interaction.guild.channels.create({
         name: "BOBOT GIVEAWAYS",
         type: ChannelType.GuildCategory,
@@ -138,7 +138,7 @@ module.exports = {
         ephemeral: true,
       });
       await wait(2000);
-      await outputChannel.send({embeds:[MakeEmbedDes(des)]});
+      await outputChannel.send({ embeds: [MakeEmbedDes(des)] });
       return await interaction.followUp({
         content: `I have sent a copy of above instructions in <#${outputChannel.id}> for future reference and for other team members to refer to.\n\nIf you ever face any issues, please contact us in our discord server.\nHappy Raffling! :slight_smile:`,
         ephemeral: true,
