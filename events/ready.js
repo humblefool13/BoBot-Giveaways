@@ -2,8 +2,14 @@ const fs = require("fs");
 const config_records = require("../models/configurations.js");
 const wallets_records = require("../models/wallets.js");
 const sub_records = require("../models/subscriptions.js");
+const Pastecord = require("pastecord");
+const pasteClient = new Pastecord();
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType } = require("discord.js");
 let i = 1;
+async function pastecord(text) {
+  const data = await pasteClient.publish(text);
+  return data.url;
+};
 const row = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
@@ -140,6 +146,8 @@ module.exports = {
               const exportStringWallet = `${guild.name} - ${prize} Winners Wallet Addresses\n\n` + masterArrayWallet.join("\n") + "\n\n© BoBotLabs Giveaway Bot.";
               fs.writeFileSync(`./exports/export${i}.txt`, exportString);
               fs.writeFileSync(`./exports/export${i + 1}.txt`, exportStringWallet);
+              const winnersTextUrl = await pastecord(exportString);
+              const winnersWalletTextUrl = await pastecord(exportStringWallet);
               const config = await config_records.findOne({
                 server_id: location[0],
               });
@@ -157,11 +165,9 @@ module.exports = {
                       .setStyle(ButtonStyle.Link)
                       .setURL(sent.url)
                   );
-                const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**`;
+                const content = `Link to winners list ( without wallet addresses ):\n${winnersTextUrl}.txt\nLink to winners list ( with wallet addresses ):\n${winnersWalletTextUrl}.txt\n\n:rotating_light: Same content as files above.`;
+                const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n\n${content}`;
                 await postChannel.send({
-                  embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
-                });
-                postChannel.send({
                   files: [{
                     attachment: `./exports/export${i}.txt`,
                     name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
@@ -172,7 +178,20 @@ module.exports = {
                     description: 'File with winners\' wallet data.'
                   }],
                   components: [messageLinkRow],
+                  embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
                 });
+                /*postChannel.send({
+                  files: [{
+                    attachment: `./exports/export${i}.txt`,
+                    name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
+                    description: 'File with winners\' data.'
+                  }, {
+                    attachment: `./exports/export${i + 1}.txt`,
+                    name: `Wallets-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
+                    description: 'File with winners\' wallet data.'
+                  }],
+                  components: [messageLinkRow],
+                });*/
                 if (winnerRole !== "NA") {
                   let winnersDuplicate = winners;
                   const interval = setInterval(doRoles, 800);
