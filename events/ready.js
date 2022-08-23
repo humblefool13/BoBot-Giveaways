@@ -152,14 +152,13 @@ module.exports = {
                 });
                 const members = await client.guilds.cache.get(location[0]).members.fetch().catch((e) => { });
                 const guild = client.guilds.cache.get(location[0]);
-                let k = 0;
                 let walletsArray = [];
                 let tagArray = [];
                 for (let winner of winners) {
                   const member = members.find((m) => m.id === winner) ? members.find((m) => m.id === winner) : { user: { tag: "Not Found" } };
                   const userWallet = wallets.find((saved) => saved.discord_id === winner) ? wallets.find((saved) => saved.discord_id === winner) : { wallet: "Not Submitted" };
-                  walletsArray.push(`${++k}) ${userWallet.wallet}`);
-                  tagArray.push(`${k}) ${userWallet.wallet} - ${member.user.tag}`);
+                  walletsArray.push(`${userWallet.wallet}`);
+                  tagArray.push(`${userWallet.wallet} - ${member.user.tag}`);
                 };
                 const exportStringWallet = `Server Name: ${guild.name}\nPrize: ${prize}\n\nWallet Addresses of Winners\n\n${walletsArray.join("\n")}\n\n© BoBotLabs Giveaway Bot.`;
                 const exportString = `Server Name: ${guild.name}\nPrize: ${prize}\n\n(Wallet Address + User Tag) of Winners\n\n${tagArray.join("\n")}\n\n© BoBotLabs Giveaway Bot.`;
