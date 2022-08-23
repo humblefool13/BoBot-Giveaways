@@ -7,7 +7,8 @@ const pasteClient = new Pastecord();
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType } = require("discord.js");
 let i = 1;
 async function pastecord(text) {
-  const data = await pasteClient.publish(text);
+  let data = await pasteClient.publish(text).catch();
+  if (!data) data = { "url": "Upload Failure" };
   return data.url;
 };
 const row = new ActionRowBuilder()
@@ -129,21 +130,22 @@ module.exports = {
                   embeds: [new EmbedBuilder().setDescription(msg).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
                 });
               };
-              const members = await client.guilds.cache.get(location[0]).members.fetch().catch((e) => { });
-              const guild = client.guilds.cache.get(location[0]);
-              let masterArrayWallet = [["User Tag", "Submitted Wallet\n"].join(",")];
-              let masterArray = [["User Tag", "User ID\n"].join(",")];
               const wallets = await wallets_records.find({
                 server_id: location[0],
               });
-              winners.forEach((winner) => {
+              const members = await client.guilds.cache.get(location[0]).members.fetch().catch((e) => { });
+              const guild = client.guilds.cache.get(location[0]);
+              let k = 0;
+              let walletsArray = [];
+              let tagArray = [];
+              for (let winner of winners) {
                 const member = members.find((m) => m.id === winner) ? members.find((m) => m.id === winner) : { user: { tag: "Not Found" } };
                 const userWallet = wallets.find((saved) => saved.discord_id === winner) ? wallets.find((saved) => saved.discord_id === winner) : { wallet: "Not Submitted" };
-                masterArrayWallet.push([member.user.tag, userWallet.wallet].join(","));
-                masterArray.push([member.user.tag, winner].join(","));
-              });
-              const exportString = `${guild.name} - ${prize} Winners\n\n` + masterArray.join("\n") + "\n\n© BoBotLabs Giveaway Bot.";
-              const exportStringWallet = `${guild.name} - ${prize} Winners Wallet Addresses\n\n` + masterArrayWallet.join("\n") + "\n\n© BoBotLabs Giveaway Bot.";
+                walletsArray.push(`${++k}) ${userWallet.wallet}`);
+                tagArray.push(`${k}) ${userWallet.wallet} - ${member.user.tag}`);
+              };
+              const exportStringWallet = `Server Name: ${guild.name}\nPrize: ${prize}\n\nWallet Addresses of Winners\n\n${walletsArray.join("\n")}\n\n© BoBotLabs Giveaway Bot.`;
+              const exportString = `Server Name: ${guild.name}\nPrize: ${prize}\n\n(Wallet Address + User Tag) of Winners\n\n${tagArray.join("\n")}\n\n© BoBotLabs Giveaway Bot.`;
               fs.writeFileSync(`./exports/export${i}.txt`, exportString);
               fs.writeFileSync(`./exports/export${i + 1}.txt`, exportStringWallet);
               const winnersTextUrl = await pastecord(exportString);
@@ -165,12 +167,12 @@ module.exports = {
                       .setStyle(ButtonStyle.Link)
                       .setURL(sent.url)
                   );
-                const content = `Link to winners list ( without wallet addresses ):\n${winnersTextUrl}.txt\nLink to winners list ( with wallet addresses ):\n${winnersWalletTextUrl}.txt\n\n:rotating_light: Same content as files above.`;
+                const content = `Link to winners list \`(User Tag + Wallet Addresses)\` :\n${winnersTextUrl}.txt\nLink to winners list \`(Only Wallet Addresses)\` :\n${winnersWalletTextUrl}.txt\n\n:rotating_light: Same content as files above.`;
                 const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n\n${content}`;
                 await postChannel.send({
                   files: [{
                     attachment: `./exports/export${i}.txt`,
-                    name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
+                    name: `Tags-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
                     description: 'File with winners\' data.'
                   }, {
                     attachment: `./exports/export${i + 1}.txt`,
@@ -180,18 +182,6 @@ module.exports = {
                   components: [messageLinkRow],
                   embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
                 });
-                /*postChannel.send({
-                  files: [{
-                    attachment: `./exports/export${i}.txt`,
-                    name: `${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
-                    description: 'File with winners\' data.'
-                  }, {
-                    attachment: `./exports/export${i + 1}.txt`,
-                    name: `Wallets-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
-                    description: 'File with winners\' wallet data.'
-                  }],
-                  components: [messageLinkRow],
-                });*/
                 if (winnerRole !== "NA") {
                   let winnersDuplicate = winners;
                   const interval = setInterval(doRoles, 800);
