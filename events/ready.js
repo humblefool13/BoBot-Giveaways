@@ -89,117 +89,20 @@ module.exports = {
             const entries1 = fs.readFileSync(`./giveaways/giveawayEntries/${file}`, { encoding: 'utf8', flag: 'r' });
             const entries2 = entries1.split("\n");
             const entries = shuffleArray(entries2);
-            const unique = findunique(entries);
-            let winners = [];
             const locationString = file.slice(0, file.length - 4);
             const location = locationString.split("_");
-            do {
-              const index = Math.floor(Math.random() * entries.length);
-              if (!winners.includes(entries[index]) && entries[index].length) {
-                winners.push(entries[index]);
-              };
-            } while (winners.length < numWinners && winners.length < unique);
-            winners = shuffleArray(winners);
             const channel = await client.guilds.cache.get(location[0]).channels.fetch(location[1]).catch((e) => { });
             const message = await channel.messages.fetch(location[2]).catch((e) => { });
-            if (message && channel) {
-              const description = message.embeds[0].description;
-              await message.edit({
-                components: [row],
-                embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
-              });
-              const splitted = splitWinners(winners, 70);
-              const messages = messagesGenerator(splitted);
-              messages.forEach(async (msg) => {
-                await message.channel.send({
-                  content: msg,
-                }).then((sent) => { sent.delete().catch((e) => { }) }).catch((e) => { });
-              });
-              let sent;
-              if (unique !== entries.length) {
-                sent = await message.reply({
-                  embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Unique Entries: ${unique}\n:busts_in_silhouette: Total Entries: ${entries.length}`).setColor("#8A45FF")],
+            if (entries.length === 1 && entries[0] === "") {
+              if (message && channel) {
+                const description = message.embeds[0].description;
+                await message.edit({
+                  components: [row],
+                  embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
                 });
-              } else {
-                sent = await message.reply({
-                  embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Entries: ${unique}`).setColor("#8A45FF")],
+                await message.reply({
+                  content: "No Entries."
                 });
-              };
-              for (const msg of messages) {
-                await message.channel.send({
-                  embeds: [new EmbedBuilder().setDescription(msg).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
-                });
-              };
-              const wallets = await wallets_records.find({
-                server_id: location[0],
-              });
-              const members = await client.guilds.cache.get(location[0]).members.fetch().catch((e) => { });
-              const guild = client.guilds.cache.get(location[0]);
-              let k = 0;
-              let walletsArray = [];
-              let tagArray = [];
-              for (let winner of winners) {
-                const member = members.find((m) => m.id === winner) ? members.find((m) => m.id === winner) : { user: { tag: "Not Found" } };
-                const userWallet = wallets.find((saved) => saved.discord_id === winner) ? wallets.find((saved) => saved.discord_id === winner) : { wallet: "Not Submitted" };
-                walletsArray.push(`${++k}) ${userWallet.wallet}`);
-                tagArray.push(`${k}) ${userWallet.wallet} - ${member.user.tag}`);
-              };
-              const exportStringWallet = `Server Name: ${guild.name}\nPrize: ${prize}\n\nWallet Addresses of Winners\n\n${walletsArray.join("\n")}\n\n© BoBotLabs Giveaway Bot.`;
-              const exportString = `Server Name: ${guild.name}\nPrize: ${prize}\n\n(Wallet Address + User Tag) of Winners\n\n${tagArray.join("\n")}\n\n© BoBotLabs Giveaway Bot.`;
-              fs.writeFileSync(`./exports/export${i}.txt`, exportString);
-              fs.writeFileSync(`./exports/export${i + 1}.txt`, exportStringWallet);
-              const winnersTextUrl = await pastecord(exportString);
-              const winnersWalletTextUrl = await pastecord(exportStringWallet);
-              const config = await config_records.findOne({
-                server_id: location[0],
-              });
-              const channelID = config.submit_channel;
-              const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID).catch((e) => { });
-              if (postChannel) {
-                const messageLinkRow = new ActionRowBuilder()
-                  .addComponents(
-                    new ButtonBuilder()
-                      .setLabel("Jump to Giveaway")
-                      .setStyle(ButtonStyle.Link)
-                      .setURL(msgUrl),
-                    new ButtonBuilder()
-                      .setLabel("Winners List")
-                      .setStyle(ButtonStyle.Link)
-                      .setURL(sent.url)
-                  );
-                const content = `Link to winners list \`(User Tag + Wallet Addresses)\` :\n${winnersTextUrl}.txt\nLink to winners list \`(Only Wallet Addresses)\` :\n${winnersWalletTextUrl}.txt\n\n:rotating_light: Same content as files above.`;
-                const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n\n${content}`;
-                await postChannel.send({
-                  files: [{
-                    attachment: `./exports/export${i}.txt`,
-                    name: `Tags-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
-                    description: 'File with winners\' data.'
-                  }, {
-                    attachment: `./exports/export${i + 1}.txt`,
-                    name: `Wallets-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
-                    description: 'File with winners\' wallet data.'
-                  }],
-                  components: [messageLinkRow],
-                  embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
-                });
-                if (winnerRole !== "NA") {
-                  let winnersDuplicate = winners;
-                  const interval = setInterval(doRoles, 800);
-                  async function giveRole(winnersDuplicate) {
-                    if (winnersDuplicate.length) {
-                      const member = members.find((m) => m.id === winnersDuplicate[winnersDuplicate.length - 1]);
-                      winnersDuplicate.pop();
-                      if (member) member.roles.add(winnerRole).catch((e) => { });
-                    };
-                  };
-                  async function doRoles() {
-                    if (winnersDuplicate.length) {
-                      await giveRole(winnersDuplicate);
-                    } else {
-                      clearInterval(interval);
-                    };
-                  };
-                };
                 fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
                 fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
               } else {
@@ -207,8 +110,123 @@ module.exports = {
                 fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
               };
             } else {
-              fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
-              fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
+              const unique = findunique(entries);
+              let winners = [];
+              do {
+                const index = Math.floor(Math.random() * entries.length);
+                if (!winners.includes(entries[index]) && entries[index].length) {
+                  winners.push(entries[index]);
+                };
+              } while (winners.length < numWinners && winners.length < unique);
+              winners = shuffleArray(winners);
+              if (message && channel) {
+                const description = message.embeds[0].description;
+                await message.edit({
+                  components: [row],
+                  embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+                });
+                const splitted = splitWinners(winners, 70);
+                const messages = messagesGenerator(splitted);
+                messages.forEach(async (msg) => {
+                  await message.channel.send({
+                    content: msg,
+                  }).then((sent) => { sent.delete().catch((e) => { }) }).catch((e) => { });
+                });
+                let sent;
+                if (unique !== entries.length) {
+                  sent = await message.reply({
+                    embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Unique Entries: ${unique}\n:busts_in_silhouette: Total Entries: ${entries.length}`).setColor("#8A45FF")],
+                  });
+                } else {
+                  sent = await message.reply({
+                    embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Entries: ${unique}`).setColor("#8A45FF")],
+                  });
+                };
+                for (const msg of messages) {
+                  await message.channel.send({
+                    embeds: [new EmbedBuilder().setDescription(msg).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+                  });
+                };
+                const wallets = await wallets_records.find({
+                  server_id: location[0],
+                });
+                const members = await client.guilds.cache.get(location[0]).members.fetch().catch((e) => { });
+                const guild = client.guilds.cache.get(location[0]);
+                let k = 0;
+                let walletsArray = [];
+                let tagArray = [];
+                for (let winner of winners) {
+                  const member = members.find((m) => m.id === winner) ? members.find((m) => m.id === winner) : { user: { tag: "Not Found" } };
+                  const userWallet = wallets.find((saved) => saved.discord_id === winner) ? wallets.find((saved) => saved.discord_id === winner) : { wallet: "Not Submitted" };
+                  walletsArray.push(`${++k}) ${userWallet.wallet}`);
+                  tagArray.push(`${k}) ${userWallet.wallet} - ${member.user.tag}`);
+                };
+                const exportStringWallet = `Server Name: ${guild.name}\nPrize: ${prize}\n\nWallet Addresses of Winners\n\n${walletsArray.join("\n")}\n\n© BoBotLabs Giveaway Bot.`;
+                const exportString = `Server Name: ${guild.name}\nPrize: ${prize}\n\n(Wallet Address + User Tag) of Winners\n\n${tagArray.join("\n")}\n\n© BoBotLabs Giveaway Bot.`;
+                fs.writeFileSync(`./exports/export${i}.txt`, exportString);
+                fs.writeFileSync(`./exports/export${i + 1}.txt`, exportStringWallet);
+                const winnersTextUrl = await pastecord(exportString);
+                const winnersWalletTextUrl = await pastecord(exportStringWallet);
+                const config = await config_records.findOne({
+                  server_id: location[0],
+                });
+                const channelID = config.submit_channel;
+                const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID).catch((e) => { });
+                if (postChannel) {
+                  const messageLinkRow = new ActionRowBuilder()
+                    .addComponents(
+                      new ButtonBuilder()
+                        .setLabel("Jump to Giveaway")
+                        .setStyle(ButtonStyle.Link)
+                        .setURL(msgUrl),
+                      new ButtonBuilder()
+                        .setLabel("Winners List")
+                        .setStyle(ButtonStyle.Link)
+                        .setURL(sent.url)
+                    );
+                  const content = `Link to winners list \`(User Tag + Wallet Addresses)\` :\n${winnersTextUrl}.txt\nLink to winners list \`(Only Wallet Addresses)\` :\n${winnersWalletTextUrl}.txt\n\n:rotating_light: Same content as files above.`;
+                  const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n\n${content}`;
+                  await postChannel.send({
+                    files: [{
+                      attachment: `./exports/export${i}.txt`,
+                      name: `Tags-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
+                      description: 'File with winners\' data.'
+                    }, {
+                      attachment: `./exports/export${i + 1}.txt`,
+                      name: `Wallets-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
+                      description: 'File with winners\' wallet data.'
+                    }],
+                    components: [messageLinkRow],
+                    embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+                  });
+                  if (winnerRole !== "NA") {
+                    let winnersDuplicate = winners;
+                    const interval = setInterval(doRoles, 800);
+                    async function giveRole(winnersDuplicate) {
+                      if (winnersDuplicate.length) {
+                        const member = members.find((m) => m.id === winnersDuplicate[winnersDuplicate.length - 1]);
+                        winnersDuplicate.pop();
+                        if (member) member.roles.add(winnerRole).catch((e) => { });
+                      };
+                    };
+                    async function doRoles() {
+                      if (winnersDuplicate.length) {
+                        await giveRole(winnersDuplicate);
+                      } else {
+                        clearInterval(interval);
+                      };
+                    };
+                  };
+                  fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
+                  fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
+                } else {
+                  fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
+                  fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
+                };
+              } else {
+                fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
+                fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
+              };
             };
           };
         };
