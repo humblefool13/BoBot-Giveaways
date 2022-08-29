@@ -8,7 +8,9 @@ const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType
 let i = 1;
 async function pastecord(text) {
   let data = await pasteClient.publish(text).catch();
-  if (!data) data = { "url": "Upload Failure" };
+  if (!data) data = {
+    url: false
+  };
   return data.url;
 };
 const row = new ActionRowBuilder()
@@ -183,21 +185,28 @@ module.exports = {
                         .setStyle(ButtonStyle.Link)
                         .setURL(sent.url)
                     );
-                  const content = `Link to winners list \`(User Tag + Wallet Addresses)\` :\n${winnersTextUrl}.txt\nLink to winners list \`(Only Wallet Addresses)\` :\n${winnersWalletTextUrl}.txt\n\n:rotating_light: Same content as files above.`;
+                  const content = `Link to winners list \`(User Tag + Wallet Addresses)\` :\n${winnersTextUrl}.txt\nLink to winners list \`(Only Wallet Addresses)\` :\n${winnersWalletTextUrl}.txt`;
                   const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n\n${content}`;
-                  await postChannel.send({
-                    files: [{
-                      attachment: `./exports/export${i}.txt`,
-                      name: `Tags-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
-                      description: 'File with winners\' data.'
-                    }, {
-                      attachment: `./exports/export${i + 1}.txt`,
-                      name: `Wallets-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
-                      description: 'File with winners\' wallet data.'
-                    }],
-                    components: [messageLinkRow],
-                    embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
-                  });
+                  if (!winnersTextUrl || !winnersWalletTextUrl) {
+                    await postChannel.send({
+                      files: [{
+                        attachment: `./exports/export${i}.txt`,
+                        name: `Tags-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
+                        description: 'File with winners\' data.'
+                      }, {
+                        attachment: `./exports/export${i + 1}.txt`,
+                        name: `Wallets-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
+                        description: 'File with winners\' wallet data.'
+                      }],
+                      components: [messageLinkRow],
+                      embeds: [new EmbedBuilder().setDescription(`Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n\nFailed to upload to pastecord. Files sent above.`).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+                    });
+                  } else {
+                    await postChannel.send({
+                      components: [messageLinkRow],
+                      embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+                    });
+                  };
                   if (winnerRole !== "NA") {
                     let winnersDuplicate = winners;
                     const interval = setInterval(doRoles, 800);
