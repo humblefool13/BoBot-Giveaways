@@ -132,11 +132,11 @@ module.exports = {
                 let sent;
                 if (unique !== entries.length) {
                   sent = await message.reply({
-                    embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Unique Entries: ${unique}\n:busts_in_silhouette: Total Entries: ${entries.length}`).setColor("#8A45FF")],
+                    embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Unique Entries: ${unique}\n:busts_in_silhouette: Total Entries: ${entries.length}\n\nThe winners are posted below! :fire:`).setColor("#8A45FF")],
                   });
                 } else {
                   sent = await message.reply({
-                    embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Entries: ${unique}`).setColor("#8A45FF")],
+                    embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Entries: ${unique}\n\nThe winners are posted below! :fire:`).setColor("#8A45FF")],
                   });
                 };
                 for (const msg of messages) {
