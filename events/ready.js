@@ -129,11 +129,6 @@ module.exports = {
                 });
                 const splitted = splitWinners(winners, 70);
                 const messages = messagesGenerator(splitted);
-                messages.forEach(async (msg) => {
-                  await message.channel.send({
-                    content: msg,
-                  }).then((sent) => { sent.delete().catch((e) => { }) }).catch((e) => { });
-                });
                 let sent;
                 if (unique !== entries.length) {
                   sent = await message.reply({
@@ -146,7 +141,7 @@ module.exports = {
                 };
                 for (const msg of messages) {
                   await message.channel.send({
-                    embeds: [new EmbedBuilder().setDescription(msg).setColor("#8A45FF").setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+                    content: msg,
                   });
                 };
                 const wallets = await wallets_records.find({
