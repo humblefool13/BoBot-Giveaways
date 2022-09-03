@@ -5,7 +5,7 @@ const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, Button
 const rownew = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
-      .setLabel("Verify Twitter!")
+      .setLabel("Verify Twitter Account!")
       .setCustomId("verifymodal")
       .setStyle(ButtonStyle.Success),
   );
