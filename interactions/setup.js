@@ -24,6 +24,11 @@ const row = new ActionRowBuilder()
       .setStyle(ButtonStyle.Success)
       .setEmoji("📝"),
     new ButtonBuilder()
+      .setLabel("Verify Twitter")
+      .setCustomId("twitterv")
+      .setStyle(ButtonStyle.Success)
+      .setEmoji("1014979186655514695"),
+    new ButtonBuilder()
       .setLabel("Check")
       .setCustomId("check")
       .setStyle(ButtonStyle.Primary)
