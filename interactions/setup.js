@@ -9,9 +9,9 @@ function makeEmbed(name, guild_icon, guild_id) {
     .setDescription(`Hello there! :wave:\n\n<a:hexstar:1002639618409250836> __**${name}**__ uses BoBot Lab's Giveaway Bot for most advanced giveaways and post giveaways operations.\n<a:hexstar:1002639618409250836> Everytime you win a giveaway, your wallet address is instantly and automatically submitted.\n\nTo faciliate above please submit your wallet using the **Submit** button below!\n\nPlease make sure you enter the wallet address you want to be submitted to projects for the WLs you win.\n\n**[ :warning: Burner wallet highly recommended :warning: ]**`)
     .setColor("#35FF6E")
     .setFooter({ text: "Powered by bobotlabs.xyz" });
-  if (guild_icon.startsWith("a_")) {
+  if (guild_icon.startsWith("a_") && guild_icon !== "N") {
     embed.setThumbnail(`https://cdn.discordapp.com/icons/${guild_id}/${guild_icon}.gif`);
-  } else {
+  } else if (!guild_icon.startsWith("a_") && guild_icon !== "N") {
     embed.setThumbnail(`https://cdn.discordapp.com/icons/${guild_id}/${guild_icon}.png`);
   };
   return embed;
@@ -104,7 +104,7 @@ module.exports = {
       }).save().catch((e) => {
         console.log(e)
       });
-      const embed = makeEmbed(interaction.guild.name, interaction.guild.icon, interaction.guildId);
+      const embed = makeEmbed(interaction.guild.name, interaction.guild.icon ? interaction.guild.icon : "N" , interaction.guildId);
       await setupChannel.send({
         embeds: [embed],
         components: [row],
