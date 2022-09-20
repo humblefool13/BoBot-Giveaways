@@ -24,6 +24,11 @@ const row = new ActionRowBuilder()
       .setStyle(ButtonStyle.Success)
       .setEmoji("📝"),
     new ButtonBuilder()
+      .setLabel("Twitter")
+      .setCustomId("twitter")
+      .setStyle(ButtonStyle.Success)
+      .setEmoji(""),
+    new ButtonBuilder()
       .setLabel("Check")
       .setCustomId("check")
       .setStyle(ButtonStyle.Primary)
@@ -104,7 +109,7 @@ module.exports = {
       }).save().catch((e) => {
         console.log(e)
       });
-      const embed = makeEmbed(interaction.guild.name, interaction.guild.icon ? interaction.guild.icon : "N" , interaction.guildId);
+      const embed = makeEmbed(interaction.guild.name, interaction.guild.icon ? interaction.guild.icon : "N", interaction.guildId);
       await setupChannel.send({
         embeds: [embed],
         components: [row],
