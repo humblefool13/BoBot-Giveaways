@@ -21,6 +21,7 @@ const modal = new ModalBuilder()
 const question = new TextInputBuilder()
   .setCustomId('walletAddress')
   .setLabel("Please enter your wallet address below.")
+  .setPlaceholder('0x.........')
   .setStyle(TextInputStyle.Short);
 const firstActionRow = new ActionRowBuilder().addComponents(question);
 modal.addComponents(firstActionRow);

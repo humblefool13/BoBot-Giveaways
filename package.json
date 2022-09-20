@@ -13,7 +13,7 @@
     "ws": "^8.8.0",
     "xlsx": "^0.18.5"
   },
-  "name": "bobot-sales",
+  "name": "bobot-giveaways",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
