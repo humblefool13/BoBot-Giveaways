@@ -1,5 +1,6 @@
 const wallets = require("../models/wallets.js");
 const subs = require("../models/subscriptions.js");
+const twitter = require("../models/twitter.js");
 const { EmbedBuilder } = require("discord.js");
 function MakeEmbed(des) {
   const embed = new EmbedBuilder()
@@ -14,7 +15,7 @@ module.exports = {
   async interact(client, interaction) {
     try {
       await interaction.deferReply({ ephemeral: true });
-      const sub = subs.findOne({
+      const sub = await subs.findOne({
         server_id: interaction.guildId,
       });
       if (!sub) return interaction.editReply({
@@ -25,13 +26,26 @@ module.exports = {
         server_id: interaction.guildId,
       });
       if (!find) {
-        return interaction.editReply({
+        interaction.editReply({
           embeds: [MakeEmbed("Looks like you have not set-up a wallet address yet. Please do so by clicking the button beside.")],
         });
       } else {
         const wallet = find.wallet.trim();
-        return interaction.editReply({
+        interaction.editReply({
           embeds: [MakeEmbed(`The wallet address:\n\n**${wallet}**\n\nis set up by you for this server and will be automatically submitted when you win a raffle in this server!`)],
+        });
+      };
+      const twitterFind = await twitter.findOne({
+        discord_id: interaction.user.id,
+      });
+      if (!twitterFind) {
+        return interaction.followUp({
+          embeds: [MakeEmbed(`You have not verified your twitter account. Please do so by clicking the button beside to be able to enter twitter actions gated giveaways.`)],
+        });
+      } else {
+        const twitterUsername = twitterFind.t_username;
+        return interaction.followUp({
+          embeds: [MakeEmbed(`You have verified your twitter account-\n\n**${twitterUsername}**\n\nIf you ever need to change it, you can hit the verify twitter button again and associate your new account to your discord account.`)],
         });
       };
     } catch (e) {
