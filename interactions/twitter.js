@@ -17,12 +17,12 @@ const rowchange = new ActionRowBuilder()
       .setStyle(ButtonStyle.Success),
   );
 const modal = new ModalBuilder()
-  .setTitle("Twitter Verification")
+  .setTitle("BoBot Twitter Verification")
   .setCustomId("modal");
 const question = new TextInputBuilder()
   .setCustomId('twitterUsername')
   .setLabel("Please enter your twitter username below.")
-  .setPlaceholder('@UsErNaMe_xYz123')
+  .setPlaceholder('@UsErNaMe_xYz123_234/*')
   .setStyle(TextInputStyle.Short);
 const firstActionRow = new ActionRowBuilder().addComponents(question);
 modal.addComponents(firstActionRow);
@@ -71,17 +71,17 @@ module.exports = {
         discord_id: interaction.user.id,
       });
       let sent;
-      const hex = genHexString(8);
+      const hex = genHexString(6);
       if (!find) {
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have not verified your twitter account previously.\nThis is a quick one time process and will verify you for all discords and giveaways this bot is used for!\n\nPlease add this to your twitter bio-\n\n**bobot-${hex.toLowerCase()}**\n\nAfter done please click the button below and you will be asked to enter your twitter @Username.\n**NOTE**: Usernames are case sensitive.`)],
+          embeds: [MakeEmbedDes(`You have not verified your twitter account previously.\nThis is a quick one time process and will verify you for all discords and giveaways this bot is used for!\n\nPlease add this to your twitter bio-\n\n**bobot-${hex.toLowerCase()}**\n\nAfter done please click the button below and you will be asked to enter your twitter @UsErNaMe@123.\n**NOTE**: Usernames are case sensitive.`)],
           components: [rownew],
           fetchReply: true
         });
       } else {
         account = find.t_username;
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have already verified this account to be yours-\n\n[@${account}](<https://twitter.com/${account}>)\n\nIf you want to change it, please add the following text in your twitter bio-\n\n**bobot-${hex.toLowerCase()}**\n\nAfter done please click the button below and you will be asked to enter your twitter @Username.\n**NOTE**: Usernames are case sensitive.`)],
+          embeds: [MakeEmbedDes(`You have already verified this account to be yours-\n\n[@${account}](<https://twitter.com/${account}>)\n\nIf you want to change it, please add the following text in your twitter bio-\n\n**bobot-${hex.toLowerCase()}**\n\nAfter done please click the button below and you will be asked to enter your twitter @UsErNaMe@123.\n**NOTE**: Usernames are case sensitive.`)],
           components: [rowchange],
           fetchReply: true
         });
