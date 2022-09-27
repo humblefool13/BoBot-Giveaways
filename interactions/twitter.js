@@ -86,7 +86,7 @@ module.exports = {
           fetchReply: true
         });
       };
-      const filter = (int) => int.customId === 'verifymodal' && int.user.id === interaction.user.id;
+      const filter = (interactionCreated) => interactionCreated.customId === 'verifymodal' && interactionCreated.user.id === interaction.user.id;
       const collector = await sent.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000 * 5, max: 1 });
       collector.on("collect", async (i) => {
         await i.showModal(modal);
@@ -96,32 +96,32 @@ module.exports = {
           embeds: [MakeEmbedDes(`The username was not submitted within the time frame. Please "Dismiss Message" and start again.`)],
           components: [],
         });
-        modalSubmit.deferUpdate();
-        const input = modalSubmit.fields.getTextInputValue('twitterUsername');
-        const username = input.trim().replace("@", "");
-        const t_data = await getTwitterData(username, hex);
-        if (t_data === "FAILED") return i.editReply({
-          components: [],
-          embeds: [MakeEmbedDes(`Oops! Something went wrong. Please try again in sometime.`)],
-        });
-        if (t_data[0]) {
-          const data = t_data[1];
-          await new twitter_db({
-            discord_id: interaction.user.id,
-            twitter_id: data.id,
-            t_username: data.username,
-          }).save().catch((e) => { console.log(e) });
-          return i.editReply({
-            components: [],
-            embeds: [MakeEmbedDes(`Verification Successful!\n\nName: ${data.name}\nUsername: ${data.username}\nBio: ${data.description}\n\nNow you may remove the \`bobot-${hex.toLowerCase()}\` from your bio and your account is saved for all servers and all present/future giveaways!`).setThumbnail(data.profile_image_url)],
-          });
-        } else {
-          return i.editReply({
-            components: [],
-            embeds: [MakeEmbedDes(`Verification Failed.\nReason: The string \`bobot-${hex.toLowerCase()}\` was not found in the bio.`)],
-          });
-        };
       });
+      modalSubmit.deferUpdate();
+      const input = modalSubmit.fields.getTextInputValue('twitterUsername');
+      const username = input.trim().replace("@", "");
+      const t_data = await getTwitterData(username, hex);
+      if (t_data === "FAILED") return i.editReply({
+        components: [],
+        embeds: [MakeEmbedDes(`Oops! Something went wrong. Please try again in sometime.`)],
+      });
+      if (t_data[0]) {
+        const data = t_data[1];
+        await new twitter_db({
+          discord_id: interaction.user.id,
+          twitter_id: data.id,
+          t_username: data.username,
+        }).save().catch((e) => console.log(e));
+        return i.editReply({
+          components: [],
+          embeds: [MakeEmbedDes(`Verification Successful!\n\nName: ${data.name}\nUsername: ${data.username}\nBio: ${data.description}\n\nNow you may remove the \`bobot-${hex.toLowerCase()}\` from your bio and your account is saved for all servers and all present/future giveaways!`).setThumbnail(data.profile_image_url)],
+        });
+      } else {
+        return i.editReply({
+          components: [],
+          embeds: [MakeEmbedDes(`Verification Failed.\nReason: The string \`bobot-${hex.toLowerCase()}\` was not found in the bio.`)],
+        });
+      };
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
