@@ -27,3 +27,5 @@ process.on("uncaughtExceptionMonitor", (err, origin) => {
 });
 
 client.login(process.env['bot_token']);
+
+// ONLY ENTER.JS AND GIVEAWAY.JS ARE LEFT.
