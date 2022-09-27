@@ -19,22 +19,15 @@ function makeEmbed(name, guild_icon, guild_id) {
 const row = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
-      .setLabel("Submit")
+      .setLabel("Submit Wallet")
       .setCustomId("submit")
       .setStyle(ButtonStyle.Success)
       .setEmoji("📝"),
     new ButtonBuilder()
-<<<<<<< HEAD
-      .setLabel("Twitter")
-      .setCustomId("twitter")
-      .setStyle(ButtonStyle.Success)
-      .setEmoji(""),
-=======
       .setLabel("Verify Twitter")
       .setCustomId("twitterv")
       .setStyle(ButtonStyle.Success)
       .setEmoji("1014979186655514695"),
->>>>>>> 15aac3dfd486cbb50e2a75c036cc2f83cd104dce
     new ButtonBuilder()
       .setLabel("Check")
       .setCustomId("check")
