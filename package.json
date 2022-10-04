@@ -23,11 +23,11 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/humblefool13/BoBot-Sales.git"
+    "url": "git+https://github.com/humblefool13/BoBot-Giveaways.git"
   },
   "bugs": {
-    "url": "https://github.com/humblefool13/BoBot-Sales/issues"
+    "url": "https://github.com/humblefool13/BoBot-Giveaways/issues"
   },
-  "homepage": "https://github.com/humblefool13/BoBot-Sales#readme",
+  "homepage": "https://github.com/humblefool13/BoBot-Giveaways#readme",
   "description": ""
 }

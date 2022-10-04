@@ -14,7 +14,7 @@ module.exports = {
   name: "check",
   async interact(client, interaction) {
     try {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ ephemral: true });
       const sub = await subs.findOne({
         server_id: interaction.guildId,
       });
@@ -23,17 +23,26 @@ module.exports = {
       });
       const find = await wallets.findOne({
         discord_id: interaction.user.id,
-        server_id: interaction.guildId,
       });
       if (!find) {
-        interaction.editReply({
-          embeds: [MakeEmbed("Looks like you have not set-up a wallet address yet. Please do so by clicking the button beside.")],
-        });
+        interaction.editReply("You have not saved a wallet address yet.\n\nDo so by clicking the button beside.")
       } else {
-        const wallet = find.wallet.trim();
-        interaction.editReply({
-          embeds: [MakeEmbed(`The wallet address:\n\n**${wallet}**\n\nis set up by you for this server and will be automatically submitted when you win a raffle in this server!`)],
+        let wallet = "Same as Global Wallet.";
+        const global = find.wallet_global;
+        const savedWallets = find.wallets;
+        savedWallets.forEach((wallets) => {
+          if (wallets[0] !== interaction.guild.id) return;
+          wallet = wallets[1];
         });
+        if (global === "Not Submitted Yet.") {
+          if (wallet !== "Same as Global Wallet.") {
+            interaction.editReply(`The following wallets are saved by you\n\nin this server:\n**${wallet}**\n\nGlobal wallet:\n**${global}**`);
+          } else {
+            interaction.editReply(`The following wallets are saved by you\n\nin this server:\n**Not Submitted Yet.**\n\nGlobal wallet:\n**${global}**`);
+          };
+        } else {
+          interaction.editReply(`The following wallets are saved by you\n\nin this server:\n**${wallet}**\n\nGlobal wallet:\n**${global}**`);
+        };
       };
       const twitterFind = await twitter.findOne({
         discord_id: interaction.user.id,

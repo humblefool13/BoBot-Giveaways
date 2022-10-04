@@ -18,7 +18,7 @@ const rowchange = new ActionRowBuilder()
   );
 const modal = new ModalBuilder()
   .setTitle("BoBot Twitter Verification")
-  .setCustomId("modal");
+  .setCustomId("modalT");
 const question = new TextInputBuilder()
   .setCustomId('twitterUsername')
   .setLabel("Please enter your twitter username below.")
@@ -35,7 +35,7 @@ function MakeEmbedDes(des) {
 };
 function genHexString(len) {
   const str = Math.floor(Math.random() * Math.pow(16, len)).toString(16);
-  return "0".repeat(len - str.length) + str;
+  return ("0".repeat(len - str.length) + str).toLowerCase();
 };
 async function getTwitterData(username, hex) {
   const url = `https://api.twitter.com/2/users/by/username/${username}?user.fields=description,name,profile_image_url`;
@@ -51,7 +51,7 @@ async function getTwitterData(username, hex) {
   } while (!response?.data?.id && retry < 50);
   if (!response?.data) return "FAILED";
   const data = response.data;
-  if (data.description.toLowerCase().includes(`bobot-${hex.toLowerCase()}`)) {
+  if (data.description.toLowerCase().includes(`bobot-${hex}`)) {
     return [true, data];
   } else {
     return [false];
@@ -74,14 +74,14 @@ module.exports = {
       const hex = genHexString(6);
       if (!find) {
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have not verified your twitter account previously.\nThis is a quick one time process and will verify you for all discords and giveaways this bot is used for!\n\nPlease add this to your twitter bio-\n\n**bobot-${hex.toLowerCase()}**\n\nAfter done please click the button below and you will be asked to enter your twitter @UsErNaMe@123.\n**NOTE**: Usernames are case sensitive.`)],
+          embeds: [MakeEmbedDes(`You have not verified your twitter account previously.\nThis is a quick one time process and will verify you for all discord servers and giveaways this bot is used for!\n\nPlease add this to your twitter bio-\n\n**bobot-${hex}**\n\nAfter done please click the button below and you will be asked to enter your twitter @UsErNaMe@123.\n**NOTE**: Usernames are case sensitive.`)],
           components: [rownew],
           fetchReply: true
         });
       } else {
         account = find.t_username;
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have already verified this account to be yours-\n\n[@${account}](<https://twitter.com/${account}>)\n\nIf you want to change it, please add the following text in your twitter bio-\n\n**bobot-${hex.toLowerCase()}**\n\nAfter done please click the button below and you will be asked to enter your twitter @UsErNaMe@123.\n**NOTE**: Usernames are case sensitive.`)],
+          embeds: [MakeEmbedDes(`You have already verified this account to be yours-\n\n[@${account}](<https://twitter.com/${account}>)\n\nIf you want to change it, please add the following text in your new twitter account bio-\n\n**bobot-${hex}**\n\nAfter done please click the button below and you will be asked to enter your twitter @UsErNaMe@123.\n**NOTE**: Usernames are case sensitive.`)],
           components: [rowchange],
           fetchReply: true
         });
@@ -90,7 +90,7 @@ module.exports = {
       const collector = await sent.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000 * 5, max: 1 });
       collector.on("collect", async (i) => {
         await i.showModal(modal);
-        const modalfilter = (modi) => modi.customId === 'modal' && modi.user.id === interaction.user.id;
+        const modalfilter = (modi) => modi.customId === 'modalT' && modi.user.id === interaction.user.id;
         const modalSubmit = await i.awaitModalSubmit({ filter: modalfilter, time: 60000 * 5 }).catch((e) => { });
         if (!modalSubmit) return i.editReply({
           embeds: [MakeEmbedDes(`The username was not submitted within the time frame. Please "Dismiss Message" and start again.`)],
@@ -103,7 +103,7 @@ module.exports = {
       const t_data = await getTwitterData(username, hex);
       if (t_data === "FAILED") return i.editReply({
         components: [],
-        embeds: [MakeEmbedDes(`Oops! Something went wrong. Please try again in sometime.`)],
+        embeds: [MakeEmbedDes(`Oops! Something went wrong.\nPlease try again in sometime.`)],
       });
       if (t_data[0]) {
         const data = t_data[1];
@@ -114,12 +114,12 @@ module.exports = {
         }).save().catch((e) => console.log(e));
         return i.editReply({
           components: [],
-          embeds: [MakeEmbedDes(`Verification Successful!\n\nName: ${data.name}\nUsername: ${data.username}\nBio: ${data.description}\n\nNow you may remove the \`bobot-${hex.toLowerCase()}\` from your bio and your account is saved for all servers and all present/future giveaways!`).setThumbnail(data.profile_image_url)],
+          embeds: [MakeEmbedDes(`Verification Successful!\n\nName: ${data.name}\nUsername: ${data.username}\nBio: ${data.description}\n\nNow you may remove the \`bobot-${hex}\` from your bio and your account is saved for all servers and all present/future giveaways!`).setThumbnail(data.profile_image_url)],
         });
       } else {
         return i.editReply({
           components: [],
-          embeds: [MakeEmbedDes(`Verification Failed.\nReason: The string \`bobot-${hex.toLowerCase()}\` was not found in the bio.`)],
+          embeds: [MakeEmbedDes(`Verification Failed.\nReason: The string \`bobot-${hex}\` was not found in the bio.`)],
         });
       };
     } catch (e) {
@@ -142,4 +142,4 @@ module.exports = {
       client.users.cache.get("727498137232736306").send(`${client.user.username} has trouble in twitter.js -\n\n${e}`);
     };
   }
-}
+};

@@ -15,6 +15,23 @@ const rowchange = new ActionRowBuilder()
       .setCustomId("submitmodal")
       .setStyle(ButtonStyle.Success),
   );
+const rowGlobal = new ActionRowBuilder()
+  .addComponents(
+    new ButtonBuilder()
+      .setLabel("Make this my global wallet!")
+      .setEmoji("✅")
+      .setCustomId("globalyes")
+      .setStyle(ButtonStyle.Primary),
+  );
+const rowGlobalDis = new ActionRowBuilder()
+  .addComponents(
+    new ButtonBuilder()
+      .setLabel("Make this my global wallet!")
+      .setEmoji("✅")
+      .setDisabled(true)
+      .setCustomId("globalyes")
+      .setStyle(ButtonStyle.Primary),
+  );
 const modal = new ModalBuilder()
   .setTitle("Submit Wallet Address")
   .setCustomId("modal");
@@ -44,28 +61,32 @@ module.exports = {
       if (!sub) return interaction.editReply({ embeds: [MakeEmbedDes("The subscription for this server has expired, please renew at the [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to continue using the services.")] });
       const find = await wallets.findOne({
         discord_id: interaction.user.id,
-        server_id: interaction.guildId,
       });
-      let sent, wallet;
+      let sent, wallet = "Not Saved Yet.", globalWallet, savedWallets;
       if (!find) {
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes("You have not saved any wallet in this server previously. Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button.")],
+          embeds: [MakeEmbedDes("You have not saved any wallet in this server previously ( and neither have a global wallet saved ). Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button.")],
           components: [rownew],
           fetchReply: true
         });
       } else {
-        wallet = find.wallet;
+        globalWallet = find.wallet_global;
+        savedWallets = find.wallets;
+        savedWallets.forEach((wallet) => {
+          if (wallet[0] !== interaction.guild.id) return;
+          wallet = wallet[1];
+        });
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have saved the wallet address:\n\n**${wallet}**\n\nin this server previously. Would you like to change it to some other wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
+          embeds: [MakeEmbedDes(`You have saved the following wallet addresses:\n\nServer Wallet: **${wallet}**\nGlobal Wallet: ${globalWallet}\n\n. Would you like to change the wallets? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
           components: [rowchange],
-          fetchReply: true
+          fetchReply: true,
         });
       };
       const filter = (int) => int.customId === 'submitmodal' && int.user.id === interaction.user.id;
       const collector = await sent.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000, max: 1 });
       collector.on("collect", async (i) => {
         await i.showModal(modal);
-        const modalfilter = (modi) => modi.customId === 'modal' && modi.user.id === interaction.user.id;
+        const modalfilter = (modi) => modi.customId = 'modal' && modi.user.id === interaction.user.id;
         const modalSubmit = await i.awaitModalSubmit({ filter: modalfilter, time: 60000 }).catch((e) => { });
         if (!modalSubmit) return i.editReply({
           embeds: [MakeEmbedDes(`The wallet was not submitted within the time frame. Please "Dismiss Message" and start again.`)],
@@ -84,27 +105,49 @@ module.exports = {
           embeds: [MakeEmbedDes(`Please enter a valid address. The currently entered one (**${walletNew}**) is invalid.`)],
           components: [],
         });
-        if (find) {
-          find.wallet = walletNew;
-          find.save().catch((e) => { console.log(e) });
-        } else {
+        let sentv2;
+        if (!find) {
           await new wallets({
             discord_id: interaction.user.id,
-            wallet: walletNew,
-            server_id: interaction.guildId,
-          }).save().catch((e) => { console.log(e) });
+            wallet_global: "Not Submitted Yet.",
+            wallets: [[interaction.guild.id, walletNew]],
+          }).save().catch(e => { });
+        } else {
+          if (wallet === "Not Saved Yet.") {
+            savedWallets.push([interaction.guild.id, walletNew]);
+          } else {
+            const findWalletIndex = savedWallets.find((el) => el[0] === interaction.guild.id);
+            const index = savedWallets.indexOf(findWalletIndex);
+            savedWallets[index] = [interaction.guild.id, walletNew];
+          };
+          find.wallets = savedWallets;
+          await find.save().catch((e) => { console.log(e) });
         };
-        if (wallet) {
-          return i.editReply({
-            components: [],
-            embeds: [MakeEmbedDes(`Done! :white_check_mark:\nYour previously registered wallet address:\n**${wallet}**\n\nis changed to the new wallet address:\n**${walletNew}**.`)],
+        if (wallet === "Not Saved Yet.") {
+          sentv2 = await interaction.editReply({
+            embeds: [MakeEmbedDes(`:tada: Congratulations! You just saved your wallet address for this server!\nEverytime you win a WL giveaway, this wallet will be automatically submitted to the team!\n\nAlso consider setting it as global wallet if not done yet.\nA global wallet is the wallet address that the bot will remember for all discord servers this bot is used for giveaways in. Advantage of saving a wallet as global wallet address is that you won't have to save wallet address in all discord servers. The global one will automatically be used everywhere UNLESS you specifically save a wallet in a discord server.`)],
+            components: [rowGlobal],
           });
         } else {
-          return i.editReply({
-            components: [],
-            embeds: [MakeEmbedDes(`Congratulations! :tada:\nYou just registered your first wallet address for this server:\n**${walletNew}**.\nThis will be automatically submitted when you win any giveaway!`)],
+          sentv2 = await interaction.editReply({
+            embeds: [MakeEmbedDes(`:tada: Congratulations! You just changed your wallet address for this server!\n\nFrom: **${wallet}**\nTo: **${walletNew}**\n\nEverytime you win a WL giveaway, this wallet will be automatically submitted to the team!\n\nAlso consider setting it as global wallet if not done yet.\nA global wallet is the wallet address that the bot will remember for all discord servers this bot is used for giveaways in. Advantage of saving a wallet as global wallet address is that you won't have to save wallet address in all discord servers. The global one will automatically be used everywhere UNLESS you specifically save a wallet in a discord server.`)],
+            components: [rowGlobal],
           });
         };
+        const globalFilter = (int) => int.user.id === interaction.user.id && int.customId === "globalyes";
+        const globalcollector = await sentv2.createMessageComponentCollector({ filter: globalFilter, componentType: ComponentType.Button, time: 60000, max: 1 });
+        globalcollector.on('collect',async(i)=>{
+          await i.deferUpdate();
+          const findNew = await wallets.findOne({
+            discord_id: interaction.user.id,
+          });
+          findNew.wallet_global = walletNew;
+          await findNew.save().catch(e=>{});
+          await i.update({
+            components: [],
+            embeds: [MakeEmbedDes(`The wallet address\n\n**${walletNew}**\n\nis now set as your global wallet and will be automatically used in all discord servers unless you save a new wallet in a specific server.`)],
+          });
+        });
       });
     } catch (e) {
       console.log(e);
