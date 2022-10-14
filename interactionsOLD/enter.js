@@ -29,6 +29,7 @@ module.exports = {
   name: "enter",
   async interact(client, interaction) {
     try {
+      /*
       await interaction.deferReply({ ephemeral: true });
       const giveawaysConfigsDir = fs.readdirSync("./giveaways/giveawayConfigs");
       const giveawaysEntriesDir = fs.readdirSync("./giveaways/giveawayEntries");
@@ -109,7 +110,7 @@ module.exports = {
       };
       return interaction.editReply({
         embeds: [MakeEmbedDes(replyContent)],
-      });
+      });*/
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
