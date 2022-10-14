@@ -1,31 +1,7 @@
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionsBitField } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionsBitField, Embed } = require("discord.js");
 const configs = require("../models/configurations.js");
 const subs = require("../models/subscriptions.js");
 const { writeFileSync } = require("fs");
-function makeEmbed(prize, winners, endTimestamp, walletReq, reqRoles, blacklistRoles, entries, winnerRoles) {
-  let descriptionString = "";
-  descriptionString = descriptionString + `:trophy: **Prize Name** : \`${prize}\`\n\n`;
-  descriptionString = descriptionString + `:crown: **Winners** : ${winners}\n\n`;
-  descriptionString = descriptionString + `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
-  descriptionString = descriptionString + `<:ethereum:997764237025890318> **Wallet Required** : ${walletReq}\n\n`;
-  if (winnerRoles !== "NA") descriptionString = descriptionString + `:military_medal: **Role Awarded to Winners** : <@&${winnerRoles}>\n\n`;
-  if (reqRoles !== "NA") descriptionString = descriptionString + `:lock: **Must have any of these roles** :\n<@&${reqRoles.join(">, <@&")}>\n\n`;
-  if (blacklistRoles !== "NA") descriptionString = descriptionString + `:x: **Must __*not*__ have any of these roles** :\n<@&${blacklistRoles.join(">, <@&")}>\n\n`;
-  if (entries !== "NA") {
-    descriptionString = descriptionString + ":busts_in_silhouette: **Multiple Entries** :\n";
-    entries.forEach((roleArray) => {
-      descriptionString = descriptionString + `<@&${roleArray[0]}> +${roleArray[1]} Entries\n`;
-    });
-    descriptionString = descriptionString + "\n";
-  };
-  descriptionString = descriptionString + "Click the button below to enter the giveaway! :tada:";
-  const embed = new EmbedBuilder()
-    .setTitle("Active Giveaway")
-    .setDescription(descriptionString)
-    .setColor("#35FF6E")
-    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
-  return embed;
-};
 function findTimestamp(durationString) {
   const split = durationString.split(" ");
   let timestamp = Date.now();
@@ -76,25 +52,31 @@ const row = new ActionRowBuilder()
       .setCustomId("enter")
       .setStyle(ButtonStyle.Primary)
   );
-function stringa(roles) {
-  if (typeof roles === "string") {
-    return "NA";
-  } else {
-    const string = roles.join(",");
-    return string;
-  };
+function processRole(roles) {
+  const roleArray = roles.split(",");
+  let outputarr = [];
+  roleArray.forEach((role) => {
+    let r = role.trim().slice(0, vari.indexOf(">") + 1);
+    outputarr.push(r);
+  });
+  return outputarr.join(",");
 };
-function stringaoa(rolesEntry) {
-  if (typeof rolesEntry === "string") {
-    return "NA";
-  } else {
-    let arr = [];
-    rolesEntry.forEach((roleArray) => {
-      const string = roleArray.join("-");
-      arr.push(string);
-    });
-    return arr.join(",");
-  };
+function processBonus(string) {
+  let arr = [];
+  const split = string.split(",");
+  split.forEach((roleEntry) => {
+    let vari = roleEntry.trim();
+    if (!vari.includes(" ")) {
+      const role = vari.trim().slice(0, vari.indexOf(">") + 1);
+      const entry = vari.slice(vari.indexOf(">") + 1);
+      vari = [role, entry].join(" ");
+    };
+    const split2 = vari.replaceAll("  ", " ").split(" ");
+    const entry = Number(split2[1]);
+    const role = split2[0].trim().slice(3, split2[0].trim().length - 1);
+    arr.push([role, entry].join("-"));
+  });
+  return arr.join(",");
 };
 function MakeEmbedDes(des) {
   const embed = new EmbedBuilder()
@@ -102,6 +84,17 @@ function MakeEmbedDes(des) {
     .setDescription(des)
     .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
+};
+function processFollow(input) {
+  let exportString;
+  const accounts = input.split(",");
+  accounts.forEach((account) => {
+    const username = account.trim().replaceAll("@", "");
+    const url = `<https://twitter.com/${username}>`;
+    const string = `\n[${username}](${url})`;
+    exportString += string;
+  });
+  return exportString;
 };
 
 module.exports = {
@@ -135,7 +128,6 @@ module.exports = {
       const reqRoles = interaction.options.getString("req-roles");
       const winnerRole = interaction.options.getRole("winner-role-add");
       const picture = interaction.options.getAttachment("attach-picture");
-
       const followReq = interaction.options.getString("follow-twit-req");
       const likeReq = interaction.options.getString("like-twit-req");
       const rtReq = interaction.options.getString("rt-twit-req");
@@ -190,37 +182,73 @@ module.exports = {
         };
         if (roles - 1 !== commas) return interaction.editReply(`Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
       };
-      /*
-            let reqRoles = "NA", blacklistRoles = "NA", entries = "NA", winnerRoles = "NA", wallet = "No";
-            
-            if (rolesReq) reqRoles = parseRoles(rolesReq);
-            if (blacklistedRoles) blacklistRoles = parseRoles(blacklistedRoles);
-            if (bonus) entries = getEntries(bonus);
-            if (winnerRole) winnerRoles = winnerRole.id;
-            if (walletReq) wallet = "Yes";
-      
-            
-            const embed = makeEmbed(prize, winners, endTimestamp, wallet, reqRoles, blacklistRoles, entries, winnerRoles);
-            const sent = await channel.send({
-              embeds: [embed],
-              components: [row]
-            });
-            const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-            const data = [prize, winners, endTimestamp, winnerRoles, wallet, stringa(reqRoles), stringa(blacklistRoles), stringaoa(entries), sent.url].join("\n");
-            writeFileSync("./giveaways/giveawayConfigs" + filename, data);
-            writeFileSync("./giveaways/giveawayEntries" + filename, "");
-            const messageLinkRow = new ActionRowBuilder()
-              .addComponents(
-                new ButtonBuilder()
-                  .setLabel("Jump to Giveaway")
-                  .setStyle(ButtonStyle.Link)
-                  .setURL(sent.url)
-              );
-            return interaction.editReply({
-              content: `✅ Successfully created the giveaway`,
-              components: [messageLinkRow]
-            });*/
-
+      let followRequirement;
+      if (followReq) followRequirement = processFollow(followReq);
+      let descriptionString = "";
+      descriptionString += `:trophy: **Prize Name** : \`${prize}\`\n\n`;
+      descriptionString += `:crown: **Winners** : ${winners}\n\n`;
+      descriptionString += `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
+      descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${walletReq}\n\n`;
+      if (balReq) descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required** : ${balReq} Ξ\n\n`;
+      if (winnerRole) descriptionString += `:military_medal: **Role Awarded to Winners** : <@&${winnerRole.id}>\n\n`;
+      if (reqRoles) {
+        let reqroles = parseRoles(reqRoles);
+        reqroles = reqroles.join(">, <@&");
+        reqroles = `<@&${reqroles}>`;
+        descriptionString += `:lock: **Must have any of these roles** :\n${reqroles}\n\n`;
+      };
+      if (blacklistedRoles) {
+        let blacklist = parseRoles(blacklistedRoles);
+        blacklist = blacklist.join(">, <@&");
+        blacklist = `<@&${blacklist}>`;
+        descriptionString += `:x: **Must __*not*__ have any of these roles** :\n${blacklist}\n\n`;
+      };
+      if (bonus) {
+        let entries = getEntries(bonus);
+        descriptionString = descriptionString + ":busts_in_silhouette: **Multiple Entries** :\n";
+        entries.forEach((roleArray) => {
+          descriptionString = descriptionString + `<@&${roleArray[0]}> +${roleArray[1]} Entries\n`;
+        });
+        descriptionString = descriptionString + "\n";
+      };
+      if (followReq) {
+        descriptionString += `:: **Must follow these account(s)** : ${followRequirement}\n\n`;
+      };
+      if (likeReq) {
+        descriptionString += `:heart: **Must like this tweet** : \n${likeReq}\n\n`;
+      };
+      if (rtReq) {
+        descriptionString += `:arrows_clockwise: **Must retweet this tweet** : \n${rtReq}\n\n`;
+      };
+      const embed = new EmbedBuilder()
+        .setTitle("Active Giveaway")
+        .setDescription(descriptionString)
+        .setColor("#35FF6E")
+        .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
+      if (picture && picture.contentType === "image") {
+        embed.setImage(picture.url);
+      };
+      const postChannel = await client.guilds.cache.get(interaction.guild.id).channels.fetch(channel.id);
+      const sent = await postChannel.send({
+        content: ping,
+        embeds: [embed],
+        components: [row]
+      });
+      const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
+      const data = [prize, winners, walletReq, endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? processRole(reqRoles) : "NA", (blacklistedRoles) ? processRole(blacklistedRoles) : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? followReq : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA"];
+      writeFileSync("./giveaways/giveawayConfigs" + filename, data);
+      writeFileSync("./giveaways/giveawayEntries" + filename, "");
+      const messageLinkRow = new ActionRowBuilder()
+        .addComponents(
+          new ButtonBuilder()
+            .setLabel("Jump to Giveaway")
+            .setStyle(ButtonStyle.Link)
+            .setURL(sent.url)
+        );
+      return interaction.editReply({
+        content: `✅ Successfully created the giveaway`,
+        components: [messageLinkRow]
+      });
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
