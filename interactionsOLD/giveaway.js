@@ -126,27 +126,27 @@ module.exports = {
       const prize = interaction.options.getString("prize");
       const channel = interaction.options.getChannel("channel");
       const winners = interaction.options.getInteger("winners");
-      const duration = interaction.options.getString("duration");
       const walletReq = interaction.options.getBoolean("req-wallet");
-      const bonus = interaction.options.getString("bonus-entries");
-      const rolesReq = interaction.options.getString("req-roles");
+      const time = interaction.options.getString("duration");
+      const ping = interaction.options.getString("ping-role");
       const blacklistedRoles = interaction.options.getString("blacklist-roles");
+      const bonus = interaction.options.getString("bonus-entries");
+      const balReq = interaction.options.getNumber("minimum-balance");
+      const reqRoles = interaction.options.getString("req-roles");
       const winnerRole = interaction.options.getRole("winner-role-add");
+      const picture = interaction.options.getAttachment("attach-picture");
 
-      if (rolesReq) {
-        let roles = 0;
-        for (i = 0; i < rolesReq.length; i++) {
-          const char = rolesReq.charAt(i);
-          const char2 = rolesReq.charAt(i + 1);
-          if (char === "@" && char2 === "&") roles++;
-        };
-        let commas = 0;
-        for (i = 0; i < rolesReq.length; i++) {
-          const char = rolesReq.charAt(i);
-          if (char === ",") commas++;
-        };
-        if (roles - 1 !== commas) return interaction.editReply(`Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
-      };
+      const followReq = interaction.options.getString("follow-twit-req");
+      const likeReq = interaction.options.getString("like-twit-req");
+      const rtReq = interaction.options.getString("rt-twit-req");
+
+      const permissions = channel.permissionsFor(client.user.id);
+      if (!permissions.has(PermissionsBitField.Flags.ViewChannel)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
+      if (!permissions.has(PermissionsBitField.Flags.SendMessages)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
+      if (!permissions.has(PermissionsBitField.Flags.ReadMessageHistory)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
+      if (!permissions.has(PermissionsBitField.Flags.EmbedLinks)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
+
+      const endTimestamp = findTimestamp(time.toLowerCase().trim());
       if (blacklistedRoles) {
         let roles = 0;
         for (i = 0; i < blacklistedRoles.length; i++) {
@@ -175,41 +175,52 @@ module.exports = {
         };
         if (roles - 1 !== commas) return interaction.editReply(`Please enter the bonus roles in correct format.\nexample:\nFor 1 role: \`@role 5\`\nFor multiple roles: Mention the roles and state number of entries ( **separated by space** ) and the roles **must be separated by commas ","**:\n\`@role1 5, @role2 6, @role3 7 ( ... )\``);
       };
+      if (balReq && !walletReq) return interaction.editReply("Minimum balance requirement is only supported in giveaways with wallet required set to true.");
+      if (reqRoles) {
+        let roles = 0;
+        for (i = 0; i < rolesReq.length; i++) {
+          const char = rolesReq.charAt(i);
+          const char2 = rolesReq.charAt(i + 1);
+          if (char === "@" && char2 === "&") roles++;
+        };
+        let commas = 0;
+        for (i = 0; i < rolesReq.length; i++) {
+          const char = rolesReq.charAt(i);
+          if (char === ",") commas++;
+        };
+        if (roles - 1 !== commas) return interaction.editReply(`Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
+      };
+      /*
+            let reqRoles = "NA", blacklistRoles = "NA", entries = "NA", winnerRoles = "NA", wallet = "No";
+            
+            if (rolesReq) reqRoles = parseRoles(rolesReq);
+            if (blacklistedRoles) blacklistRoles = parseRoles(blacklistedRoles);
+            if (bonus) entries = getEntries(bonus);
+            if (winnerRole) winnerRoles = winnerRole.id;
+            if (walletReq) wallet = "Yes";
+      
+            
+            const embed = makeEmbed(prize, winners, endTimestamp, wallet, reqRoles, blacklistRoles, entries, winnerRoles);
+            const sent = await channel.send({
+              embeds: [embed],
+              components: [row]
+            });
+            const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
+            const data = [prize, winners, endTimestamp, winnerRoles, wallet, stringa(reqRoles), stringa(blacklistRoles), stringaoa(entries), sent.url].join("\n");
+            writeFileSync("./giveaways/giveawayConfigs" + filename, data);
+            writeFileSync("./giveaways/giveawayEntries" + filename, "");
+            const messageLinkRow = new ActionRowBuilder()
+              .addComponents(
+                new ButtonBuilder()
+                  .setLabel("Jump to Giveaway")
+                  .setStyle(ButtonStyle.Link)
+                  .setURL(sent.url)
+              );
+            return interaction.editReply({
+              content: `✅ Successfully created the giveaway`,
+              components: [messageLinkRow]
+            });*/
 
-      let reqRoles = "NA", blacklistRoles = "NA", entries = "NA", winnerRoles = "NA", wallet = "No";
-      const endTimestamp = findTimestamp(duration.toLowerCase().trim());
-      if (rolesReq) reqRoles = parseRoles(rolesReq);
-      if (blacklistedRoles) blacklistRoles = parseRoles(blacklistedRoles);
-      if (bonus) entries = getEntries(bonus);
-      if (winnerRole) winnerRoles = winnerRole.id;
-      if (walletReq) wallet = "Yes";
-
-      const permissions = channel.permissionsFor(client.user.id);
-      if (!permissions.has(PermissionsBitField.Flags.ViewChannel)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-      if (!permissions.has(PermissionsBitField.Flags.SendMessages)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-      if (!permissions.has(PermissionsBitField.Flags.ReadMessageHistory)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-      if (!permissions.has(PermissionsBitField.Flags.EmbedLinks)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-
-      const embed = makeEmbed(prize, winners, endTimestamp, wallet, reqRoles, blacklistRoles, entries, winnerRoles);
-      const sent = await channel.send({
-        embeds: [embed],
-        components: [row]
-      });
-      const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-      const data = [prize, winners, endTimestamp, winnerRoles, wallet, stringa(reqRoles), stringa(blacklistRoles), stringaoa(entries), sent.url].join("\n");
-      writeFileSync("./giveaways/giveawayConfigs" + filename, data);
-      writeFileSync("./giveaways/giveawayEntries" + filename, "");
-      const messageLinkRow = new ActionRowBuilder()
-        .addComponents(
-          new ButtonBuilder()
-            .setLabel("Jump to Giveaway")
-            .setStyle(ButtonStyle.Link)
-            .setURL(sent.url)
-        );
-      return interaction.editReply({
-        content: `✅ Successfully created the giveaway`,
-        components: [messageLinkRow]
-      });
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
