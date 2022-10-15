@@ -235,7 +235,7 @@ module.exports = {
         components: [row]
       });
       const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-      const data = [prize, winners, walletReq, endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? processRole(reqRoles) : "NA", (blacklistedRoles) ? processRole(blacklistedRoles) : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? followReq : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA"];
+      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? processRole(reqRoles) : "NA", (blacklistedRoles) ? processRole(blacklistedRoles) : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? followReq : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA"];
       writeFileSync("./giveaways/giveawayConfigs" + filename, data);
       writeFileSync("./giveaways/giveawayEntries" + filename, "");
       const messageLinkRow = new ActionRowBuilder()
