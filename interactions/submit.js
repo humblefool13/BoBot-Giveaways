@@ -32,16 +32,6 @@ const rowGlobalDis = new ActionRowBuilder()
       .setCustomId("globalyes")
       .setStyle(ButtonStyle.Primary),
   );
-const modal = new ModalBuilder()
-  .setTitle("Submit Wallet Address")
-  .setCustomId("modal");
-const question = new TextInputBuilder()
-  .setCustomId('walletAddress')
-  .setLabel("Please enter your wallet address below.")
-  .setPlaceholder('0x.........')
-  .setStyle(TextInputStyle.Short);
-const firstActionRow = new ActionRowBuilder().addComponents(question);
-modal.addComponents(firstActionRow);
 function MakeEmbedDes(des) {
   const embed = new EmbedBuilder()
     .setColor("#35FF6E")
@@ -53,6 +43,15 @@ function MakeEmbedDes(des) {
 module.exports = {
   name: "submit",
   async interact(client, interaction) {
+    const modal = new ModalBuilder()
+      .setTitle("Submit Wallet Address")
+      .setCustomId("modal");
+    const question = new TextInputBuilder()
+      .setCustomId('walletAddress')
+      .setLabel("Please enter your wallet address below.")
+      .setStyle(TextInputStyle.Short);
+    const firstActionRow = new ActionRowBuilder().addComponents(question);
+    modal.addComponents(firstActionRow);
     try {
       await interaction.deferReply({ ephemeral: true });
       const sub = subs.findOne({
@@ -69,6 +68,7 @@ module.exports = {
           components: [rownew],
           fetchReply: true
         });
+        question.setPlaceholder('0x.........');
       } else {
         globalWallet = find.wallet_global;
         savedWallets = find.wallets;
@@ -81,6 +81,11 @@ module.exports = {
           components: [rowchange],
           fetchReply: true,
         });
+        if (globalWallet.startsWith("0x")) {
+          question.setPlaceholder(globalWallet);
+        } else {
+          question.setPlaceholder('0x.........');
+        };
       };
       const filter = (int) => int.customId === 'submitmodal' && int.user.id === interaction.user.id;
       const collector = await sent.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000, max: 1 });
@@ -136,13 +141,13 @@ module.exports = {
         };
         const globalFilter = (int) => int.user.id === interaction.user.id && int.customId === "globalyes";
         const globalcollector = await sentv2.createMessageComponentCollector({ filter: globalFilter, componentType: ComponentType.Button, time: 60000, max: 1 });
-        globalcollector.on('collect',async(i)=>{
+        globalcollector.on('collect', async (i) => {
           await i.deferUpdate();
           const findNew = await wallets.findOne({
             discord_id: interaction.user.id,
           });
           findNew.wallet_global = walletNew;
-          await findNew.save().catch(e=>{});
+          await findNew.save().catch(e => { });
           await i.update({
             components: [],
             embeds: [MakeEmbedDes(`The wallet address\n\n**${walletNew}**\n\nis now set as your global wallet and will be automatically used in all discord servers unless you save a new wallet in a specific server.`)],
