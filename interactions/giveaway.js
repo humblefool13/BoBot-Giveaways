@@ -124,10 +124,11 @@ module.exports = {
       const ping = interaction.options.getString("ping-role");
       const blacklistedRoles = interaction.options.getString("blacklist-roles");
       const bonus = interaction.options.getString("bonus-entries");
-      const balReq = interaction.options.getNumber("minimum-balance");
+      const balReq = interaction.options.getNumber("minimum-balance"); //left
       const reqRoles = interaction.options.getString("req-roles");
       const winnerRole = interaction.options.getRole("winner-role-add");
       const picture = interaction.options.getAttachment("attach-picture");
+      
       const followReq = interaction.options.getString("follow-twit-req");
       const likeReq = interaction.options.getString("like-twit-req");
       const rtReq = interaction.options.getString("rt-twit-req");
