@@ -37,31 +37,67 @@ module.exports = {
         });
       };
       if (blacklistedRoles) {
-        arr, push({
+        let roles = 0;
+        for (i = 0; i < blacklistedRoles.length; i++) {
+          const char = blacklistedRoles.charAt(i);
+          const char2 = blacklistedRoles.charAt(i + 1);
+          if (char === "@" && char2 === "&") roles++;
+        };
+        let commas = 0;
+        for (i = 0; i < blacklistedRoles.length; i++) {
+          const char = blacklistedRoles.charAt(i);
+          if (char === ",") commas++;
+        };
+        if (roles - 1 !== commas) return interaction.editReply(`Please enter the blacklisted roles in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
+        arr.push({
           name: "blacklistedRoles",
           value: blacklistedRoles,
         });
       };
       if (bonus) {
-        arr, push({
+        let roles = 0;
+        for (i = 0; i < bonus.length; i++) {
+          const char = bonus.charAt(i);
+          const char2 = bonus.charAt(i + 1);
+          if (char === "@" && char2 === "&") roles++;
+        };
+        let commas = 0;
+        for (i = 0; i < bonus.length; i++) {
+          const char = bonus.charAt(i);
+          if (char === ",") commas++;
+        };
+        if (roles - 1 !== commas) return interaction.editReply(`Please enter the bonus roles in correct format.\nexample:\nFor 1 role: \`@role 5\`\nFor multiple roles: Mention the roles and state number of entries ( **separated by space** ) and the roles **must be separated by commas ","**:\n\`@role1 5, @role2 6, @role3 7 ( ... )\``);
+        arr.push({
           name: "bonus",
           value: bonus,
         });
       };
       if (balReq) {
-        arr, push({
+        arr.push({
           name: "balReq",
           value: balReq,
         });
       };
       if (reqRoles) {
-        arr, push({
+        let roles = 0;
+        for (i = 0; i < rolesReq.length; i++) {
+          const char = rolesReq.charAt(i);
+          const char2 = rolesReq.charAt(i + 1);
+          if (char === "@" && char2 === "&") roles++;
+        };
+        let commas = 0;
+        for (i = 0; i < rolesReq.length; i++) {
+          const char = rolesReq.charAt(i);
+          if (char === ",") commas++;
+        };
+        if (roles - 1 !== commas) return interaction.editReply(`Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
+        arr.push({
           name: "reqRoles",
           value: reqRoles,
         });
       };
       if (winnerRole) {
-        arr, push({
+        arr.push({
           name: "winnerRole",
           value: winnerRole,
         });
