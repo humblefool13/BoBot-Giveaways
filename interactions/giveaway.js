@@ -113,6 +113,9 @@ module.exports = {
       const getRole = await configs.findOne({
         server_id: interaction.guildId,
       });
+      if (!getRole) return interaction.editReply({
+        embeds: [MakeEmbedDes("The subscription for this server has expired, please renew at the [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to continue using the services.")],
+      });
       const managerRole = getRole.role;
       if (!interaction.member.roles.cache.has(managerRole)) return interaction.editReply({
         content: `Only <@&${managerRole}> can use this command.`
