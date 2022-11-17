@@ -31,10 +31,7 @@ module.exports = {
         embeds: [MakeEmbedDes("Please fill atleast one option to add to default settings of this server.")]
       });
       if (ping) {
-        arr.push({
-          name: "ping",
-          value: ping,
-        });
+        arr.ping = ping;
       };
       if (blacklistedRoles) {
         let roles = 0;
@@ -49,10 +46,7 @@ module.exports = {
           if (char === ",") commas++;
         };
         if (roles - 1 !== commas) return interaction.editReply(`Please enter the blacklisted roles in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
-        arr.push({
-          name: "blacklistedRoles",
-          value: blacklistedRoles,
-        });
+        arr.blacklistedRoles = blacklistedRoles;
       };
       if (bonus) {
         let roles = 0;
@@ -67,16 +61,10 @@ module.exports = {
           if (char === ",") commas++;
         };
         if (roles - 1 !== commas) return interaction.editReply(`Please enter the bonus roles in correct format.\nexample:\nFor 1 role: \`@role 5\`\nFor multiple roles: Mention the roles and state number of entries ( **separated by space** ) and the roles **must be separated by commas ","**:\n\`@role1 5, @role2 6, @role3 7 ( ... )\``);
-        arr.push({
-          name: "bonus",
-          value: bonus,
-        });
+        arr.bonus = bonus;
       };
       if (balReq) {
-        arr.push({
-          name: "balReq",
-          value: balReq,
-        });
+        arr.balReq = balReq;
       };
       if (reqRoles) {
         let roles = 0;
@@ -91,16 +79,10 @@ module.exports = {
           if (char === ",") commas++;
         };
         if (roles - 1 !== commas) return interaction.editReply(`Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
-        arr.push({
-          name: "reqRoles",
-          value: reqRoles,
-        });
+        arr.reqRoles = reqRoles;
       };
       if (winnerRole) {
-        arr.push({
-          name: "winnerRole",
-          value: winnerRole,
-        });
+        arr.winnerRole = winnerRole;
       };
       const find = await defaults.findOne({
         server_id: interaction.guildId,

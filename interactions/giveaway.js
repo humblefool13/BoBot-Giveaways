@@ -1,7 +1,9 @@
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionsBitField, Embed } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionsBitField, Embed, DefaultUserAgent } = require("discord.js");
 const configs = require("../models/configurations.js");
 const subs = require("../models/subscriptions.js");
+const defaults = require("../models/defaults");
 const { writeFileSync } = require("fs");
+const { isGeneratorFunction } = require("util/types");
 function findTimestamp(durationString) {
   const split = durationString.split(" ");
   let timestamp = Date.now();
@@ -116,19 +118,23 @@ module.exports = {
         content: `Only <@&${managerRole}> can use this command.`
       });
 
+      let defaultsData = await defaults.findOne({
+        server_id: interaction.guildId,
+      });
+      defaultsData = defaultsData.defaults;
+
       const prize = interaction.options.getString("prize");
       const channel = interaction.options.getChannel("channel");
       const winners = interaction.options.getInteger("winners");
       const walletReq = interaction.options.getBoolean("req-wallet");
       const time = interaction.options.getString("duration");
-      const ping = interaction.options.getString("ping-role");
-      const blacklistedRoles = interaction.options.getString("blacklist-roles");
-      const bonus = interaction.options.getString("bonus-entries");
-      const balReq = interaction.options.getNumber("minimum-balance"); 
-      const reqRoles = interaction.options.getString("req-roles");
-      const winnerRole = interaction.options.getRole("winner-role-add");
+      let ping = interaction.options.getString("ping-role");
+      let blacklistedRoles = interaction.options.getString("blacklist-roles");
+      let bonus = interaction.options.getString("bonus-entries");
+      let balReq = interaction.options.getNumber("minimum-balance");
+      let reqRoles = interaction.options.getString("req-roles");
+      let winnerRole = interaction.options.getRole("winner-role-add");
       const picture = interaction.options.getAttachment("attach-picture");
-
       const followReq = interaction.options.getString("follow-twit-req");
       const likeReq = interaction.options.getString("like-twit-req");
       const rtReq = interaction.options.getString("rt-twit-req");
@@ -138,6 +144,25 @@ module.exports = {
       if (!permissions.has(PermissionsBitField.Flags.SendMessages)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
       if (!permissions.has(PermissionsBitField.Flags.ReadMessageHistory)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
       if (!permissions.has(PermissionsBitField.Flags.EmbedLinks)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
+
+      if (!ping && defaultsData.ping) {
+        ping = defaultsData.ping;
+      };
+      if (!blacklistedRoles && defaultsData.blacklistedRoles) {
+        blacklistedRoles = defaultsData.blacklistedRoles;
+      };
+      if (!bonus && defaultsData.bonus) {
+        bonus = defaultsData.bonus;
+      };
+      if (!balReq && defaultsData.balReq) {
+        balReq = defaultsData.balReq;
+      };
+      if (!reqRoles && defaultsData.reqroles) {
+        reqRoles = defaultsData.reqroles;
+      };
+      if (!winnerRole && defaultsData.winnerRole) {
+        winnerRole = defaultsData.winnerRole;
+      };
 
       const endTimestamp = findTimestamp(time.toLowerCase().trim());
       if (blacklistedRoles) {
@@ -230,11 +255,20 @@ module.exports = {
         embed.setImage(picture.url);
       };
       const postChannel = await client.guilds.cache.get(interaction.guild.id).channels.fetch(channel.id);
-      const sent = await postChannel.send({
-        content: ping,
-        embeds: [embed],
-        components: [row]
-      });
+      let sent;
+      if (ping) {
+        sent = await postChannel.send({
+          content: ping,
+          embeds: [embed],
+          components: [row]
+        });
+      } else {
+        sent = await postChannel.send({
+          embeds: [embed],
+          components: [row]
+        });
+      };
+
       const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
       const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? processRole(reqRoles) : "NA", (blacklistedRoles) ? processRole(blacklistedRoles) : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? followReq : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA"];
       writeFileSync("./giveaways/giveawayConfigs" + filename, data);
