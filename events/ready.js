@@ -144,6 +144,7 @@ module.exports = {
                     content: msg,
                   });
                 };
+                //
                 const wallets = await wallets_records.find({
                   server_id: location[0],
                 });

@@ -102,19 +102,18 @@ module.exports = {
       const twitterDB = await twitter.findOne({
         discord_id: interaction.member.id,
       });
-      
       if (followReq !== "NA") {
 
       };
+      if (!rtReq !== "NA") {
 
-      /*
+      }
+      if (!likeReq !== "NA") {
 
-      [prize, winners, walletReq, endTimestamp, balReq, winnerRole, reqRoles, blacklistedRoles, >>>> bonus. followReq, likeReq, rtReq];
-
+      };
       for (i = 1; i <= userEntries; i++) {
         entries.push(interaction.member.id);
       };
-      
       const entriesString = entries.join("\n");
       fs.writeFileSync(`./giveaways/giveawayEntries/${giveawayEntriesFile}`, entriesString);
       const locationString = giveawayConfigsFile.slice(0, giveawayConfigsFile.length - 4);
@@ -135,7 +134,7 @@ module.exports = {
       };
       return interaction.editReply({
         embeds: [MakeEmbedDes(replyContent)],
-      });*/
+      });
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
