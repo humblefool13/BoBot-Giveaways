@@ -2,7 +2,15 @@ const twitter_db = require("../models/twitter.js");
 const subs = require("../models/subscriptions.js");
 const fetch = require("node-fetch");
 const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder } = require('discord.js');
-const rownew = new ActionRowBuilder()
+const rowFirst = new ActionRowBuilder()
+  .addComponents(
+    new ButtonBuilder()
+      .setLabel("New Twitter Account!")
+      .setCustomId("verifymodal")
+      .setURL("https://twitter.com/i/oauth2/authorize?response_type=code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=https://twitter.humblefool13.repl.co&scope=tweet.read%20like.read%20users.read%20follows.read%20offline.access&state=state&code_challenge=challenge&code_challenge_method=plain")
+      .setStyle(ButtonStyle.Link),
+  );
+/*const rownew = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
       .setLabel("Verify Twitter Account!")
@@ -56,7 +64,7 @@ async function getTwitterData(username, hex) {
   } else {
     return [false];
   }
-};
+};*/
 
 module.exports = {
   name: "twitterv",
@@ -70,6 +78,21 @@ module.exports = {
       const find = await twitter_db.findOne({
         discord_id: interaction.user.id,
       });
+      let sent;
+      if (find) {
+        sent = await interaction.editReply({
+          content: 'You have already connected your twitter account. You do not need to do it twice!\n\nDo you need to change it?',
+          components: [rowFirst],
+          fetchReply: true
+        });
+      } else {
+        sent = await interaction.editReply({
+          content: 'Click the button below to connect your twitter account! This is a one-time process!',
+          components: [rowFirst],
+          fetchReply: true
+        });
+      };
+      /*
       let sent;
       const hex = genHexString(6);
       if (!find) {
@@ -121,7 +144,7 @@ module.exports = {
           components: [],
           embeds: [MakeEmbedDes(`Verification Failed.\nReason: The string \`bobot-${hex}\` was not found in the bio.`)],
         });
-      };
+      };*/
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
