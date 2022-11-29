@@ -3,7 +3,6 @@ const configs = require("../models/configurations.js");
 const subs = require("../models/subscriptions.js");
 const defaults = require("../models/defaults");
 const { writeFileSync } = require("fs");
-const { isGeneratorFunction } = require("util/types");
 function findTimestamp(durationString) {
   const split = durationString.split(" ");
   let timestamp = Date.now();
