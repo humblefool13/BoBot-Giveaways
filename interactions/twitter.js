@@ -1,70 +1,45 @@
 const twitter_db = require("../models/twitter.js");
 const subs = require("../models/subscriptions.js");
 const fetch = require("node-fetch");
+const authRequest = require("twitter-v1-oauth").default;
 const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder } = require('discord.js');
 const rowFirst = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
-      .setLabel("New Twitter Account!")
-      .setCustomId("verifymodal")
-      .setURL("https://twitter.com/i/oauth2/authorize?response_type=code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=https://twitter.humblefool13.repl.co&scope=tweet.read%20like.read%20users.read%20follows.read%20offline.access&state=state&code_challenge=challenge&code_challenge_method=plain")
-      .setStyle(ButtonStyle.Link),
+      .setLabel("Please Wait!")
+      .setEmoji("973124874124005396")
+      .setCustomId("loadingButton")
+      .setDisabled(true)
+      .setStyle(ButtonStyle.Primary),
   );
-/*const rownew = new ActionRowBuilder()
-  .addComponents(
-    new ButtonBuilder()
-      .setLabel("Verify Twitter Account!")
-      .setCustomId("verifymodal")
-      .setStyle(ButtonStyle.Success),
-  );
-const rowchange = new ActionRowBuilder()
-  .addComponents(
-    new ButtonBuilder()
-      .setLabel("Yes, change old twitter!")
-      .setCustomId("verifymodal")
-      .setStyle(ButtonStyle.Success),
-  );
+const oAuthOptions = {
+  api_key: process.env.TWITTER_API_KEY,
+  api_secret_key: process.env.TWITTER_API_SECRET_KEY,
+  access_token: process.env.TWITTER_ACCESS_TOKEN,
+  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+};
+function rowBuilder(link) {
+  const row = new ActionRowBuilder()
+    .addComponents(
+      new ButtonBuilder()
+        .setLabel("Verify")
+        .setEmoji("✅")
+        .setCustomId("verifyButton")
+        .setURL(link)
+        .setStyle(ButtonStyle.Link),
+    );
+  return row;
+};
 const modal = new ModalBuilder()
-  .setTitle("BoBot Twitter Verification")
+  .setTitle("Twitter Verification")
   .setCustomId("modalT");
 const question = new TextInputBuilder()
-  .setCustomId('twitterUsername')
-  .setLabel("Please enter your twitter username below.")
-  .setPlaceholder('@UsErNaMe_xYz123_234/*')
+  .setCustomId('twitterCode')
+  .setLabel("Please enter the 7 digit code here!")
+  .setPlaceholder('1234567')
   .setStyle(TextInputStyle.Short);
 const firstActionRow = new ActionRowBuilder().addComponents(question);
 modal.addComponents(firstActionRow);
-function MakeEmbedDes(des) {
-  const embed = new EmbedBuilder()
-    .setColor("#35FF6E")
-    .setDescription(des)
-    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
-  return embed;
-};
-function genHexString(len) {
-  const str = Math.floor(Math.random() * Math.pow(16, len)).toString(16);
-  return ("0".repeat(len - str.length) + str).toLowerCase();
-};
-async function getTwitterData(username, hex) {
-  const url = `https://api.twitter.com/2/users/by/username/${username}?user.fields=description,name,profile_image_url`;
-  let result, response, retry = 0;
-  do {
-    ++retry;
-    result = await fetch(url, {
-      headers: {
-        "Authorization": `Bearer ${process.env["bearer_token"]}`,
-      }
-    });
-    response = await result.json();
-  } while (!response?.data?.id && retry < 50);
-  if (!response?.data) return "FAILED";
-  const data = response.data;
-  if (data.description.toLowerCase().includes(`bobot-${hex}`)) {
-    return [true, data];
-  } else {
-    return [false];
-  }
-};*/
 
 module.exports = {
   name: "twitterv",
@@ -81,70 +56,79 @@ module.exports = {
       let sent;
       if (find) {
         sent = await interaction.editReply({
-          content: 'You have already connected your twitter account. You do not need to do it twice!\n\nDo you need to change it?',
+          content: 'You have already connected your twitter account. You do not need to do it twice!\n\nDo you need to change it?\n\nOn successful verification you will get a code which you would have to paste here.\n\nIt\'s a one time process.',
           components: [rowFirst],
           fetchReply: true
         });
       } else {
         sent = await interaction.editReply({
-          content: 'Click the button below to connect your twitter account! This is a one-time process!',
+          content: 'Click the button below to connect your twitter account! This is a one-time process!\n\nOn successful verification you will get a code which you would have to paste here.',
           components: [rowFirst],
           fetchReply: true
         });
       };
-      /*
-      let sent;
-      const hex = genHexString(6);
-      if (!find) {
-        sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have not verified your twitter account previously.\nThis is a quick one time process and will verify you for all discord servers and giveaways this bot is used for!\n\nPlease add this to your twitter bio-\n\n**bobot-${hex}**\n\nAfter done please click the button below and you will be asked to enter your twitter @UsErNaMe@123.\n**NOTE**: Usernames are case sensitive.`)],
-          components: [rownew],
-          fetchReply: true
-        });
-      } else {
-        account = find.t_username;
-        sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have already verified this account to be yours-\n\n[@${account}](<https://twitter.com/${account}>)\n\nIf you want to change it, please add the following text in your new twitter account bio-\n\n**bobot-${hex}**\n\nAfter done please click the button below and you will be asked to enter your twitter @UsErNaMe@123.\n**NOTE**: Usernames are case sensitive.`)],
-          components: [rowchange],
-          fetchReply: true
-        });
-      };
-      const filter = (interactionCreated) => interactionCreated.customId === 'verifymodal' && interactionCreated.user.id === interaction.user.id;
+      const urlStep1 = "https://api.twitter.com/oauth/request_token?oauth_callback=oob";
+      const method = "POST";
+      const params = { q: "twitter bot" };
+      const authorization = authRequest({ method, urlStep1, params }, oAuthOptions);
+      const response = await fetch(urlStep1, {
+        method: "POST",
+        headers: {
+          "Authorization": authorization,
+        }
+      });
+      if (response.status !== 200) return interaction.editReply({
+        content: "Something went wrong. Please try again later."
+      });
+      const result = await response.json();
+      if (!result.oauth_callback_confirmed) return interaction.editReply({
+        content: "Something went wrong. Please try again later."
+      });
+      const urlStep2 = `https://api.twitter.com/oauth/authorize?oauth_token=${result.oauth_token}`;
+      sent = await interaction.editReply({
+        content: "Please click the button below to verify.",
+        components: [rowBuilder(urlStep2)],
+        fetchReply: true
+      });
+      const filter = (interactionCreated) => interactionCreated.customId === 'verifyButton' && interactionCreated.user.id === interaction.user.id;
       const collector = await sent.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000 * 5, max: 1 });
-      collector.on("collect", async (i) => {
+      collector.on('collect', async (i) => {
         await i.showModal(modal);
         const modalfilter = (modi) => modi.customId === 'modalT' && modi.user.id === interaction.user.id;
         const modalSubmit = await i.awaitModalSubmit({ filter: modalfilter, time: 60000 * 5 }).catch((e) => { });
         if (!modalSubmit) return i.editReply({
-          embeds: [MakeEmbedDes(`The username was not submitted within the time frame. Please "Dismiss Message" and start again.`)],
+          content: `The code was not submitted within the time frame. Please "Dismiss Message" and start again.`,
           components: [],
         });
       });
       modalSubmit.deferUpdate();
-      const input = modalSubmit.fields.getTextInputValue('twitterUsername');
-      const username = input.trim().replace("@", "");
-      const t_data = await getTwitterData(username, hex);
-      if (t_data === "FAILED") return i.editReply({
-        components: [],
-        embeds: [MakeEmbedDes(`Oops! Something went wrong.\nPlease try again in sometime.`)],
+      let code = modalSubmit.fields.getTextInputValue('twitterCode');
+      code = code.trim();
+      const urlStep3 = `https://api.twitter.com/oauth/access_token?oauth_verifier=${code}&oauth_token=${result.oauth_token}`;
+      const responseStep3 = await fetch(urlStep3, {
+        method: "POST",
       });
-      if (t_data[0]) {
-        const data = t_data[1];
-        await new twitter_db({
-          discord_id: interaction.user.id,
-          twitter_id: data.id,
-          t_username: data.username,
-        }).save().catch((e) => console.log(e));
-        return i.editReply({
+      const resultStep3 = await responseStep3.json();
+      if (!resultStep3.screen_name) {
+        return interaction.editReply({
           components: [],
-          embeds: [MakeEmbedDes(`Verification Successful!\n\nName: ${data.name}\nUsername: ${data.username}\nBio: ${data.description}\n\nNow you may remove the \`bobot-${hex}\` from your bio and your account is saved for all servers and all present/future giveaways!`).setThumbnail(data.profile_image_url)],
+          content: `Verification Failed.\n\nPlease try again sometime later.`,
         });
       } else {
-        return i.editReply({
-          components: [],
-          embeds: [MakeEmbedDes(`Verification Failed.\nReason: The string \`bobot-${hex}\` was not found in the bio.`)],
+        await twitter_db.deleteMany({
+          discord_id: interaction.user.id,
+        }).catch();
+        await new twitter_db({
+          discord_id: interaction.user.id,
+          outh_token: resultStep3.oauth_token,
+          outh_token_secret: resultStep3.oauth_token_secret,
+          screen_name: resultStep3.screen_name,
+          twitter_id: resultStep3.user_id,
+        }).save().catch((e) => console.log(e));
+        return interaction.editReply({
+          content: `Verification Successful!\n\nTwitter Username: **${resultStep3.screen_name}**.`,
         });
-      };*/
+      };
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
