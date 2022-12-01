@@ -97,6 +97,21 @@ function processFollow(input) {
   });
   return exportString;
 };
+async function idsOfAccounts(accountNames) {
+  let accounts = accountNames.split(",");
+  accounts = accounts.map((account) => account.trim().replace("@", ""));
+  const requestString = accounts.join(",");
+  const url = `https://api.twitter.com/2/users/by?usernames=${requestString}`;
+  const result = await fetch(url, {
+    headers: {
+      "Authorization": `Bearer ${process.env.bearer_token}`
+    }
+  });
+  const response = await result.json();
+  const data = response.data;
+  const ids = data.map((account) => account.id);
+  return ids;
+};
 
 module.exports = {
   name: "giveaway",
@@ -270,9 +285,10 @@ module.exports = {
           components: [row]
         });
       };
+      const ids = await idsOfAccounts(followReq);
 
       const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? processRole(reqRoles) : "NA", (blacklistedRoles) ? processRole(blacklistedRoles) : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? followReq : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA"];
+      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? processRole(reqRoles) : "NA", (blacklistedRoles) ? processRole(blacklistedRoles) : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA"];
       writeFileSync("./giveaways/giveawayConfigs" + filename, data);
       writeFileSync("./giveaways/giveawayEntries" + filename, "");
       const messageLinkRow = new ActionRowBuilder()
