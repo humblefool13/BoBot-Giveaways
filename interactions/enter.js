@@ -2,6 +2,7 @@ const fs = require("fs");
 const fetch = require("node-fetch");
 const wallets = require("../models/wallets.js");
 const twitter = require('../models/twitter.js');
+const authRequest = require("twitter-v1-oauth").default;
 const { EmbedBuilder } = require("discord.js");
 function makeEmbed(messageEmbed, entries) {
   const embed = new EmbedBuilder()
@@ -18,6 +19,12 @@ function MakeEmbedDes(des) {
     .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
 };
+const oAuthOptions = {
+  api_key: process.env.TWITTER_API_KEY,
+  api_secret_key: process.env.TWITTER_API_SECRET_KEY,
+  access_token: process.env.TWITTER_ACCESS_TOKEN,
+  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+};
 function findunique(entries) {
   let unique = [];
   entries.forEach((entry) => {
@@ -25,6 +32,79 @@ function findunique(entries) {
     unique.push(entry);
   });
   return unique.length;
+};
+async function checkifFollows(code, secret, id, followReq) {
+  let userAuths = oAuthOptions;
+  userAuths.access_token = code;
+  userAuths.access_token_secret = secret;
+  const url = `https://api.twitter.com/1.1/friendships/show.json?source_id=${id}`;
+  let follows = [];
+  for (const account_id in followReq) {
+    const url2 = url + `&target_id=${account_id}`;
+    const method = "GET";
+    const params = { q: "twitter bot" };
+    const authorization = authRequest({ method, url2, params }, userAuths);
+    const response = await fetch(urlStep1, {
+      method,
+      headers: {
+        "Authorization": authorization,
+      }
+    });
+    if (response.status !== 200) return [false, "err"];
+    const result = await response.json();
+    follows.push(result.target.followed_by);
+  };
+  const followsBool = !(follows.includes(false));
+  return [followsBool, "none"];
+};
+function getTweetID(link) {
+  const indexSlash = link.lastIndexOf("/");
+  const indexQuestionIfAny = link.indexOf("?");
+  if (indexQuestionIfAny !== -1) {
+    return link.slice(indexSlash + 1, indexQuestionIfAny);
+  } else {
+    return link.slice(indexSlash + 1);
+  };
+};
+async function checkIfRTed(code, secret, id, tweet_id) {
+  let userAuths = oAuthOptions;
+  userAuths.access_token = code;
+  userAuths.access_token_secret = secret;
+  const url = `https://api.twitter.com/2/users/${id}/retweets`;
+  const method = "POST";
+  const params = { q: "twitter bot" };
+  const authorization = authRequest({ method, url, params }, userAuths);
+  const response = await fetch(url, {
+    method,
+    body: {
+      "tweet_id": tweet_id,
+    },
+    headers: {
+      "Authorization": authorization,
+    },
+  });
+  const result = await response.json();
+  return result.data.retweeted;
+};
+async function checkIfLiked(code, secret, id, tweet_id) {
+  let userAuths = oAuthOptions;
+  userAuths.access_token = code;
+  userAuths.access_token_secret = secret;
+  const url = `https://api.twitter.com/2/users/${id}/likes`;
+  const method = "POST";
+  const params = { q: "twitter bot" };
+  const authorization = authRequest({ method, url, params }, userAuths);
+  const response = await fetch(url, {
+    method,
+    body: {
+      "tweet_id": tweet_id,
+    },
+    headers: {
+      "Authorization": authorization,
+    },
+  });
+  const result = await response.json();
+  return result.data.liked;
 };
 
 module.exports = {
@@ -101,15 +181,62 @@ module.exports = {
       };
       const twitterDB = await twitter.findOne({
         discord_id: interaction.member.id,
-      });
+      }).catch();
+      const code = twitterDB.oauth_token;
+      const secret = twitterDB.outh_token_secret;
+      const id = twitterDB.twitter_id;
       if (followReq !== "NA") {
-
+        if (!twitterDB) return interaction.editReply({
+          content: "This giveaway has some twitter requirement(s). Please verify your twitter account in order to enter this giveaway. You can find the verification button right next to the button you submitted your wallet address in.",
+          components: [],
+          embeds: [],
+        });
+        const follows = await checkifFollows(code, secret, id, followReq);
+        if (follows[1] === 'none' && !follows[0]) {
+          return interaction.editReply({
+            content: "You do not follow the required accounts on twitter. Please do so and try entering again",
+            components: [],
+            embeds: []
+          });
+        } else if (follows[1] === 'err') {
+          return interaction.editReply({
+            content: "Something went wrong. Please try again later.",
+            components: [],
+            embeds: []
+          });
+        };
       };
-      if (!rtReq !== "NA") {
-
+      if (rtReq !== "NA") {
+        if (!twitterDB) return interaction.editReply({
+          content: "This giveaway has some twitter requirement(s). Please verify your twitter account in order to enter this giveaway. You can find the verification button right next to the button you submitted your wallet address in.",
+          components: [],
+          embeds: [],
+        });
+        const tweet_id = getTweetID(rtReq);
+        const rted = await checkIfRTed(code, secret, id, tweet_id);
+        if (!rted) {
+          return interaction.editReply({
+            content: `Please complete the twitter retweet requirement by retweeting this tweet -\n\n<${rtReq}>`,
+            components: [],
+            embeds: []
+          });
+        };
       }
-      if (!likeReq !== "NA") {
-
+      if (likeReq !== "NA") {
+        if (!twitterDB) return interaction.editReply({
+          content: "This giveaway has some twitter requirement(s). Please verify your twitter account in order to enter this giveaway. You can find the verification button right next to the button you submitted your wallet address in.",
+          components: [],
+          embeds: [],
+        });
+        const tweet_id = getTweetID(likeReq);
+        const liked = await checkIfLiked(code, secret, id, tweet_id);
+        if (!liked) {
+          return interaction.editReply({
+            content: `Please complete the twitter like requirement by liking this tweet -\n\n<${likeReq}>`,
+            components: [],
+            embeds: []
+          });
+        };
       };
       for (i = 1; i <= userEntries; i++) {
         entries.push(interaction.member.id);
