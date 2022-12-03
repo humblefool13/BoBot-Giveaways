@@ -162,24 +162,156 @@ module.exports = {
       if (!permissions.has(PermissionsBitField.Flags.ReadMessageHistory)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
       if (!permissions.has(PermissionsBitField.Flags.EmbedLinks)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
 
+      const row1 = new ActionRowBuilder();
+      const row2 = new ActionRowBuilder();
+      const row3 = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel("X")
+          .setStyle(ButtonStyle.Secondary)
+          .setCustomId("lol")
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setLabel("X")
+          .setStyle(ButtonStyle.Secondary)
+          .setCustomId("lol")
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setLabel("X")
+          .setStyle(ButtonStyle.Secondary)
+          .setCustomId("lol")
+          .setDisabled(true),
+      );
+      const row4 = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel("Skip")
+          .setStyle(ButtonStyle.Primary)
+          .setCustomId("skip"),
+        new ButtonBuilder()
+          .setLabel("X")
+          .setStyle(ButtonStyle.Secondary)
+          .setCustomId("lol")
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setLabel("Done")
+          .setStyle(ButtonStyle.Success)
+          .setCustomId("done")
+      );
+      let rowsIds = ["done", "skip"];
+
       if (!ping && defaultsData.ping) {
-        ping = defaultsData.ping;
+        row1.addComponents(
+          new ButtonBuilder()
+            .setLabel("Default Ping Message")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultPing")
+        );
+        rowsIds.push('defaultPing');
       };
       if (!blacklistedRoles && defaultsData.blacklistedRoles) {
-        blacklistedRoles = defaultsData.blacklistedRoles;
+        row1.addComponents(
+          new ButtonBuilder()
+            .setLabel("Default Blacklisting Setting")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultBL")
+        );
+        rowsIds.push('defaultBL');
       };
       if (!bonus && defaultsData.bonus) {
-        bonus = defaultsData.bonus;
+        row1.addComponents(
+          new ButtonBuilder()
+            .setLabel("Default Bonus Setting")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultBonus")
+        );
+        rowsIds.push('defaultBonus');
       };
       if (!balReq && defaultsData.balReq) {
-        balReq = defaultsData.balReq;
+        row2.addComponents(
+          new ButtonBuilder()
+            .setLabel("Default Balance Req")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultBal")
+        );
+        rowsIds.push('defaultBal');
       };
       if (!reqRoles && defaultsData.reqroles) {
-        reqRoles = defaultsData.reqroles;
+        row2.addComponents(
+          new ButtonBuilder()
+            .setLabel("Default Roles Req")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultRoles")
+        );
+        rowsIds.push('defaultRoles');
       };
       if (!winnerRole && defaultsData.winnerRole) {
-        winnerRole = defaultsData.winnerRole;
+        row2.addComponents(
+          new ButtonBuilder()
+            .setLabel("Default Winner Role")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultWinner")
+        );
+        rowsIds.push('defaultWinner');
       };
+      if (row1.components.length || row2.components.length) {
+        let compArray = [];
+        if (row1.components.length) {
+          compArray.push(row1);
+        };
+        if (row2.components.length) {
+          compArray.push(row2);
+        };
+        compArray.push(row3);
+        compArray.push(row4);
+        const sent = await interaction.editReply({
+          content: `Would you like to apply any default settings?\nYou have 2 minutes.`,
+          components: compArray,
+          fetchReply: true
+        });
+        let doneFields = [];
+        const filter = (int) => int.user.id === interaction.user.id && rowsIds.includes(int.customId);
+        const collector = await sent.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 120000 });
+        collector.on("collect", async (i) => {
+          if (i.customId === 'done' || i.customId === 'skip') {
+            await interaction.editReply({
+              content: "Processing <a:loading:973124874124005396>",
+              components: [],
+              embeds: [],
+            });
+            return collector.stop();
+          };
+          if (doneFields.includes(i.customId)) {
+            return interaction.followUp({
+              ephemeral: true,
+              content: "You have already chosen this."
+            });
+          };
+          if (i.customId === 'defaultPing') {
+            ping = defaultsData.ping;
+            doneFields.push(i.customId);
+          };
+          if (i.customId === 'defaultBL') {
+            blacklistedRoles = defaultsData.blacklistedRoles;
+            doneFields.push(i.customId);
+          };
+          if (i.customId === 'defaultBonus') {
+            bonus = defaultsData.bonus;
+            doneFields.push(i.customId);
+          };
+          if (i.customId === 'defaultBal') {
+            balReq = defaultsData.balReq;
+            doneFields.push(i.customId);
+          };
+          if (i.customId === 'defaultRoles') {
+            reqRoles = defaultsData.reqroles;
+            doneFields.push(i.customId);
+          };
+          if (i.customId === 'defaultWinner') {
+            winnerRole = defaultsData.winnerRole;
+            doneFields.push(i.customId);
+          };
+        });
+      };
+
 
       const endTimestamp = findTimestamp(time.toLowerCase().trim());
       if (blacklistedRoles) {
