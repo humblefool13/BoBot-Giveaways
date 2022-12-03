@@ -142,7 +142,9 @@ module.exports = {
         const globalFilter = (int) => int.user.id === interaction.user.id && int.customId === "globalyes";
         const globalcollector = await sentv2.createMessageComponentCollector({ filter: globalFilter, componentType: ComponentType.Button, time: 60000, max: 1 });
         globalcollector.on('collect', async (i) => {
-          await i.deferUpdate();
+          await i.update({
+            components: [rowGlobalDis]
+          });
           const findNew = await wallets.findOne({
             discord_id: interaction.user.id,
           });
