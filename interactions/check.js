@@ -14,7 +14,7 @@ module.exports = {
   name: "check",
   async interact(client, interaction) {
     try {
-      await interaction.deferReply({ ephemral: true });
+      await interaction.deferReply({ ephemeral: true });
       const sub = await subs.findOne({
         server_id: interaction.guildId,
       });
