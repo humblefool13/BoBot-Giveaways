@@ -6,7 +6,7 @@ function MakeEmbed(des) {
   const embed = new EmbedBuilder()
     .setColor("#35FF6E")
     .setDescription(des)
-    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
+    .setFooter({iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
 };
 
@@ -26,7 +26,10 @@ module.exports = {
         discord_id: interaction.user.id,
       });
       if (!find) {
-        interaction.editReply({ ephemeral: true, content: "You have not saved a wallet address yet.\n\nDo so by clicking the button beside." });
+        interaction.editReply({
+          ephemeral: true,
+          content: "You have not saved a wallet address yet.\n\nDo so by clicking the button beside." 
+        });
       } else {
         let wallet = "Same as Global Wallet.";
         const global = find.wallet_global;

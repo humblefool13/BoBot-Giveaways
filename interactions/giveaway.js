@@ -83,7 +83,7 @@ function MakeEmbedDes(des) {
   const embed = new EmbedBuilder()
     .setColor("#35FF6E")
     .setDescription(des)
-    .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
+    .setFooter({iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
 };
 function processFollow(input) {
@@ -399,7 +399,7 @@ module.exports = {
         .setTitle("Active Giveaway")
         .setDescription(descriptionString)
         .setColor("#35FF6E")
-        .setFooter({ text: "Powered by bobotlabs.xyz", iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
+        .setFooter({iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
       if (picture && picture.contentType === "image") {
         embed.setImage(picture.url);
       };
