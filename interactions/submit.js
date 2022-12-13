@@ -11,7 +11,7 @@ const rownew = new ActionRowBuilder()
 const rowchange = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
-      .setLabel("Yes, change old wallet!")
+      .setLabel("Yes, change wallet!")
       .setCustomId("submitmodal")
       .setStyle(ButtonStyle.Success),
   );
@@ -71,12 +71,12 @@ module.exports = {
       } else {
         globalWallet = find.wallet_global;
         savedWallets = find.wallets;
-        savedWallets.forEach((wallet) => {
-          if (wallet[0] !== interaction.guild.id) return;
-          wallet = wallet[1];
+        savedWallets.forEach((walletLol) => {
+          if (walletLol[0] !== interaction.guild.id) return;
+          wallet = walletLol[1];
         });
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have saved the following wallet addresses:\n\nServer Wallet: **${wallet}**\nGlobal Wallet: ${globalWallet}\n\n. Would you like to change the wallets? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
+          embeds: [MakeEmbedDes(`You have saved the following wallet addresses:\n\nServer Wallet: **${wallet}**\nGlobal Wallet: **${globalWallet}**\n\nWould you like to change the wallets or want to save a new server wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
           components: [rowchange],
           fetchReply: true,
         });
@@ -141,16 +141,13 @@ module.exports = {
         const globalFilter = (int) => int.user.id === interaction.user.id && int.customId === "globalyes";
         const globalcollector = await sentv2.createMessageComponentCollector({ filter: globalFilter, componentType: ComponentType.Button, time: 60000, max: 1 });
         globalcollector.on('collect', async (i) => {
-          await i.update({
-            components: [rowGlobalDis]
-          });
           const findNew = await wallets.findOne({
             discord_id: interaction.user.id,
           });
           findNew.wallet_global = walletNew;
           await findNew.save().catch(e => { });
           await i.update({
-            components: [],
+            components: [rowGlobalDis],
             embeds: [MakeEmbedDes(`The wallet address\n\n**${walletNew}**\n\nis now set as your global wallet and will be automatically used in all discord servers unless you save a new wallet in a specific server.`)],
           });
         });
