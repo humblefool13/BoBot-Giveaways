@@ -82,8 +82,7 @@ function processBonus(string) {
 function MakeEmbedDes(des) {
   const embed = new EmbedBuilder()
     .setColor("#35FF6E")
-    .setDescription(des)
-    .setFooter({iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
+    .setDescription(des);
   return embed;
 };
 function processFollow(input) {
@@ -398,8 +397,7 @@ module.exports = {
       const embed = new EmbedBuilder()
         .setTitle("Active Giveaway")
         .setDescription(descriptionString)
-        .setColor("#35FF6E")
-        .setFooter({iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
+        .setColor("#35FF6E");
       if (picture && picture.contentType === "image") {
         embed.setImage(picture.url);
       };

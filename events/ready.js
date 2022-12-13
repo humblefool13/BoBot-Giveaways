@@ -174,7 +174,7 @@ module.exports = {
                 const description = message.embeds[0].description;
                 await message.edit({
                   components: [row],
-                  embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#8A45FF").setFooter({iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+                  embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#8A45FF")],
                 });
                 await message.reply({
                   content: "No Entries."
@@ -212,7 +212,7 @@ module.exports = {
                 const description = message.embeds[0].description;
                 await message.edit({
                   components: [row],
-                  embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#8A45FF").setFooter({iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+                  embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#8A45FF")],
                 });
                 const splitted = splitWinners(winners, 70);
                 const messages = messagesGenerator(splitted);
@@ -267,12 +267,12 @@ module.exports = {
                         description: 'File with winners\' wallet data.'
                       }],
                       components: [messageLinkRow],
-                      embeds: [new EmbedBuilder().setDescription(`Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n\nFailed to upload to pastecord. Files sent above.`).setColor("#8A45FF").setFooter({iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+                      embeds: [new EmbedBuilder().setDescription(`Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n\nFailed to upload to pastecord. Files sent above.`).setColor("#8A45FF")],
                     });
                   } else {
                     await postChannel.send({
                       components: [messageLinkRow],
-                      embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" })],
+                      embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF")],
                     });
                   };
                   if (winnerRole !== "NA") {

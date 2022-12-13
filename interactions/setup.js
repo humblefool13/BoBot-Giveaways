@@ -36,8 +36,7 @@ const row = new ActionRowBuilder()
 function MakeEmbedDes(des) {
   const embed = new EmbedBuilder()
     .setColor("#35FF6E")
-    .setDescription(des)
-    .setFooter({iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
+    .setDescription(des);
   return embed;
 };
 
