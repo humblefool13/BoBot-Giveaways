@@ -120,7 +120,7 @@ module.exports = {
       });
       await wait(2000);
       await interaction.followUp({
-        content: `2) I have made 2 channels :\n:white_small_square: <#${setupChannel.id}>:\nThis channel will be used by people to submit the wallets and view the wallet submitted. Please change the permission of channel and allow the required role to "View Channel".\n\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel you will receive the file with winners' details every time a giveaway ends. Always make sure I have permission to "View Channel", "Send Messages" and "Attach Files". Keep this channel private, the giveaway manager role I created can see the channel by default while others cannot.\n\nFeel free to rename the channels or move them to another location/category but if gets deleted you will have to \`/setup\` again.`,
+        content: `2) I have made 2 channels :\n:white_small_square: <#${setupChannel.id}>:\nThis channel will be used by people to submit the wallets and view the wallet submitted. Please change the permission of channel and allow the required role to "View Channel".\n\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel you will receive the file/link with winners' details every time a giveaway ends. Always make sure I have permission to "View Channel", "Send Messages" and "Attach Files". Keep this channel private, the giveaway manager role I created can see the channel by default while others cannot.\n\nFeel free to rename the channels or move them to another location/category but if gets deleted you will have to \`/setup\` again.`,
         ephemeral: true,
       });
       await wait(2000);
