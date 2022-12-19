@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Saira+Condensed:wght@300&display=swap');
+
+html,
+body {
+  margin: 0px;
+  padding: 0px;
+  background-color: black;
+  color: white;
+  font-family: 'Saira Condensed', sans-serif;
+}
+
+.loading img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 500px;
+  margin-top: -250px;
+  margin-left: -250px;
+  visibility: hidden;
+}
+
+.icons {
+  display: flex;
+  flex-direction: row;
+  padding-top: 15px;
+  justify-content: space-evenly;
+}
+
+#connect {
+  width: 10%;
+  height: 5%;
+  padding: 114px 20px;
+}
+
+#bot {
+  width: 20%;
+  height: 20%;
+  border-radius: 50%;
+  padding: 0px 20px;
+}
+
+#twitter {
+  width: 20%;
+  height: 20%;
+  padding: 30px 20px;
+}
+
+#topText {
+  text-align: center;
+  font-size: 105px;
+  margin: 0px;
+}
+
+.bottom {
+  justify-content: center;
+  align-items: center;
+}
+
+.common {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  visibility: hidden;
+  align-items: center;
+  font-size: 40px;
+  width: 80%;
+  position: absolute;
+  margin: 30px auto;
+  left: 0;
+  right: 0;
+}
+
+.paddingImages {
+  padding: 15px;
+}
+
+.successBackground {
+  background: rgba(0, 255, 0, .09);
+  border-radius: 16px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, .3);
+}
+
+.failureBackground {
+  background: rgba(255, 0, 0, .09);
+  border-radius: 16px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, .3);
+}
