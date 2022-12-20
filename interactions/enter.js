@@ -87,82 +87,12 @@ async function memberInGuild(memberId, credentials, guildId) {
   find.access_token_discord = encrypt(accessToken);
   find.refresh_token_discord = encrypt(refreshToken);
   find.save().catch(e => console.Console.log(e));
-  return;
-};
-/*
-async function checkifFollows(code, secret, id, followReq) {
-  let userAuths = oAuthOptions;
-  userAuths.access_token = code;
-  userAuths.access_token_secret = secret;
-  const url = `https://api.twitter.com/1.1/friendships/show.json?source_id=${id}`;
-  let follows = [];
-  for (const account_id in followReq) {
-    const url2 = url + `&target_id=${account_id}`;
-    const method = "GET";
-    const params = { q: "twitter bot" };
-    const authorization = authRequest({ method, url2, params }, userAuths);
-    const response = await fetch(urlStep1, {
-      method,
-      headers: {
-        "Authorization": authorization,
-      }
-    });
-    if (response.status !== 200) return [false, "err"];
-    const result = await response.json();
-    follows.push(result.target.followed_by);
-  };
-  const followsBool = !(follows.includes(false));
-  return [followsBool, "none"];
-};
-function getTweetID(link) {
-  const indexSlash = link.lastIndexOf("/");
-  const indexQuestionIfAny = link.indexOf("?");
-  if (indexQuestionIfAny !== -1) {
-    return link.slice(indexSlash + 1, indexQuestionIfAny);
+  if (discordResponse.status === 201 || discordResponse.status === 204) {
+    return true;
   } else {
-    return link.slice(indexSlash + 1);
+    return false;
   };
 };
-async function checkIfRTed(code, secret, id, tweet_id) {
-  let userAuths = oAuthOptions;
-  userAuths.access_token = code;
-  userAuths.access_token_secret = secret;
-  const url = `https://api.twitter.com/2/users/${id}/retweets`;
-  const method = "POST";
-  const params = { q: "twitter bot" };
-  const authorization = authRequest({ method, url, params }, userAuths);
-  const response = await fetch(url, {
-    method,
-    body: {
-      "tweet_id": tweet_id,
-    },
-    headers: {
-      "Authorization": authorization,
-    },
-  });
-  const result = await response.json();
-  return result.data.retweeted;
-};
-async function checkIfLiked(code, secret, id, tweet_id) {
-  let userAuths = oAuthOptions;
-  userAuths.access_token = code;
-  userAuths.access_token_secret = secret;
-  const url = `https://api.twitter.com/2/users/${id}/likes`;
-  const method = "POST";
-  const params = { q: "twitter bot" };
-  const authorization = authRequest({ method, url, params }, userAuths);
-  const response = await fetch(url, {
-    method,
-    body: {
-      "tweet_id": tweet_id,
-    },
-    headers: {
-      "Authorization": authorization,
-    },
-  });
-  const result = await response.json();
-  return result.data.liked;
-};*/
 
 module.exports = {
   name: "enter",
@@ -246,7 +176,12 @@ module.exports = {
             content: 'This giveaway requires you to verify twitter account so please do so to enter.'
           });
         };
-        await memberInGuild(interaction.user.id, creds, discordMemberReq);
+        const member = await memberInGuild(interaction.user.id, creds, discordMemberReq);
+        if (!member) {
+          return interaction.editReply({
+            content: 'Something went wrong. Please join the server required and try again later.'
+          });
+        };
       };
       /*
       const twitterDB = await twitter.findOne({
