@@ -56,7 +56,7 @@ async function refreshTwitterCreds(refreshToken) {
   const responseTwitter = await fetch(`https://api.twitter.com/2/oauth2/token?refresh_token=${refreshToken}&grant_type=refresh_token`, {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      'Authorization': `Basic ${(process.env[auth_token]).replaceAll(`"`, "")}`,
+      'Authorization': `Basic ${(process.env["auth_token"]).replaceAll(`"`, "")}`,
     },
     method: "POST"
   });
