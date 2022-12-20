@@ -1,8 +1,9 @@
 const fs = require("fs");
 const fetch = require("node-fetch");
+const crypto = require('crypto-js');
 const wallets = require("../models/wallets.js");
 const twitter = require('../models/twitter.js');
-const authRequest = require("twitter-v1-oauth").default;
+//const authRequest = require("twitter-v1-oauth").default;
 const { EmbedBuilder } = require("discord.js");
 function makeEmbed(messageEmbed, entries) {
   const embed = new EmbedBuilder()
@@ -18,12 +19,6 @@ function MakeEmbedDes(des) {
     .setDescription(des);
   return embed;
 };
-const oAuthOptions = {
-  api_key: process.env.TWITTER_API_KEY,
-  api_secret_key: process.env.TWITTER_API_SECRET_KEY,
-  access_token: process.env.TWITTER_ACCESS_TOKEN,
-  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-};
 function findunique(entries) {
   let unique = [];
   entries.forEach((entry) => {
@@ -32,6 +27,69 @@ function findunique(entries) {
   });
   return unique.length;
 };
+function encrypt(message) {
+  const ciphertext = crypto.AES.encrypt(message, process.env['secret_code_crypto']).toString();
+  return ciphertext;
+};
+function decrypt(ciphertext) {
+  const bytes = crypto.AES.decrypt(ciphertext, process.env['secret_code_crypto']);
+  const originalText = bytes.toString(crypto.enc.Utf)
+  return originalText;
+};
+async function refreshDiscord(refreshToken) {
+  const data = new URLSearchParams({
+    client_id: '1001909973938348042',
+    client_secret: process.env['client_discord_secret'],
+    grant_type: "refresh_token",
+    code: refreshToken,
+  });
+  const responseDiscord = await fetch(`https://discord.com/api/oauth2/token`, {
+    method: "POST",
+    body: data.toString(),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }
+  });
+  const resultDiscord = await responseDiscord.json();
+  return resultDiscord;
+};
+async function memberInGuild(memberId, credentials, guildId) {
+  let accessToken = decrypt(credentials.access_token_discord);
+  let refreshToken = decrypt(credentials.refresh_token_discord);
+  let body = new URLSearchParams({
+    "access_token": accessToken,
+  });
+  let discordResponse = await fetch(`https://discordapp.com/api/v10/guilds/${guildId}/members/${memberId}`, {
+    method: "PUT",
+    body: body.toString(),
+    headers: {
+      'Authorization': `Bot ${process.env['bot_token']}`
+    },
+  });
+  if (discordResponse.status !== 201 && discordResponse.status !== 204) {
+    const newDiscordCreds = await refreshDiscord(refreshToken);
+    accessToken = newDiscordCreds.access_token;
+    refreshToken = newDiscordCreds.refresh_token;
+    body = new URLSearchParams({
+      "access_token": accessToken,
+    });
+    discordResponse = await fetch(`https://discordapp.com/api/v10/guilds/${guildId}/members/${memberId}`, {
+      method: "PUT",
+      body: body.toString(),
+      headers: {
+        'Authorization': `Bot ${process.env['bot_token']}`
+      },
+    });
+  };
+  const find = await twitter.findOne({
+    discord_id: memberId,
+  });
+  find.access_token_discord = encrypt(accessToken);
+  find.refresh_token_discord = encrypt(refreshToken);
+  find.save().catch(e => console.Console.log(e));
+  return;
+};
+/*
 async function checkifFollows(code, secret, id, followReq) {
   let userAuths = oAuthOptions;
   userAuths.access_token = code;
@@ -104,7 +162,7 @@ async function checkIfLiked(code, secret, id, tweet_id) {
   });
   const result = await response.json();
   return result.data.liked;
-};
+};*/
 
 module.exports = {
   name: "enter",
@@ -134,6 +192,7 @@ module.exports = {
       const followReq = configs[9];
       const rtReq = configs[11];
       const likeReq = configs[10];
+      const discordMemberReq = configs[12];
       let bonusApplicable = "", userEntries = 1;
       if (walletReq === "YES") {
         const wallet = await wallets.findOne({
@@ -178,6 +237,18 @@ module.exports = {
           };
         });
       };
+      const creds = await twitter.findOne({
+        discord_id: interaction.user.id,
+      });
+      if (discordMemberReq != "NA") {
+        if (!creds) {
+          return interaction.editReply({
+            content: 'This giveaway requires you to verify twitter account so please do so to enter.'
+          });
+        };
+        await memberInGuild(interaction.user.id, creds, discordMemberReq);
+      };
+      /*
       const twitterDB = await twitter.findOne({
         discord_id: interaction.member.id,
       }).catch();
@@ -236,7 +307,7 @@ module.exports = {
             embeds: []
           });
         };
-      };
+      };*/
       for (i = 1; i <= userEntries; i++) {
         entries.push(interaction.member.id);
       };

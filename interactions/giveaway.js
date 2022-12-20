@@ -154,6 +154,7 @@ module.exports = {
       const followReq = interaction.options.getString("follow-twit-req");
       const likeReq = interaction.options.getString("like-twit-req");
       const rtReq = interaction.options.getString("rt-twit-req");
+      const guildMemberReq = interaction.options.getString('discord-member-req');
 
       const permissions = channel.permissionsFor(client.user.id);
       if (!permissions.has(PermissionsBitField.Flags.ViewChannel)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
@@ -358,6 +359,16 @@ module.exports = {
       };
       let followRequirement;
       if (followReq) followRequirement = processFollow(followReq);
+      let guildId;
+      if (guildMemberReq) {
+        const invite = await client.fetchInvite(guildMemberReq);
+        guildId = invite.guild.id;
+        if (!client.guilds.cache.find(guild => guild.id === guildId)) {
+          return interaction.editReply({
+            content: `I need to be a member of the target server to check for discord server membership requirement.\nInvite me to the other server using:\n\nhttps://discord.com/oauth2/authorize?client_id=1001909973938348042&scope=bot%20applications.commands&permissions=137707441169`,
+          });
+        };
+      };
       let descriptionString = "";
       descriptionString += `:trophy: **Prize Name** : \`${prize}\`\n\n`;
       descriptionString += `:crown: **Winners** : ${winners}\n\n`;
@@ -418,7 +429,7 @@ module.exports = {
       const ids = await idsOfAccounts(followReq);
 
       const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? processRole(reqRoles) : "NA", (blacklistedRoles) ? processRole(blacklistedRoles) : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA"];
+      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? processRole(reqRoles) : "NA", (blacklistedRoles) ? processRole(blacklistedRoles) : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA"];
       writeFileSync("./giveaways/giveawayConfigs" + filename, data);
       writeFileSync("./giveaways/giveawayEntries" + filename, "");
       const messageLinkRow = new ActionRowBuilder()

@@ -15,7 +15,7 @@ const limiter_eth = new RateLimiter({
   fireImmediately: true
 });
 const pasteClient = new Pastecord();
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType, InteractionCollector } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType } = require("discord.js");
 const wallets = require("../models/wallets.js");
 let i = 1;
 async function pastecord(text) {
