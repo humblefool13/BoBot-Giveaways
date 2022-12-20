@@ -52,6 +52,17 @@ async function refreshDiscord(refreshToken) {
   const resultDiscord = await responseDiscord.json();
   return resultDiscord;
 };
+async function refreshTwitterCreds(refreshToken) {
+  const responseTwitter = await fetch(`https://api.twitter.com/2/oauth2/token?refresh_token=${refreshToken}&grant_type=refresh_token`, {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      'Authorization': `Basic YzBOeVNFWnBVMTl2U1dZNGJGSllNbmRMTUdnNk1UcGphUTpfNEdSMk1FT0otNEZjR2xzcC04S242U0REN0xwZ3F6R0lwY2p2bnV6Q2puaHNXdmJxXw==`,
+    },
+    method: "POST"
+  });
+  const resultTwitter = await responseTwitter.json();
+  return resultTwitter;
+};
 async function memberInGuild(memberId, credentials, guildId) {
   let accessToken = decrypt(credentials.access_token_discord);
   let refreshToken = decrypt(credentials.refresh_token_discord);
@@ -84,13 +95,149 @@ async function memberInGuild(memberId, credentials, guildId) {
     });
     find.access_token_discord = encrypt(accessToken);
     find.refresh_token_discord = encrypt(refreshToken);
-    find.save().catch(e => console.log(e));
+    await find.save().catch(e => console.log(e));
   };
   if (discordResponse.status === 201 || discordResponse.status === 204) {
     return true;
   } else {
     return false;
   };
+};
+async function retweet(creds, tweetId) {
+  const twitter_id = creds.twitter_id;
+  let accessTokenTwitter = decrypt(creds.access_token_twitter);
+  let refreshTokenTwitter = decrypt(creds.refresh_token_twitter);
+  const body = new URLSearchParams({
+    tweet_id: tweetId,
+  });
+  let twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/retweets`, {
+    method: "POST",
+    body: body.toString(),
+    headers: {
+      'Authorization': `Bearer ${accessTokenTwitter}`,
+    },
+  });
+  let twitterResult = await twitterResponse.json();
+  if (twitterResult?.data?.retweeted) {
+    return true;
+  } else {
+    const newTokens = await refreshTwitterCreds(refreshTokenTwitter);
+    accessTokenTwitter = newTokens.access_token;
+    refreshTokenTwitter = newTokens.refresh_token;
+    twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/retweets`, {
+      method: "POST",
+      body: body.toString(),
+      headers: {
+        'Authorization': `Bearer ${accessTokenTwitter}`,
+      },
+    });
+    twitterResult = await twitterResponse.json();
+    const find = await twitter.findOne({
+      twitter_id: twitter_id,
+    });
+    find.access_token_twitter = encrypt(accessTokenTwitter);
+    find.refresh_token_twitter = encrypt(refreshTokenTwitter);
+    await find.save().catch(e => console.log(e));
+    if (twitterResult?.data?.retweeted) {
+      return true;
+    } else {
+      return false;
+    };
+  };
+};
+async function like(creds, tweetId) {
+  const twitter_id = creds.twitter_id;
+  let accessTokenTwitter = decrypt(creds.access_token_twitter);
+  let refreshTokenTwitter = decrypt(creds.refresh_token_twitter);
+  const body = new URLSearchParams({
+    tweet_id: tweetId,
+  });
+  let twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/likes`, {
+    method: "POST",
+    body: body.toString(),
+    headers: {
+      'Authorization': `Bearer ${accessTokenTwitter}`,
+    },
+  });
+  let twitterResult = await twitterResponse.json();
+  if (twitterResult?.data?.liked) {
+    return true;
+  } else {
+    const newTokens = await refreshTwitterCreds(refreshTokenTwitter);
+    accessTokenTwitter = newTokens.access_token;
+    refreshTokenTwitter = newTokens.refresh_token;
+    twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/likes`, {
+      method: "POST",
+      body: body.toString(),
+      headers: {
+        'Authorization': `Bearer ${accessTokenTwitter}`,
+      },
+    });
+    twitterResult = await twitterResponse.json();
+    const find = await twitter.findOne({
+      twitter_id: twitter_id,
+    });
+    find.access_token_twitter = encrypt(accessTokenTwitter);
+    find.refresh_token_twitter = encrypt(refreshTokenTwitter);
+    await find.save().catch(e => console.log(e));
+    if (twitterResult?.data?.liked) {
+      return true;
+    } else {
+      return false;
+    };
+  };
+};
+async function follow(creds, targetIDs_separated) {
+  const twitter_id = creds.twitter_id;
+  let accessTokenTwitter = decrypt(creds.access_token_twitter);
+  let refreshTokenTwitter = decrypt(creds.refresh_token_twitter);
+  const userIds = targetIDs_separated.split("_");
+  let followSuccess = [];
+  let refreshed = false;
+  for (let userId in userIds) {
+    const body = new URLSearchParams({
+      target_user_id: userId,
+    });
+    let twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/following`, {
+      method: "POST",
+      body: body.toString(),
+      headers: {
+        'Authorization': `Bearer ${accessTokenTwitter}`,
+      },
+    });
+    let twitterResult = await twitterResponse.json();
+    if (twitterResult?.data?.following || twitterResponse?.data?.pending_follow) {
+      followSuccess.push(true);
+    } else {
+      const newTokens = await refreshTwitterCreds(refreshTokenTwitter);
+      refreshed = true;
+      accessTokenTwitter = newTokens.access_token;
+      refreshTokenTwitter = newTokens.refresh_token;
+      twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/following`, {
+        method: "POST",
+        body: body.toString(),
+        headers: {
+          'Authorization': `Bearer ${accessTokenTwitter}`,
+        },
+      });
+      twitterResult = await twitterResponse.json();
+      const find = await twitter.findOne({
+        twitter_id: twitter_id,
+      });
+      find.access_token_twitter = encrypt(accessTokenTwitter);
+      find.refresh_token_twitter = encrypt(refreshTokenTwitter);
+      await find.save().catch(e => console.log(e));
+      if (twitterResult?.data?.following || twitterResponse?.data?.pending_follow) {
+        followSuccess.push(true);
+      } else {
+        followSuccess.push(false);
+      };
+    };
+  };
+  for (let status in followSuccess) {
+    if (!status) return false;
+  };
+  return true;
 };
 
 module.exports = {
@@ -166,10 +313,10 @@ module.exports = {
           };
         });
       };
-      const creds = await twitter.findOne({
-        discord_id: interaction.user.id,
-      });
       if (discordMemberReq != "NA") {
+        const creds = await twitter.findOne({
+          discord_id: interaction.user.id,
+        });
         if (!creds) {
           return interaction.editReply({
             content: 'This giveaway requires you to verify twitter account so please do so to enter.'
@@ -178,11 +325,70 @@ module.exports = {
         const member = await memberInGuild(interaction.user.id, creds, discordMemberReq);
         if (!member) {
           return interaction.editReply({
-            content: 'Something went wrong. Please join the server required and try again later.'
+            content: 'Something went wrong. Please join the required server and try again later.'
           });
         };
       };
-      // TWITTER REQS
+      if (followReq !== "NA") {
+        const creds = await twitter.findOne({
+          discord_id: interaction.user.id,
+        });
+        if (!creds) {
+          return interaction.editReply({
+            content: 'This giveaway requires you to verify twitter account so please do so to enter.'
+          });
+        };
+        const followed = await follow(creds, followReq);
+        if (!followed) {
+          return interaction.editReply({
+            content: 'Something went wrong. Please follow the required twitter accounts and try again later.'
+          });
+        };
+      };
+      if (likeReq !== "NA") {
+        const creds = await twitter.findOne({
+          discord_id: interaction.user.id,
+        });
+        if (!creds) {
+          return interaction.editReply({
+            content: 'This giveaway requires you to verify twitter account so please do so to enter.'
+          });
+        };
+        let tweetId;
+        if (!likeReq.includes("?")) {
+          tweetId = likeReq.slice(likeReq.lastIndexOf("/") + 1, likeReq.length);
+        } else {
+          tweetId = likeReq.slice(likeReq.lastIndexOf("/") + 1, likeReq.indexOf("?"));
+        };
+        const liked = await like(creds, tweetId);
+        if (!liked) {
+          return interaction.editReply({
+            content: 'Something went wrong. Please like the required tweet and try again later.'
+          });
+        };
+      };
+      if (rtReq !== "NA") {
+        const creds = await twitter.findOne({
+          discord_id: interaction.user.id,
+        });
+        if (!creds) {
+          return interaction.editReply({
+            content: 'This giveaway requires you to verify twitter account so please do so to enter.'
+          });
+        };
+        let tweetId;
+        if (!rtReq.includes("?")) {
+          tweetId = rtReq.slice(rtReq.lastIndexOf("/") + 1, rtReq.length);
+        } else {
+          tweetId = rtReq.slice(rtReq.lastIndexOf("/") + 1, rtReq.indexOf("?"));
+        };
+        const rted = await retweet(creds, tweetId);
+        if (!rted) {
+          return interaction.editReply({
+            content: 'Something went wrong. Please retweet the required tweet and try again later.'
+          });
+        };
+      };
       for (i = 1; i <= userEntries; i++) {
         entries.push(interaction.member.id);
       };

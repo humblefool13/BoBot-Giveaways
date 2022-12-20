@@ -109,7 +109,7 @@ async function idsOfAccounts(accountNames) {
   const response = await result.json();
   const data = response.data;
   const ids = data.map((account) => account.id);
-  return ids;
+  return ids.join("_");
 };
 
 module.exports = {
@@ -427,7 +427,12 @@ module.exports = {
         });
       };
       const ids = await idsOfAccounts(followReq);
-
+      const idsArr = ids.split("_");
+      if (idsArr.length > 5) {
+        return interaction.editReply({
+          content: 'A maximum of 5 twitter accounts can be set to put for follow requirement.'
+        });
+      };
       const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
       const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? processRole(reqRoles) : "NA", (blacklistedRoles) ? processRole(blacklistedRoles) : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA"];
       writeFileSync("./giveaways/giveawayConfigs" + filename, data);
