@@ -53,7 +53,7 @@ app.post('/post', async (req, res) => {
   const responseTwitter = await fetch(`https://api.twitter.com/2/oauth2/token?code=${twitterCode}&grant_type=authorization_code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=http://localhost:3000/twitter&code_verifier=challenge`, {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      'Authorization': `Basic YzBOeVNFWnBVMTl2U1dZNGJGSllNbmRMTUdnNk1UcGphUTpfNEdSMk1FT0otNEZjR2xzcC04S242U0REN0xwZ3F6R0lwY2p2bnV6Q2puaHNXdmJxXw==`,
+      'Authorization': `Basic ${(process.env[auth_token]).replaceAll(`"`,"")}`,
     },
     method: "POST"
   });
