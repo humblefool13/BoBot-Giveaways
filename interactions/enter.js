@@ -84,7 +84,7 @@ async function memberInGuild(memberId, credentials, guildId) {
     });
     find.access_token_discord = encrypt(accessToken);
     find.refresh_token_discord = encrypt(refreshToken);
-    find.save().catch(e => console.Console.log(e));
+    find.save().catch(e => console.log(e));
   };
   if (discordResponse.status === 201 || discordResponse.status === 204) {
     return true;
