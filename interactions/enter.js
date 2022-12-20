@@ -3,7 +3,6 @@ const fetch = require("node-fetch");
 const crypto = require('crypto-js');
 const wallets = require("../models/wallets.js");
 const twitter = require('../models/twitter.js');
-//const authRequest = require("twitter-v1-oauth").default;
 const { EmbedBuilder } = require("discord.js");
 function makeEmbed(messageEmbed, entries) {
   const embed = new EmbedBuilder()
@@ -80,13 +79,13 @@ async function memberInGuild(memberId, credentials, guildId) {
         'Authorization': `Bot ${process.env['bot_token']}`
       },
     });
+    const find = await twitter.findOne({
+      discord_id: memberId,
+    });
+    find.access_token_discord = encrypt(accessToken);
+    find.refresh_token_discord = encrypt(refreshToken);
+    find.save().catch(e => console.Console.log(e));
   };
-  const find = await twitter.findOne({
-    discord_id: memberId,
-  });
-  find.access_token_discord = encrypt(accessToken);
-  find.refresh_token_discord = encrypt(refreshToken);
-  find.save().catch(e => console.Console.log(e));
   if (discordResponse.status === 201 || discordResponse.status === 204) {
     return true;
   } else {
@@ -183,66 +182,7 @@ module.exports = {
           });
         };
       };
-      /*
-      const twitterDB = await twitter.findOne({
-        discord_id: interaction.member.id,
-      }).catch();
-      const code = twitterDB.oauth_token;
-      const secret = twitterDB.outh_token_secret;
-      const id = twitterDB.twitter_id;
-      if (followReq !== "NA") {
-        if (!twitterDB) return interaction.editReply({
-          content: "This giveaway has some twitter requirement(s). Please verify your twitter account in order to enter this giveaway. You can find the verification button right next to the button you submitted your wallet address in.",
-          components: [],
-          embeds: [],
-        });
-        const follows = await checkifFollows(code, secret, id, followReq);
-        if (follows[1] === 'none' && !follows[0]) {
-          return interaction.editReply({
-            content: "You do not follow the required accounts on twitter. Please do so and try entering again",
-            components: [],
-            embeds: []
-          });
-        } else if (follows[1] === 'err') {
-          return interaction.editReply({
-            content: "Something went wrong. Please try again later.",
-            components: [],
-            embeds: []
-          });
-        };
-      };
-      if (rtReq !== "NA") {
-        if (!twitterDB) return interaction.editReply({
-          content: "This giveaway has some twitter requirement(s). Please verify your twitter account in order to enter this giveaway. You can find the verification button right next to the button you submitted your wallet address in.",
-          components: [],
-          embeds: [],
-        });
-        const tweet_id = getTweetID(rtReq);
-        const rted = await checkIfRTed(code, secret, id, tweet_id);
-        if (!rted) {
-          return interaction.editReply({
-            content: `Please complete the twitter retweet requirement by retweeting this tweet -\n\n<${rtReq}>`,
-            components: [],
-            embeds: []
-          });
-        };
-      }
-      if (likeReq !== "NA") {
-        if (!twitterDB) return interaction.editReply({
-          content: "This giveaway has some twitter requirement(s). Please verify your twitter account in order to enter this giveaway. You can find the verification button right next to the button you submitted your wallet address in.",
-          components: [],
-          embeds: [],
-        });
-        const tweet_id = getTweetID(likeReq);
-        const liked = await checkIfLiked(code, secret, id, tweet_id);
-        if (!liked) {
-          return interaction.editReply({
-            content: `Please complete the twitter like requirement by liking this tweet -\n\n<${likeReq}>`,
-            components: [],
-            embeds: []
-          });
-        };
-      };*/
+      // TWITTER REQS
       for (i = 1; i <= userEntries; i++) {
         entries.push(interaction.member.id);
       };
