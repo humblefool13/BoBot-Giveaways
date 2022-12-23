@@ -57,7 +57,7 @@ function processRole(roles) {
   const roleArray = roles.split(",");
   let outputarr = [];
   roleArray.forEach((role) => {
-    let r = role.trim().slice(0, vari.indexOf(">") + 1);
+    let r = role.trim().slice(0, role.indexOf(">") + 1);
     outputarr.push(r);
   });
   return outputarr.join(",");
@@ -86,7 +86,7 @@ function MakeEmbedDes(des) {
   return embed;
 };
 function processFollow(input) {
-  let exportString;
+  let exportString = '';
   const accounts = input.split(",");
   accounts.forEach((account) => {
     const username = account.trim().replaceAll("@", "");
@@ -137,7 +137,8 @@ module.exports = {
       let defaultsData = await defaults.findOne({
         server_id: interaction.guildId,
       });
-      defaultsData = defaultsData.defaults;
+      if (defaultsData) defaultsData = defaultsData.defaults;
+      if (!defaultsData) defaultsData = {};
 
       const prize = interaction.options.getString("prize");
       const channel = interaction.options.getChannel("channel");
@@ -345,14 +346,14 @@ module.exports = {
       if (balReq && !walletReq) return interaction.editReply("Minimum balance requirement is only supported in giveaways with wallet required set to true.");
       if (reqRoles) {
         let roles = 0;
-        for (i = 0; i < rolesReq.length; i++) {
-          const char = rolesReq.charAt(i);
-          const char2 = rolesReq.charAt(i + 1);
+        for (i = 0; i < reqRoles.length; i++) {
+          const char = reqRoles.charAt(i);
+          const char2 = reqRoles.charAt(i + 1);
           if (char === "@" && char2 === "&") roles++;
         };
         let commas = 0;
-        for (i = 0; i < rolesReq.length; i++) {
-          const char = rolesReq.charAt(i);
+        for (i = 0; i < reqRoles.length; i++) {
+          const char = reqRoles.charAt(i);
           if (char === ",") commas++;
         };
         if (roles - 1 !== commas) return interaction.editReply(`Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
@@ -397,7 +398,7 @@ module.exports = {
         descriptionString = descriptionString + "\n";
       };
       if (followReq) {
-        descriptionString += `:: **Must follow these account(s)** : ${followRequirement}\n\n`;
+        descriptionString += `:small_red_triangle: **Must follow these account(s)** : ${followRequirement}\n\n`;
       };
       if (likeReq) {
         descriptionString += `:heart: **Must like this tweet** : \n${likeReq}\n\n`;
@@ -426,16 +427,19 @@ module.exports = {
           components: [row]
         });
       };
-      const ids = await idsOfAccounts(followReq);
-      const idsArr = ids.split("_");
+      let ids, idsArr;
+      if (followReq) {
+        ids = await idsOfAccounts(followReq);
+        idsArr = ids.split("_");
+      };
       if (idsArr.length > 5) {
         return interaction.editReply({
           content: 'A maximum of 5 twitter accounts can be set to put for follow requirement.'
         });
       };
       const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? processRole(reqRoles) : "NA", (blacklistedRoles) ? processRole(blacklistedRoles) : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA"];
-      writeFileSync("./giveaways/giveawayConfigs" + filename, data);
+      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? reqRoles : "NA", (blacklistedRoles) ? blacklistedRoles : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA"];
+      writeFileSync("./giveaways/giveawayConfigs" + filename, data.join("\n"));
       writeFileSync("./giveaways/giveawayEntries" + filename, "");
       const messageLinkRow = new ActionRowBuilder()
         .addComponents(

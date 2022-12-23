@@ -289,7 +289,8 @@ module.exports = {
         const req_roles = reqRoles.split(",");
         let reqFound = false;
         req_roles.forEach((roleId) => {
-          if (memberRoles.has(roleId)) reqFound = true;
+          const justId = roleId.replaceAll("<", "").replaceAll("@", "").replaceAll(">", "").replaceAll("&", "");
+          if (memberRoles.has(justId)) reqFound = true;
         });
         if (!reqFound) return interaction.editReply({ embeds: [MakeEmbedDes(`You do not have any of the required roles to enter this giveaway.`)] });
       };
@@ -297,7 +298,8 @@ module.exports = {
         const black_roles = blacklistRoles.split(",");
         let blackFound = false;
         black_roles.forEach((roleId) => {
-          if (memberRoles.has(roleId)) blackFound = true;
+          const justId = roleId.replaceAll("<", "").replaceAll("@", "").replaceAll(">", "").replaceAll("&", "");
+          if (memberRoles.has(justId)) blackFound = true;
         });
         if (blackFound) return interaction.editReply({ embeds: [MakeEmbedDes(`You are blacklisted from entering the giveaway since you have one or more of the blacklisted roles.`)] });
       };
