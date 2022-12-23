@@ -53,15 +53,6 @@ const row = new ActionRowBuilder()
       .setCustomId("enter")
       .setStyle(ButtonStyle.Primary)
   );
-function processRole(roles) {
-  const roleArray = roles.split(",");
-  let outputarr = [];
-  roleArray.forEach((role) => {
-    let r = role.trim().slice(0, role.indexOf(">") + 1);
-    outputarr.push(r);
-  });
-  return outputarr.join(",");
-};
 function processBonus(string) {
   let arr = [];
   const split = string.split(",");
@@ -199,7 +190,7 @@ module.exports = {
       );
       let rowsIds = ["done", "skip"];
 
-      if (!ping && defaultsData.ping) {
+      if (!ping && defaultsData?.ping) {
         row1.addComponents(
           new ButtonBuilder()
             .setLabel("Default Ping Message")
@@ -208,7 +199,7 @@ module.exports = {
         );
         rowsIds.push('defaultPing');
       };
-      if (!blacklistedRoles && defaultsData.blacklistedRoles) {
+      if (!blacklistedRoles && defaultsData?.blacklistedRoles) {
         row1.addComponents(
           new ButtonBuilder()
             .setLabel("Default Blacklisting Setting")
@@ -217,7 +208,7 @@ module.exports = {
         );
         rowsIds.push('defaultBL');
       };
-      if (!bonus && defaultsData.bonus) {
+      if (!bonus && defaultsData?.bonus) {
         row1.addComponents(
           new ButtonBuilder()
             .setLabel("Default Bonus Setting")
@@ -226,7 +217,7 @@ module.exports = {
         );
         rowsIds.push('defaultBonus');
       };
-      if (!balReq && defaultsData.balReq) {
+      if (!balReq && defaultsData?.balReq) {
         row2.addComponents(
           new ButtonBuilder()
             .setLabel("Default Balance Req")
@@ -235,7 +226,7 @@ module.exports = {
         );
         rowsIds.push('defaultBal');
       };
-      if (!reqRoles && defaultsData.reqroles) {
+      if (!reqRoles && defaultsData?.reqroles) {
         row2.addComponents(
           new ButtonBuilder()
             .setLabel("Default Roles Req")
@@ -244,7 +235,7 @@ module.exports = {
         );
         rowsIds.push('defaultRoles');
       };
-      if (!winnerRole && defaultsData.winnerRole) {
+      if (!winnerRole && defaultsData?.winnerRole) {
         row2.addComponents(
           new ButtonBuilder()
             .setLabel("Default Winner Role")
@@ -312,8 +303,6 @@ module.exports = {
           };
         });
       };
-
-
       const endTimestamp = findTimestamp(time.toLowerCase().trim());
       if (blacklistedRoles) {
         let roles = 0;
@@ -414,6 +403,16 @@ module.exports = {
         embed.setImage(picture.url);
       };
       const postChannel = await client.guilds.cache.get(interaction.guild.id).channels.fetch(channel.id);
+      let ids, idsArr;
+      if (followReq) {
+        ids = await idsOfAccounts(followReq);
+        idsArr = ids.split("_");
+      };
+      if (idsArr.length > 5) {
+        return interaction.editReply({
+          content: 'A maximum of 5 twitter accounts can be set to put for follow requirement.'
+        });
+      };
       let sent;
       if (ping) {
         sent = await postChannel.send({
@@ -427,18 +426,8 @@ module.exports = {
           components: [row]
         });
       };
-      let ids, idsArr;
-      if (followReq) {
-        ids = await idsOfAccounts(followReq);
-        idsArr = ids.split("_");
-      };
-      if (idsArr.length > 5) {
-        return interaction.editReply({
-          content: 'A maximum of 5 twitter accounts can be set to put for follow requirement.'
-        });
-      };
       const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? reqRoles : "NA", (blacklistedRoles) ? blacklistedRoles : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA"];
+      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA"];
       writeFileSync("./giveaways/giveawayConfigs" + filename, data.join("\n"));
       writeFileSync("./giveaways/giveawayEntries" + filename, "");
       const messageLinkRow = new ActionRowBuilder()
