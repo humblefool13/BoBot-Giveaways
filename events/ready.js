@@ -143,10 +143,10 @@ module.exports = {
     //////////////////////// GIVEAWAYS ////////////////////////
 
     async function endGiveaways() {
-      const giveawaysConfigsDir = fs.readdirSync("./giveaways/giveawayConfigs");
+      const giveawaysConfigsDir = fs.readdirSync("../giveaways/giveawayConfigs");
       for (const file of giveawaysConfigsDir) {
         if (!file.includes("processing")) {
-          const fileData1 = fs.readFileSync(`./giveaways/giveawayConfigs/${file}`, { encoding: 'utf8', flag: 'r' });
+          const fileData1 = fs.readFileSync(`../giveaways/giveawayConfigs/${file}`, { encoding: 'utf8', flag: 'r' });
           const fileData2 = fileData1.split("\n");
           const endTimestamp = Number(fileData2[2]);
           if (Date.now() >= endTimestamp) {
@@ -155,10 +155,10 @@ module.exports = {
             const prize = fileData2[0];
             const numWinners = fileData2[1];
             const winnerRole = fileData2[3];
-            const msgUrl = fileData2[8];
+            const msgUrl = fileData2[13];
             const balReq = fileData2[4];
-            fs.rename(`./giveaways/giveawayConfigs/${file}`, `./giveaways/giveawayConfigs/processing-${file}`, (e) => { if (e) console.log(e) });
-            const entries1 = fs.readFileSync(`./giveaways/giveawayEntries/${file}`, { encoding: 'utf8', flag: 'r' });
+            fs.rename(`../giveaways/giveawayConfigs/${file}`, `../giveaways/giveawayConfigs/processing-${file}`, (e) => { if (e) console.log(e) });
+            const entries1 = fs.readFileSync(`../giveaways/giveawayEntries/${file}`, { encoding: 'utf8', flag: 'r' });
             const entries2 = entries1.split("\n");
             let entries = shuffleArray(entries2);
             const locationString = file.slice(0, file.length - 4);

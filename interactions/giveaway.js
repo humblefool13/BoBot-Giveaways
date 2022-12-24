@@ -427,7 +427,7 @@ module.exports = {
         });
       };
       const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA"];
+      const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url];
       writeFileSync("./giveaways/giveawayConfigs" + filename, data.join("\n"));
       writeFileSync("./giveaways/giveawayEntries" + filename, "");
       const messageLinkRow = new ActionRowBuilder()
