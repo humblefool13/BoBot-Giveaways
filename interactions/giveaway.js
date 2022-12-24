@@ -408,7 +408,7 @@ module.exports = {
         ids = await idsOfAccounts(followReq);
         idsArr = ids.split("_");
       };
-      if (idsArr.length > 5) {
+      if (idsArr?.length > 5) {
         return interaction.editReply({
           content: 'A maximum of 5 twitter accounts can be set to put for follow requirement.'
         });
