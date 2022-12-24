@@ -1,9 +1,7 @@
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const fs = require('fs');
 const express = require("express");
 const fetch = require("node-fetch");
 require("dotenv").config();
-const crypto = require("crypto-js");
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
@@ -11,11 +9,6 @@ const client = new Client({
 
 
 client.interactions = new Collection();
-
-function encrypt(message) {
-  const ciphertext = crypto.AES.encrypt(message, process.env['secret_code_crypto']).toString();
-  return ciphertext;
-};
 
 require('./handlers/events')(client);
 require('./handlers/interactions')(client);
@@ -91,6 +84,7 @@ app.post('/post', async (req, res) => {
   });
   const discordUserInfoResult = await discordUserInfoResponse.json();
   const discordId = discordUserInfoResult.id;
+  console.log(twitterRefreshToken)
   const find = await twitter_db.findOne({
     twitter_id: twitterId,
   });
@@ -98,10 +92,10 @@ app.post('/post', async (req, res) => {
     await new twitter_db({
       twitter_id: twitterId,
       discord_id: discordId,
-      access_token_twitter: encrypt(twitterAccessToken),
-      access_token_discord: encrypt(discordAccessToken),
-      refresh_token_discord: encrypt(discordRefreshToken),
-      refresh_token_twitter: encrypt(twitterRefreshToken),
+      access_token_twitter: twitterAccessToken,
+      access_token_discord: discordAccessToken,
+      refresh_token_discord: discordRefreshToken,
+      refresh_token_twitter: twitterRefreshToken,
     }).save().catch(e => console.log(e));
   } else {
     await twitter_db.deleteOne({
@@ -110,10 +104,10 @@ app.post('/post', async (req, res) => {
       await new twitter_db({
         twitter_id: twitterId,
         discord_id: discordId,
-        access_token_twitter: encrypt(twitterAccessToken),
-        access_token_discord: encrypt(discordAccessToken),
-        refresh_token_discord: encrypt(discordRefreshToken),
-        refresh_token_twitter: encrypt(twitterRefreshToken),
+        access_token_twitter: twitterAccessToken,
+        access_token_discord: discordAccessToken,
+        refresh_token_discord: discordRefreshToken,
+        refresh_token_twitter: twitterRefreshToken,
       }).save().catch(e => console.log(e));
     });
   };
