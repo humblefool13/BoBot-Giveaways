@@ -399,7 +399,7 @@ module.exports = {
         .setTitle("Active Giveaway")
         .setDescription(descriptionString)
         .setColor("#35FF6E");
-      if (picture && picture.contentType === "image") {
+      if (picture && picture.contentType.startsWith("image")) {
         embed.setImage(picture.url);
       };
       const postChannel = await client.guilds.cache.get(interaction.guild.id).channels.fetch(channel.id);
