@@ -395,6 +395,9 @@ module.exports = {
       if (rtReq) {
         descriptionString += `:arrows_clockwise: **Must retweet this tweet** : \n${rtReq}\n\n`;
       };
+      if (guildMemberReq) {
+        descriptionString += `:point_right: **Must join this server** : \n${guildMemberReq}\n\n`;
+      };
       const embed = new EmbedBuilder()
         .setTitle("Active Giveaway")
         .setDescription(descriptionString)
