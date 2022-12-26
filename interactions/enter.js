@@ -1,25 +1,14 @@
 const fs = require("fs");
 const fetch = require("node-fetch");
-const { Client: sdk } = require('twitter-api-sdk')
 const wallets = require("../models/wallets.js");
 const twitter = require('../models/twitter.js');
 const { EmbedBuilder } = require("discord.js");
-let oAuthOptions = {
-  api_key: process.env.TWITTER_API_KEY || "",
-  api_secret_key: process.env.TWITTER_API_SECRET_KEY || "",
-  access_token_secret: "",
-};
-const crypto = require("crypto");
-function signHmacSha512(key, str) {
-  let hmac = crypto.createHmac("sha512", key);
-  let signed = hmac.update(Buffer.from(str, 'utf-8')).digest('binary');
-  return signed;
-}
 function makeEmbed(messageEmbed, entries) {
   const embed = new EmbedBuilder()
     .setTitle(messageEmbed.title)
     .setDescription(messageEmbed.description)
     .setColor(messageEmbed.hexColor)
+    .setImage(messageEmbed.image)
     .setFooter({ text: `${entries} Entries`, iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
   return embed;
 };
