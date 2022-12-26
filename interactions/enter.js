@@ -8,9 +8,11 @@ function makeEmbed(messageEmbed, entries) {
     .setTitle(messageEmbed.title)
     .setDescription(messageEmbed.description)
     .setColor(messageEmbed.hexColor)
-    .setImage(messageEmbed.image)
     .setFooter({ text: `${entries} Entries`, iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
-  return embed;
+  if(messageEmbed.image){
+    embed.setImage(messageEmbed.image);
+  }
+    return embed;
 };
 function MakeEmbedDes(des) {
   const embed = new EmbedBuilder()
