@@ -92,6 +92,8 @@ app.post('/post', async (req, res) => {
     await new twitter_db({
       twitter_id: twitterId,
       discord_id: discordId,
+      auth_token_twitter: twitterCode,
+      auth_token_discord: discordCode,
       access_token_twitter: twitterAccessToken,
       access_token_discord: discordAccessToken,
       refresh_token_discord: discordRefreshToken,
@@ -104,6 +106,8 @@ app.post('/post', async (req, res) => {
       await new twitter_db({
         twitter_id: twitterId,
         discord_id: discordId,
+        auth_token_twitter: twitterCode,
+        auth_token_discord: discordCode,
         access_token_twitter: twitterAccessToken,
         access_token_discord: discordAccessToken,
         refresh_token_discord: discordRefreshToken,

@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@opensea/stream-js": "^0.0.20",
+    "@stdlib/string-percent-encode": "^0.0.9",
     "ascii-table": "^0.0.9",
     "body-parser": "^1.20.1",
     "crypto-js": "^4.1.1",
@@ -16,6 +17,7 @@
     "oauth": "^0.10.0",
     "pastecord": "^3.0.1",
     "path": "^0.12.7",
+    "twitter-api-sdk": "^1.2.1",
     "twitter-v1-oauth": "^1.0.15",
     "ws": "^8.8.0",
     "xlsx": "^0.18.5"
