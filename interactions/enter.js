@@ -243,7 +243,7 @@ async function follow(creds, targetIDs_separated) {
     };
   };
   for (let status in followSuccess) {
-    if (!status) return false;
+    if (!followSuccess[status]) return false;
   };
   return true;
 };
