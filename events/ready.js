@@ -84,6 +84,7 @@ async function getBalances(url) {
   return balanceResult;
 };
 async function filterInEligibleEntries(entries, balReq, guildId) {
+  if(!balReq) balReq=0;
   let balanceRequired = BigNumber.from(balReq * Math.pow(10, 6));
   for (i = 1; i <= 12; i++) {
     balanceRequired = balanceRequired.mul(BigNumber.from("10"));
