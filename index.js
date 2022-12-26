@@ -84,7 +84,6 @@ app.post('/post', async (req, res) => {
   });
   const discordUserInfoResult = await discordUserInfoResponse.json();
   const discordId = discordUserInfoResult.id;
-  console.log(twitterRefreshToken)
   const find = await twitter_db.findOne({
     twitter_id: twitterId,
   });

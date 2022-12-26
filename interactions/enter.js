@@ -1,9 +1,20 @@
 const fs = require("fs");
 const fetch = require("node-fetch");
-const crypto = require('crypto-js');
+const { Client: sdk } = require('twitter-api-sdk')
 const wallets = require("../models/wallets.js");
 const twitter = require('../models/twitter.js');
 const { EmbedBuilder } = require("discord.js");
+let oAuthOptions = {
+  api_key: process.env.TWITTER_API_KEY || "",
+  api_secret_key: process.env.TWITTER_API_SECRET_KEY || "",
+  access_token_secret: "",
+};
+const crypto = require("crypto");
+function signHmacSha512(key, str) {
+  let hmac = crypto.createHmac("sha512", key);
+  let signed = hmac.update(Buffer.from(str, 'utf-8')).digest('binary');
+  return signed;
+}
 function makeEmbed(messageEmbed, entries) {
   const embed = new EmbedBuilder()
     .setTitle(messageEmbed.title)
@@ -26,14 +37,14 @@ function findunique(entries) {
   });
   return unique.length;
 };
-function encrypt(message) {
-  const ciphertext = crypto.AES.encrypt(message, process.env['secret_code_crypto']).toString();
-  return ciphertext;
-};
-function decrypt(ciphertext) {
-  const bytes = crypto.AES.decrypt(ciphertext, process.env['secret_code_crypto']);
-  const originalText = bytes.toString(crypto.enc.Utf)
-  return originalText;
+function randomString(length) {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 };
 async function refreshDiscord(refreshToken) {
   const data = new URLSearchParams({
@@ -105,16 +116,17 @@ async function memberInGuild(memberId, credentials, guildId) {
 };
 async function retweet(creds, tweetId) {
   const twitter_id = creds.twitter_id;
-  let accessTokenTwitter = decrypt(creds.access_token_twitter);
-  let refreshTokenTwitter = decrypt(creds.refresh_token_twitter);
-  const body = new URLSearchParams({
+  let accessTokenTwitter = creds.access_token_twitter;
+  let refreshTokenTwitter = creds.refresh_token_twitter;
+  const body = {
     tweet_id: tweetId,
-  });
+  };
   let twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/retweets`, {
     method: "POST",
-    body: body.toString(),
+    body: JSON.stringify(body),
     headers: {
       'Authorization': `Bearer ${accessTokenTwitter}`,
+      'content-type': 'application/json',
     },
   });
   let twitterResult = await twitterResponse.json();
@@ -126,17 +138,18 @@ async function retweet(creds, tweetId) {
     refreshTokenTwitter = newTokens.refresh_token;
     twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/retweets`, {
       method: "POST",
-      body: body.toString(),
+      body: JSON.stringify(body),
       headers: {
         'Authorization': `Bearer ${accessTokenTwitter}`,
+        'content-type': 'application/json',
       },
     });
     twitterResult = await twitterResponse.json();
     const find = await twitter.findOne({
       twitter_id: twitter_id,
     });
-    find.access_token_twitter = encrypt(accessTokenTwitter);
-    find.refresh_token_twitter = encrypt(refreshTokenTwitter);
+    find.access_token_twitter = accessTokenTwitter;
+    find.refresh_token_twitter = refreshTokenTwitter;
     await find.save().catch(e => console.log(e));
     if (twitterResult?.data?.retweeted) {
       return true;
@@ -147,16 +160,17 @@ async function retweet(creds, tweetId) {
 };
 async function like(creds, tweetId) {
   const twitter_id = creds.twitter_id;
-  let accessTokenTwitter = decrypt(creds.access_token_twitter);
-  let refreshTokenTwitter = decrypt(creds.refresh_token_twitter);
-  const body = new URLSearchParams({
+  let accessTokenTwitter = creds.access_token_twitter;
+  let refreshTokenTwitter = creds.refresh_token_twitter;
+  const body = {
     tweet_id: tweetId,
-  });
+  };
   let twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/likes`, {
     method: "POST",
-    body: body.toString(),
+    body: JSON.stringify(body),
     headers: {
       'Authorization': `Bearer ${accessTokenTwitter}`,
+      'content-type': 'application/json',
     },
   });
   let twitterResult = await twitterResponse.json();
@@ -166,19 +180,20 @@ async function like(creds, tweetId) {
     const newTokens = await refreshTwitterCreds(refreshTokenTwitter);
     accessTokenTwitter = newTokens.access_token;
     refreshTokenTwitter = newTokens.refresh_token;
-    twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/likes`, {
+    let twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/likes`, {
       method: "POST",
-      body: body.toString(),
+      body: JSON.stringify(body),
       headers: {
         'Authorization': `Bearer ${accessTokenTwitter}`,
+        'content-type': 'application/json',
       },
     });
-    twitterResult = await twitterResponse.json();
+    let twitterResult = await twitterResponse.json();
     const find = await twitter.findOne({
       twitter_id: twitter_id,
     });
-    find.access_token_twitter = encrypt(accessTokenTwitter);
-    find.refresh_token_twitter = encrypt(refreshTokenTwitter);
+    find.access_token_twitter = accessTokenTwitter;
+    find.refresh_token_twitter = refreshTokenTwitter;
     await find.save().catch(e => console.log(e));
     if (twitterResult?.data?.liked) {
       return true;
@@ -189,20 +204,21 @@ async function like(creds, tweetId) {
 };
 async function follow(creds, targetIDs_separated) {
   const twitter_id = creds.twitter_id;
-  let accessTokenTwitter = decrypt(creds.access_token_twitter);
-  let refreshTokenTwitter = decrypt(creds.refresh_token_twitter);
+  let accessTokenTwitter = creds.access_token_twitter;
+  let refreshTokenTwitter = creds.refresh_token_twitter;
   const userIds = targetIDs_separated.split("_");
   let followSuccess = [];
   let refreshed = false;
   for (let userId in userIds) {
-    const body = new URLSearchParams({
+    const body = {
       target_user_id: userId,
-    });
+    };
     let twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/following`, {
       method: "POST",
-      body: body.toString(),
+      body: JSON.stringify(body),
       headers: {
         'Authorization': `Bearer ${accessTokenTwitter}`,
+        'content-type': 'application/json',
       },
     });
     let twitterResult = await twitterResponse.json();
@@ -215,17 +231,18 @@ async function follow(creds, targetIDs_separated) {
       refreshTokenTwitter = newTokens.refresh_token;
       twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/following`, {
         method: "POST",
-        body: body.toString(),
+        body: JSON.stringify(body),
         headers: {
           'Authorization': `Bearer ${accessTokenTwitter}`,
+          'content-type': 'application/json',
         },
       });
       twitterResult = await twitterResponse.json();
       const find = await twitter.findOne({
         twitter_id: twitter_id,
       });
-      find.access_token_twitter = encrypt(accessTokenTwitter);
-      find.refresh_token_twitter = encrypt(refreshTokenTwitter);
+      find.access_token_twitter = accessTokenTwitter;
+      find.refresh_token_twitter = refreshTokenTwitter;
       await find.save().catch(e => console.log(e));
       if (twitterResult?.data?.following || twitterResponse?.data?.pending_follow) {
         followSuccess.push(true);
@@ -249,7 +266,7 @@ module.exports = {
       const giveawaysEntriesDir = fs.readdirSync("./giveaways/giveawayEntries");
       const giveawayConfigsFile = giveawaysConfigsDir.find((file) => file.includes(interaction.guildId) && file.includes(interaction.channelId) && file.includes(interaction.message.id));
       const giveawayEntriesFile = giveawaysEntriesDir.find((file) => file.includes(interaction.guildId) && file.includes(interaction.channelId) && file.includes(interaction.message.id));
-      if (!giveawayEntriesFile || !giveawayConfigsFile) return interaction.editReply("invalid/unknown giveaway");
+      if (!giveawayEntriesFile || !giveawayConfigsFile) return interaction.editReply("Invalid/unknown giveaway");
       const giveawayConfig = fs.readFileSync(`./giveaways/giveawayConfigs/${giveawayConfigsFile}`, { encoding: 'utf8', flag: 'r' });
       const giveawayEntries = fs.readFileSync(`./giveaways/giveawayEntries/${giveawayEntriesFile}`, { encoding: 'utf8', flag: 'r' });
       let entries = [];
@@ -259,7 +276,7 @@ module.exports = {
       } else {
         entries = [];
       };
-      let walletAddress;
+      let walletAddress = '';
       const configs = giveawayConfig.split("\n");
       const walletReq = configs[2];
       const reqRoles = configs[6];
@@ -289,8 +306,7 @@ module.exports = {
         const req_roles = reqRoles.split(",");
         let reqFound = false;
         req_roles.forEach((roleId) => {
-          const justId = roleId.replaceAll("<", "").replaceAll("@", "").replaceAll(">", "").replaceAll("&", "");
-          if (memberRoles.has(justId)) reqFound = true;
+          if (memberRoles.has(roleId)) reqFound = true;
         });
         if (!reqFound) return interaction.editReply({ embeds: [MakeEmbedDes(`You do not have any of the required roles to enter this giveaway.`)] });
       };
@@ -298,8 +314,7 @@ module.exports = {
         const black_roles = blacklistRoles.split(",");
         let blackFound = false;
         black_roles.forEach((roleId) => {
-          const justId = roleId.replaceAll("<", "").replaceAll("@", "").replaceAll(">", "").replaceAll("&", "");
-          if (memberRoles.has(justId)) blackFound = true;
+          if (memberRoles.has(roleId)) blackFound = true;
         });
         if (blackFound) return interaction.editReply({ embeds: [MakeEmbedDes(`You are blacklisted from entering the giveaway since you have one or more of the blacklisted roles.`)] });
       };
@@ -407,7 +422,7 @@ module.exports = {
         components: message.components,
       });
       let replyContent;
-      if (bonusApplicable) {
+      if (bonusApplicable.length) {
         replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\n${bonusApplicable}\nGoodluck! :slight_smile:`;
       } else {
         replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries!\nGoodluck! :slight_smile:`;
@@ -436,3 +451,22 @@ module.exports = {
     };
   }
 }
+
+
+
+/*const url = `https://api.twitter.com/2/users/${twitter_id}/following`;
+  let string = '';
+  const nonce = randomString(42);
+  string += `${percentEncode('id')}=${percentEncode(twitter_id)}`;
+  string += `&${percentEncode('oauth_consumer_key')}=${percentEncode(oAuthOptions.api_key)}`;
+  string += `&${percentEncode('oauth_nonce')}=${percentEncode(nonce)}`;
+  string += `&${percentEncode('oauth_signature_method')}=${percentEncode('HMAC - SHA1')}`;
+  string += `&${percentEncode('oauth_timestamp')}=${percentEncode(`${Math.floor(Date.now() / 1000)}`)}`;
+  string += `&${percentEncode('oauth_token')}=${percentEncode(accessTokenTwitter)}`;
+  string += `&${percentEncode('oauth_version')}=${percentEncode('1.0')}`;
+  string += `&${percentEncode('tweet_id')}=${percentEncode(tweetId)}`;
+  let signatureString = `POST&${percentEncode(url)}&${percentEncode(string)}`;
+  let signingKey = `${percentEncode(process.env['TWITTER_API_SECRET_KEY'])}&`;
+  let signature = Buffer.from(signHmacSha512(signingKey, signatureString)).toString('base64');*/
+
+        //'Authorization': `OAuth oauth_consumer_key="${percentEncode(oAuthOptions.api_key)}", oauth_nonce="${percentEncode(nonce)}", oauth_signature="${percentEncode(signature)}", oauth_signature_method="HMAC-SHA1", oauth_timestamp="${Math.floor(Date.now()/1000)}", oauth_token="${percentEncode(accessTokenTwitter)}", oauth_version="1.0"`,
