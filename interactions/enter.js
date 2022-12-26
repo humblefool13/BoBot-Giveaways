@@ -200,9 +200,9 @@ async function follow(creds, targetIDs_separated) {
   const userIds = targetIDs_separated.split("_");
   let followSuccess = [];
   let refreshed = false;
-  for (let userId in userIds) {
+  for (let index in userIds) {
     const body = {
-      target_user_id: userId,
+      target_user_id: userIds[index],
     };
     let twitterResponse = await fetch(`https://api.twitter.com/2/users/${twitter_id}/following`, {
       method: "POST",
