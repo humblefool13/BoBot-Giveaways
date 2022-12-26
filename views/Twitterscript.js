@@ -12,7 +12,6 @@ window.onload = () => {
     const twitterAccessCode = params[1].slice(5);
     const discordCode = sessionStorage.getItem("discordAccessCode");
     const obj = { 'discordCode': discordCode, 'twitterCode': twitterAccessCode };
-    console.log(obj);
     fetch('http://localhost:3000/post', {
       method: "POST",
       headers: { "Content-Type": "application/json" },

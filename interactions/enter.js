@@ -75,8 +75,8 @@ async function refreshTwitterCreds(refreshToken) {
   return resultTwitter;
 };
 async function memberInGuild(memberId, credentials, guildId) {
-  let accessToken = decrypt(credentials.access_token_discord);
-  let refreshToken = decrypt(credentials.refresh_token_discord);
+  let accessToken = credentials.access_token_discord;
+  let refreshToken = credentials.refresh_token_discord;
   let body = new URLSearchParams({
     "access_token": accessToken,
   });
@@ -104,8 +104,8 @@ async function memberInGuild(memberId, credentials, guildId) {
     const find = await twitter.findOne({
       discord_id: memberId,
     });
-    find.access_token_discord = encrypt(accessToken);
-    find.refresh_token_discord = encrypt(refreshToken);
+    find.access_token_discord = accessToken;
+    find.refresh_token_discord = refreshToken;
     await find.save().catch(e => console.log(e));
   };
   if (discordResponse.status === 201 || discordResponse.status === 204) {
