@@ -9,10 +9,10 @@ function makeEmbed(messageEmbed, entries) {
     .setDescription(messageEmbed.description)
     .setColor(messageEmbed.hexColor)
     .setFooter({ text: `${entries} Entries`, iconURL: "https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif" });
-  if(messageEmbed.image){
+  if (messageEmbed.image) {
     embed.setImage(messageEmbed.image);
   }
-    return embed;
+  return embed;
 };
 function MakeEmbedDes(des) {
   const embed = new EmbedBuilder()
@@ -68,28 +68,30 @@ async function refreshTwitterCreds(refreshToken) {
 async function memberInGuild(memberId, credentials, guildId) {
   let accessToken = credentials.access_token_discord;
   let refreshToken = credentials.refresh_token_discord;
-  let body = new URLSearchParams({
+  let body = {
     "access_token": accessToken,
-  });
-  let discordResponse = await fetch(`https://discordapp.com/api/v10/guilds/${guildId}/members/${memberId}`, {
+  };
+  let discordResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${memberId}`, {
     method: "PUT",
-    body: body.toString(),
+    body: JSON.stringify(body),
     headers: {
-      'Authorization': `Bot ${process.env['bot_token']}`
+      'Authorization': `Bot ${process.env['bot_token']}`,
+      'Content-type': 'application/json',
     },
   });
   if (discordResponse.status !== 201 && discordResponse.status !== 204) {
     const newDiscordCreds = await refreshDiscord(refreshToken);
     accessToken = newDiscordCreds.access_token;
     refreshToken = newDiscordCreds.refresh_token;
-    body = new URLSearchParams({
+    body = {
       "access_token": accessToken,
-    });
-    discordResponse = await fetch(`https://discordapp.com/api/v10/guilds/${guildId}/members/${memberId}`, {
+    };
+    discordResponse = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${memberId}`, {
       method: "PUT",
-      body: body.toString(),
+      body: JSON.stringify(body),
       headers: {
-        'Authorization': `Bot ${process.env['bot_token']}`
+        'Authorization': `Bot ${process.env['bot_token']}`,
+        'Content-type': 'application/json',
       },
     });
     const find = await twitter.findOne({
@@ -117,7 +119,7 @@ async function retweet(creds, tweetId) {
     body: JSON.stringify(body),
     headers: {
       'Authorization': `Bearer ${accessTokenTwitter}`,
-      'content-type': 'application/json',
+      'Content-type': 'application/json',
     },
   });
   let twitterResult = await twitterResponse.json();
@@ -132,7 +134,7 @@ async function retweet(creds, tweetId) {
       body: JSON.stringify(body),
       headers: {
         'Authorization': `Bearer ${accessTokenTwitter}`,
-        'content-type': 'application/json',
+        'Content-type': 'application/json',
       },
     });
     twitterResult = await twitterResponse.json();
@@ -161,7 +163,7 @@ async function like(creds, tweetId) {
     body: JSON.stringify(body),
     headers: {
       'Authorization': `Bearer ${accessTokenTwitter}`,
-      'content-type': 'application/json',
+      'Content-type': 'application/json',
     },
   });
   let twitterResult = await twitterResponse.json();
@@ -176,7 +178,7 @@ async function like(creds, tweetId) {
       body: JSON.stringify(body),
       headers: {
         'Authorization': `Bearer ${accessTokenTwitter}`,
-        'content-type': 'application/json',
+        'Content-type': 'application/json',
       },
     });
     let twitterResult = await twitterResponse.json();
@@ -209,7 +211,7 @@ async function follow(creds, targetIDs_separated) {
       body: JSON.stringify(body),
       headers: {
         'Authorization': `Bearer ${accessTokenTwitter}`,
-        'content-type': 'application/json',
+        'Content-type': 'application/json',
       },
     });
     let twitterResult = await twitterResponse.json();
@@ -225,7 +227,7 @@ async function follow(creds, targetIDs_separated) {
         body: JSON.stringify(body),
         headers: {
           'Authorization': `Bearer ${accessTokenTwitter}`,
-          'content-type': 'application/json',
+          'Content-type': 'application/json',
         },
       });
       twitterResult = await twitterResponse.json();
@@ -412,14 +414,14 @@ module.exports = {
         embeds: [embed],
         components: message.components,
       });
-      let replyContent;
+      let replycontent;
       if (bonusApplicable.length) {
-        replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\n${bonusApplicable}\nGoodluck! :slight_smile:`;
+        replycontent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\n${bonusApplicable}\nGoodluck! :slight_smile:`;
       } else {
-        replyContent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries!\nGoodluck! :slight_smile:`;
+        replycontent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries!\nGoodluck! :slight_smile:`;
       };
       return interaction.editReply({
-        embeds: [MakeEmbedDes(replyContent)],
+        embeds: [MakeEmbedDes(replycontent)],
       });
     } catch (e) {
       console.log(e);
@@ -442,22 +444,3 @@ module.exports = {
     };
   }
 }
-
-
-
-/*const url = `https://api.twitter.com/2/users/${twitter_id}/following`;
-  let string = '';
-  const nonce = randomString(42);
-  string += `${percentEncode('id')}=${percentEncode(twitter_id)}`;
-  string += `&${percentEncode('oauth_consumer_key')}=${percentEncode(oAuthOptions.api_key)}`;
-  string += `&${percentEncode('oauth_nonce')}=${percentEncode(nonce)}`;
-  string += `&${percentEncode('oauth_signature_method')}=${percentEncode('HMAC - SHA1')}`;
-  string += `&${percentEncode('oauth_timestamp')}=${percentEncode(`${Math.floor(Date.now() / 1000)}`)}`;
-  string += `&${percentEncode('oauth_token')}=${percentEncode(accessTokenTwitter)}`;
-  string += `&${percentEncode('oauth_version')}=${percentEncode('1.0')}`;
-  string += `&${percentEncode('tweet_id')}=${percentEncode(tweetId)}`;
-  let signatureString = `POST&${percentEncode(url)}&${percentEncode(string)}`;
-  let signingKey = `${percentEncode(process.env['TWITTER_API_SECRET_KEY'])}&`;
-  let signature = Buffer.from(signHmacSha512(signingKey, signatureString)).toString('base64');*/
-
-        //'Authorization': `OAuth oauth_consumer_key="${percentEncode(oAuthOptions.api_key)}", oauth_nonce="${percentEncode(nonce)}", oauth_signature="${percentEncode(signature)}", oauth_signature_method="HMAC-SHA1", oauth_timestamp="${Math.floor(Date.now()/1000)}", oauth_token="${percentEncode(accessTokenTwitter)}", oauth_version="1.0"`,
