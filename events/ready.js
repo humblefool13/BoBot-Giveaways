@@ -187,6 +187,7 @@ module.exports = {
               };
             } else {
               let functionReturn;
+              let wallets;
               const unique = findunique(entries);
               if(balReq==="NA"){
                 functionReturn = await filterInEligibleEntries(entries, 0, guild.id);
