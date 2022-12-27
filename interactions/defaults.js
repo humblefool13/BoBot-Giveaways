@@ -1,7 +1,13 @@
 const configs = require("../models/configurations.js");
 const subs = require("../models/subscriptions.js");
 const defaults = require("../models/defaults.js");
-
+const { EmbedBuilder } = require("discord.js");
+function MakeEmbedDes(des) {
+  const embed = new EmbedBuilder()
+    .setColor("#35FF6E")
+    .setDescription(des);
+  return embed;
+};
 module.exports = {
   name: "default-settings",
   async interact(client, interaction) {
@@ -71,14 +77,14 @@ module.exports = {
       };
       if (reqRoles) {
         let roles = 0;
-        for (i = 0; i < rolesReq.length; i++) {
-          const char = rolesReq.charAt(i);
-          const char2 = rolesReq.charAt(i + 1);
+        for (i = 0; i < reqRoles.length; i++) {
+          const char = reqRoles.charAt(i);
+          const char2 = reqRoles.charAt(i + 1);
           if (char === "@" && char2 === "&") roles++;
         };
         let commas = 0;
-        for (i = 0; i < rolesReq.length; i++) {
-          const char = rolesReq.charAt(i);
+        for (i = 0; i < reqRoles.length; i++) {
+          const char = reqRoles.charAt(i);
           if (char === ",") commas++;
         };
         if (roles - 1 !== commas) return interaction.editReply(`Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``);
@@ -98,7 +104,7 @@ module.exports = {
       await new defaults({
         server_id: interaction.guildId,
         defaults: arr,
-      }).then(() => {
+      }).save().then(() => {
         return interaction.editReply({
           embeds: [MakeEmbedDes("Your defualt settings are successfully saved and will be applied when you choose to. After giveaway creation command, you will get an option to add these if you hadn't added the fields in command.")]
         });
