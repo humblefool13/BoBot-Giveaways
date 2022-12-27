@@ -186,12 +186,13 @@ module.exports = {
                 fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
               };
             } else {
-              let functionReturn;
-              let wallets;
+              let functionReturn = [];
+              let winners = [];
+              let wallets = [];
               const unique = findunique(entries);
-              if(balReq==="NA"){
+              if (balReq === "NA") {
                 functionReturn = await filterInEligibleEntries(entries, 0, guild.id);
-              }else{
+              } else {
                 functionReturn = await filterInEligibleEntries(entries, balReq, guild.id);
               };
               entries = functionReturn[0];
