@@ -2,7 +2,18 @@ const fs = require("fs");
 const fetch = require("node-fetch");
 const wallets = require("../models/wallets.js");
 const twitter = require('../models/twitter.js');
+const { BigNumber } = require('ethers');
 const { EmbedBuilder } = require("discord.js");
+const { RateLimiter } = require("limiter");
+let etherscan_key = process.env['etherscan_key'];
+etherscan_key = etherscan_key.split(",");
+let eklength = etherscan_key.length;
+let ekv = 0;
+const limiter_eth = new RateLimiter({
+  tokensPerInterval: 5 * eklength,
+  interval: "second",
+  fireImmediately: true
+});
 function makeEmbed(messageEmbed, entries) {
   const embed = new EmbedBuilder()
     .setTitle(messageEmbed.title)
@@ -27,15 +38,6 @@ function findunique(entries) {
     unique.push(entry);
   });
   return unique.length;
-};
-function randomString(length) {
-  var result = '';
-  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
 };
 async function refreshDiscord(refreshToken) {
   const data = new URLSearchParams({
@@ -249,6 +251,14 @@ async function follow(creds, targetIDs_separated) {
   };
   return true;
 };
+async function findBalance(walletAddress) {
+  const remainingRequests = await limiter_eth.removeTokens(1);
+  if (remainingRequests < 0) return;
+  if (ekv === eklength) ekv = 0;
+  const balanceResponse = await fetch(`https://api.etherscan.io/api?module=account&action=balance&address=${walletAddress}&tag=latest&apikey=${etherscan_key[ekv++]}`);
+  const balanceResult = await balanceResponse.json();
+  return balanceResult;
+};
 
 module.exports = {
   name: "enter",
@@ -278,6 +288,7 @@ module.exports = {
       const followReq = configs[9];
       const rtReq = configs[11];
       const likeReq = configs[10];
+      const balReq = configs[4];
       const discordMemberReq = configs[12];
       let bonusApplicable = "", userEntries = 1;
       if (walletReq === "YES") {
@@ -292,6 +303,19 @@ module.exports = {
           walletAddress = serverWallet[1];
         } else {
           walletAddress = wallet.wallet_global;
+        };
+      };
+      if (balReq !== "NA") {
+        let balance = '';
+        do {
+          balance = findBalance(walletAddress);
+        } while (balance?.message !== "OK")
+        balance = balance.result;
+        balance = BigNumber.from(balance);
+        let requirement = BigNumber.from(balReq * Math.pow(10, 9));
+        requirement = requirement.mul(BigNumber.from(Math.pow(10, 9)));
+        if (requirement.gt(balance)) {
+          return interaction.editReply("Your account balance is lower than the required balance.");
         };
       };
       const memberRoles = interaction.member.roles.cache;
