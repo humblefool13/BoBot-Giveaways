@@ -308,7 +308,7 @@ module.exports = {
       if (balReq !== "NA") {
         let balance = '';
         do {
-          balance = findBalance(walletAddress);
+          balance = await findBalance(walletAddress);
         } while (balance?.message !== "OK")
         balance = balance.result;
         balance = BigNumber.from(balance);
