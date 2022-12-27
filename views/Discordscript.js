@@ -7,6 +7,6 @@ window.onload = () => {
     const params = window.location.href.slice(questionMark + 6);
     sessionStorage.setItem("discordAccessCode", params);
     const scopes = ['like.read', 'like.write', 'tweet.read', 'tweet.write', 'follows.read', 'follows.write', 'users.read', 'offline.access'].join("%20");
-    window.location.href = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=http://localhost:3000/twitter&scope=${scopes}&state=state&code_challenge=challenge&code_challenge_method=plain`;
+    window.location.href = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=http://37.59.71.137:3000/twitter&scope=${scopes}&state=state&code_challenge=challenge&code_challenge_method=plain`;
   };
 };

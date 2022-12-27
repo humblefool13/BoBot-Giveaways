@@ -6,7 +6,7 @@ const rowFirst = new ActionRowBuilder()
     new ButtonBuilder()
       .setLabel("Start")
       .setEmoji("✅")
-      .setURL("https://discord.com/api/oauth2/authorize?client_id=1001909973938348042&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fdiscord&response_type=code&scope=identify%20guilds%20guilds.join")
+      .setURL("https://discord.com/api/oauth2/authorize?client_id=1001909973938348042&redirect_uri=http%3A%2F%2F37.59.71.137%3A3000%2Fdiscord&response_type=code&scope=identify%20guilds%20guilds.join")
       .setStyle(ButtonStyle.Link),
   );
 

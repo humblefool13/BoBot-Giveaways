@@ -43,7 +43,7 @@ app.get('/twitter', (req, res) => {
 app.post('/post', async (req, res) => {
   const discordCode = req.body.discordCode;
   const twitterCode = req.body.twitterCode;
-  const responseTwitter = await fetch(`https://api.twitter.com/2/oauth2/token?code=${twitterCode}&grant_type=authorization_code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=http://localhost:3000/twitter&code_verifier=challenge`, {
+  const responseTwitter = await fetch(`https://api.twitter.com/2/oauth2/token?code=${twitterCode}&grant_type=authorization_code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=http://37.59.71.137:3000/twitter&code_verifier=challenge`, {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       'Authorization': `Basic ${(process.env["auth_token"]).replaceAll(`"`,"")}`,
@@ -56,7 +56,7 @@ app.post('/post', async (req, res) => {
     client_secret: process.env['client_discord_secret'],
     grant_type: "authorization_code",
     code: discordCode,
-    redirect_uri: 'http://localhost:3000/discord'
+    redirect_uri: 'http://37.59.71.137:3000/discord'
   });
   const responseDiscord = await fetch(`https://discord.com/api/oauth2/token`, {
     method: "POST",

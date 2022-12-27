@@ -84,8 +84,7 @@ async function getBalances(url) {
   return balanceResult;
 };
 async function filterInEligibleEntries(entries, balReq, guildId) {
-  if(!balReq) balReq=0;
-  let balanceRequired = BigNumber.from(balReq * Math.pow(10, 6));
+  let balanceRequired = BigNumber.from(Number(balReq) * Math.pow(10, 6));
   for (i = 1; i <= 12; i++) {
     balanceRequired = balanceRequired.mul(BigNumber.from("10"));
   };
@@ -187,8 +186,13 @@ module.exports = {
                 fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
               };
             } else {
+              let functionReturn;
               const unique = findunique(entries);
-              let functionReturn = await filterInEligibleEntries(entries, balReq, guild.id);
+              if(balReq==="NA"){
+                functionReturn = await filterInEligibleEntries(entries, 0, guild.id);
+              }else{
+                functionReturn = await filterInEligibleEntries(entries, balReq, guild.id);
+              };
               entries = functionReturn[0];
               wallets = functionReturn[1];
               do {
