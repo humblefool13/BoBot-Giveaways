@@ -30,6 +30,7 @@ module.exports = {
       if (!interaction.member.roles.cache.has(managerRole)) return interaction.editReply({
         content: `Only <@&${managerRole}> can use this command.`
       });
+      const botRole = interaction.guild.members.me.roles.botRole;
       let ping = interaction.options.getString("ping-role");
       let blacklistedRoles = interaction.options.getString("blacklist-roles");
       let bonus = interaction.options.getString("bonus-entries");
@@ -91,6 +92,10 @@ module.exports = {
         arr.reqRoles = reqRoles;
       };
       if (winnerRole) {
+        const position = botRole.comparePositionTo(winnerRole);
+        if (position < 0) {
+          return interaction.editReply('My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.');
+        };
         arr.winnerRole = winnerRole;
       };
       const find = await defaults.findOne({
