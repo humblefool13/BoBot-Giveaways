@@ -130,6 +130,7 @@ module.exports = {
       });
       if (defaultsData) defaultsData = defaultsData.defaults;
       if (!defaultsData) defaultsData = {};
+      const botRole = interaction.guild.members.me.roles.botRole;
 
       const prize = interaction.options.getString("prize");
       const channel = interaction.options.getChannel("channel");
@@ -366,7 +367,14 @@ module.exports = {
           descriptionString += `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
           descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${walletReq}\n\n`;
           if (balReq) descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required** : ${balReq} Ξ\n\n`;
-          if (winnerRole) descriptionString += `:military_medal: **Role Awarded to Winners** : <@&${winnerRole}>\n\n`;
+          if (winnerRole) {
+            const roleFromId = interaction.guild.roles.cache.get(winnerRole);
+            const position = botRole.comparePositionTo(roleFromId);
+            if (position < 0) {
+              return interaction.editReply('My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.');
+            };
+            descriptionString += `:military_medal: **Role Awarded to Winners** : <@&${winnerRole}>\n\n`;
+          };
           if (reqRoles) {
             let reqroles = parseRoles(reqRoles);
             reqroles = reqroles.join(">, <@&");
@@ -509,7 +517,13 @@ module.exports = {
         descriptionString += `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
         descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${walletReq}\n\n`;
         if (balReq) descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required** : ${balReq} Ξ\n\n`;
-        if (winnerRole) descriptionString += `:military_medal: **Role Awarded to Winners** : <@&${winnerRole.id}>\n\n`;
+        if (winnerRole) {
+          const position = botRole.comparePositionTo(winnerRole);
+          if (position < 0) {
+            return interaction.editReply('My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.');
+          };
+          descriptionString += `:military_medal: **Role Awarded to Winners** : <@&${winnerRole}>\n\n`;
+        };
         if (reqRoles) {
           let reqroles = parseRoles(reqRoles);
           reqroles = reqroles.join(">, <@&");
