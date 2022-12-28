@@ -13,7 +13,7 @@ module.exports = {
   async interact(client, interaction) {
     try {
       await interaction.deferReply({ ephemeral: true });
-      let arr = [];
+      let arr = {};
       const sub = subs.findOne({
         server_id: interaction.guildId,
       });
