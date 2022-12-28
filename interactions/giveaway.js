@@ -1,4 +1,4 @@
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, ActionRowBuilder, PermissionsBitField, Embed, DefaultUserAgent } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, ActionRowBuilder, PermissionsBitField } = require("discord.js");
 const configs = require("../models/configurations.js");
 const subs = require("../models/subscriptions.js");
 const defaults = require("../models/defaults.js");
