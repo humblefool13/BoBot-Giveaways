@@ -56,10 +56,10 @@ module.exports = {
           embeds: [MakeEmbed(`You have not verified your twitter account. Please do so by clicking the button beside to be able to enter twitter actions gated giveaways.`)],
         });
       } else {
-        const twitterUsername = twitterFind.t_username;
+        const twitterUsername = twitterFind.twitter_id;
         return interaction.followUp({
           ephemeral: true,
-          embeds: [MakeEmbed(`You have verified your twitter account-\n\n**${twitterUsername}**\n\nIf you ever need to change it, you can hit the verify twitter button again and associate your new account to your discord account.`)],
+          embeds: [MakeEmbed(`You have verified your twitter account-\n\n**ID: ${twitterUsername}**\n\nIf you ever need to change it, you can hit the verify twitter button again and associate your new account to your discord account.`)],
         });
       };
     } catch (e) {

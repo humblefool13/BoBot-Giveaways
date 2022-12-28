@@ -106,7 +106,7 @@ module.exports = {
         defaults: arr,
       }).save().then(() => {
         return interaction.editReply({
-          embeds: [MakeEmbedDes("Your defualt settings are successfully saved and will be applied when you choose to. After giveaway creation command, you will get an option to add these if you hadn't added the fields in command.")]
+          embeds: [MakeEmbedDes("Your default settings are successfully saved and will be applied when you choose to. After giveaway creation command, you will get an option to add these if you hadn't added the fields in command.")]
         });
       }).catch((e) => {
         console.log(e);
