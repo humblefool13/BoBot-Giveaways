@@ -362,7 +362,7 @@ module.exports = {
             };
           };
           let descriptionString = "";
-          descriptionString += `:trophy: **Prize Name** : \`${prize}\`\n\n`;
+          descriptionString += `:trophy: **Prize Name** : ${prize}\n\n`;
           descriptionString += `:crown: **Winners** : ${winners}\n\n`;
           descriptionString += `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
           descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${walletReq}\n\n`;
