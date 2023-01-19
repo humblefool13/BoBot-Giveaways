@@ -196,43 +196,30 @@ module.exports = {
                 const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID).catch((e) => { });
                 if (postChannel) {
                   const messageLinkRow = new ActionRowBuilder()
-                  .addComponents(
-                    new ButtonBuilder()
-                    .setLabel("Jump to Giveaway")
-                    .setStyle(ButtonStyle.Link)
-                    .setURL(msgUrl),
-                    new ButtonBuilder()
-                    .setLabel("Winners List")
-                    .setStyle(ButtonStyle.Link)
-                    .setURL(sent.url)
+                    .addComponents(
+                      new ButtonBuilder()
+                        .setLabel("Jump to Giveaway")
+                        .setStyle(ButtonStyle.Link)
+                        .setURL(msgUrl),
+                      new ButtonBuilder()
+                        .setLabel("Winners List")
+                        .setStyle(ButtonStyle.Link)
+                        .setURL(sent.url)
                     );
-                    let content = `\nThe file with winners' details and wallets is attached below!\n`;
-                    if (unique !== entries.length) content = `Total Entries: ${entries.length}\n` + content;
-                    const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\nUnique Entries: ${unique}\n${content}`;
-                    await postChannel.send({
-                      embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF")],
-                      files: [{
-                        attachment: bufferFile,
-                        name: `${prize}_${guild.name}.xlsx`
-                      }],
-                      components: [messageLinkRow],
-                    });
+                  let content = `\nThe file with winners' details and wallets is attached below!\n`;
+                  if (unique !== entries.length) content = `Total Entries: ${entries.length}\n` + content;
+                  const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\nUnique Entries: ${unique}\n${content}`;
+                  await postChannel.send({
+                    embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF")],
+                    files: [{
+                      attachment: bufferFile,
+                      name: `${prize}_${guild.name}.xlsx`
+                    }],
+                    components: [messageLinkRow],
+                  });
                   if (winnerRole !== "NA") {
-                    let winnersDuplicate = winners;
-                    const interval = setInterval(doRoles, 800);
-                    async function giveRole(winnersDuplicate) {
-                      if (winnersDuplicate.length) {
-                        const member = members.find((m) => m.id === winnersDuplicate[winnersDuplicate.length - 1]);
-                        winnersDuplicate.pop();
-                        if (member) member.roles.add(winnerRole).catch((e) => { });
-                      };
-                    };
-                    async function doRoles() {
-                      if (winnersDuplicate.length) {
-                        await giveRole(winnersDuplicate);
-                      } else {
-                        clearInterval(interval);
-                      };
+                    for (let winner in winners) {
+                      winner.roles.add(winnerRole).catch((e) => { });
                     };
                   };
                   fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
