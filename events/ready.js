@@ -4,13 +4,6 @@ const wallets_records = require("../models/wallets.js");
 const sub_records = require("../models/subscriptions.js");
 const excel = require('exceljs');
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType } = require("discord.js");
-async function pastecord(text) {
-  let data = await pasteClient.publish(text).catch();
-  if (!data) data = {
-    url: false
-  };
-  return data.url;
-};
 const row = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
