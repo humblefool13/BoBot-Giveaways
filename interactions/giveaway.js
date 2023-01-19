@@ -137,6 +137,7 @@ module.exports = {
       const winners = interaction.options.getInteger("winners");
       const walletReq = interaction.options.getBoolean("req-wallet");
       const time = interaction.options.getString("duration");
+      const description = interaction.options.getString("description");
       let ping = interaction.options.getString("ping-role");
       let blacklistedRoles = interaction.options.getString("blacklist-roles");
       let bonus = interaction.options.getString("bonus-entries");
@@ -150,6 +151,7 @@ module.exports = {
       const guildMemberReq = interaction.options.getString('discord-member-req');
 
       const permissions = channel.permissionsFor(client.user.id);
+      if (description.length > 3000) return interaction.editReply('Please make sure the description does not exceed 3000 characters.')
       if (!permissions.has(PermissionsBitField.Flags.ViewChannel)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
       if (!permissions.has(PermissionsBitField.Flags.SendMessages)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
       if (!permissions.has(PermissionsBitField.Flags.ReadMessageHistory)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
@@ -363,6 +365,9 @@ module.exports = {
           };
           let descriptionString = "";
           descriptionString += `:trophy: **Prize Name** : ${prize}\n\n`;
+          if (description) {
+            descriptionString += description + "\n\n";
+          };
           descriptionString += `:crown: **Winners** : ${winners}\n\n`;
           descriptionString += `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
           descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${walletReq}\n\n`;
@@ -513,6 +518,9 @@ module.exports = {
         };
         let descriptionString = "";
         descriptionString += `:trophy: **Prize Name** : \`${prize}\`\n\n`;
+        if (description) {
+          descriptionString += description + "\n\n";
+        };
         descriptionString += `:crown: **Winners** : ${winners}\n\n`;
         descriptionString += `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
         descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${walletReq}\n\n`;
