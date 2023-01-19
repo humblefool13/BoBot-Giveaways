@@ -2,10 +2,8 @@ const fs = require("fs");
 const config_records = require("../models/configurations.js");
 const wallets_records = require("../models/wallets.js");
 const sub_records = require("../models/subscriptions.js");
-const Pastecord = require("pastecord");
-const pasteClient = new Pastecord();
+const excel = require('exceljs');
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType } = require("discord.js");
-let i = 1;
 async function pastecord(text) {
   let data = await pasteClient.publish(text).catch();
   if (!data) data = {
@@ -147,19 +145,17 @@ module.exports = {
                     }
                   };
                   const wallet = findWallet(walletData, entries[index], location[0]);
-                  tagArray.push(`${wallet} - ${member.id} - ${member.user.tag}`);
-                  walletsArray.push(wallet);
+                  tagArray.push([wallet, member.id, member.user.tag]);
+                  walletsArray.push([wallet]);
                 }
               } while (winners.length < numWinners && winners.length < unique);
               winners = shuffleArray(winners);
-              const exportStringWallet = `Server Name: ${guild.name}\nPrize: ${prize}\n\nWallet Addresses of Winners\n\n${walletsArray.join("\n")}`;
-              const exportString = `Server Name: ${guild.name}\nPrize: ${prize}\n\n(Wallet Address + User Info) of Winners\n\n${tagArray.join("\n")}`;
               if (message && channel) {
                 const description = message.embeds[0].description;
                 if (message.embeds[0].image) {
                   await message.edit({
                     components: [row],
-                    embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setImage(message.embeds[0].image).setDescription(description).setColor("#8A45FF")],
+                    embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setImage(message.embeds[0].image.url).setDescription(description).setColor("#8A45FF")],
                   });
                 } else {
                   await message.edit({
@@ -184,10 +180,22 @@ module.exports = {
                     content: msg,
                   });
                 };
-                fs.writeFileSync(`./exports/export${i}.txt`, exportString);
-                fs.writeFileSync(`./exports/export${i + 1}.txt`, exportStringWallet);
-                const winnersTextUrl = await pastecord(exportString);
-                const winnersWalletTextUrl = await pastecord(exportStringWallet);
+                const workbook = new excel.Workbook();
+                const workSheetOnlyWallets = workbook.addWorksheet('Wallets Only');
+                const workSheetWalletsAndUserDetails = workbook.addWorksheet('Wallets With User Info');
+                workSheetOnlyWallets.addRow(['Server Name:', guild.name]);
+                workSheetOnlyWallets.addRow(['Prize Name:', prize]);
+                workSheetOnlyWallets.addRow(['Wallet Address'])
+                workSheetWalletsAndUserDetails.addRow(['Server Name:', guild.name]);
+                workSheetWalletsAndUserDetails.addRow(['Prize Name:', prize]);
+                workSheetWalletsAndUserDetails.addRow(['Wallet Address', 'User ID', 'User Tag']);
+                tagArray.forEach((detailArray) => {
+                  workSheetWalletsAndUserDetails.addRow(detailArray);
+                });
+                walletsArray.forEach((detailArray) => {
+                  workSheetOnlyWallets.addRow(detailArray);
+                });
+                const bufferFile = await workbook.xlsx.writeBuffer();
                 const config = await config_records.findOne({
                   server_id: guild.id,
                 });
@@ -195,39 +203,27 @@ module.exports = {
                 const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID).catch((e) => { });
                 if (postChannel) {
                   const messageLinkRow = new ActionRowBuilder()
-                    .addComponents(
-                      new ButtonBuilder()
-                        .setLabel("Jump to Giveaway")
-                        .setStyle(ButtonStyle.Link)
-                        .setURL(msgUrl),
-                      new ButtonBuilder()
-                        .setLabel("Winners List")
-                        .setStyle(ButtonStyle.Link)
-                        .setURL(sent.url)
+                  .addComponents(
+                    new ButtonBuilder()
+                    .setLabel("Jump to Giveaway")
+                    .setStyle(ButtonStyle.Link)
+                    .setURL(msgUrl),
+                    new ButtonBuilder()
+                    .setLabel("Winners List")
+                    .setStyle(ButtonStyle.Link)
+                    .setURL(sent.url)
                     );
-                  let content = `Link to winners list \`(User Tag + Wallet Addresses)\` :\n${winnersTextUrl}.txt\nLink to winners list \`(Only Wallet Addresses)\` :\n${winnersWalletTextUrl}.txt\n\nUnique Entries: ${unique}`;
-                  if (unique !== entries.length) content = content + `\nTotal Entries: ${entries.length}`;
-                  const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n\n${content}`;
-                  if (!winnersTextUrl || !winnersWalletTextUrl) {
+                    let content = `\nThe file with winners' details and wallets is attached below!\n`;
+                    if (unique !== entries.length) content = `Total Entries: ${entries.length}\n` + content;
+                    const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\nUnique Entries: ${unique}\n${content}`;
                     await postChannel.send({
+                      embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF")],
                       files: [{
-                        attachment: `./exports/export${i}.txt`,
-                        name: `Tags-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
-                        description: 'File with winners\' data.'
-                      }, {
-                        attachment: `./exports/export${i + 1}.txt`,
-                        name: `Wallets-${guild.name.toLowerCase().replaceAll(" ", "")}_${prize.toLowerCase().replaceAll(" ", "")}.txt`,
-                        description: 'File with winners\' wallet data.'
+                        attachment: bufferFile,
+                        name: `${prize}_${guild.name}.xlsx`
                       }],
                       components: [messageLinkRow],
-                      embeds: [new EmbedBuilder().setDescription(`Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n\nFailed to upload to pastecord. Files sent above.`).setColor("#8A45FF")],
                     });
-                  } else {
-                    await postChannel.send({
-                      components: [messageLinkRow],
-                      embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF")],
-                    });
-                  };
                   if (winnerRole !== "NA") {
                     let winnersDuplicate = winners;
                     const interval = setInterval(doRoles, 800);
