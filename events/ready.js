@@ -109,10 +109,17 @@ module.exports = {
             if (entries.length === 1 && entries[0] === "") {
               if (message && channel) {
                 const description = message.embeds[0].description;
-                await message.edit({
-                  components: [row],
-                  embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#8A45FF")],
-                });
+                if (message.embeds[0].image) {
+                  await message.edit({
+                    components: [row],
+                    embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setImage(message.embeds[0].image.url).setDescription(description).setColor("#8A45FF")],
+                  });
+                } else {
+                  await message.edit({
+                    components: [row],
+                    embeds: [new EmbedBuilder().setTitle("Giveaway Ended").setDescription(description).setColor("#8A45FF")],
+                  });
+                };
                 await message.reply({
                   content: "No Entries."
                 });
