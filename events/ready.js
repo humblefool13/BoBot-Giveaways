@@ -88,8 +88,6 @@ module.exports = {
           const fileData2 = fileData1.split("\n");
           const endTimestamp = Number(fileData2[3]);
           if (Date.now() >= endTimestamp) {
-            i += 2;
-            if (i === 11) i = 1;
             const prize = fileData2[0];
             const numWinners = fileData2[1];
             const winnerRole = fileData2[5];
@@ -213,9 +211,9 @@ module.exports = {
                         .setStyle(ButtonStyle.Link)
                         .setURL(sent.url)
                     );
-                  let content = `\nThe file with winners' details and wallets is attached below!\n`;
-                  if (unique !== entries.length) content = `Total Entries: ${entries.length}\n` + content;
-                  const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\nUnique Entries: ${unique}\n${content}`;
+                  let content = `\nThe file with winners' details and wallets is attached above!\n`;
+                  if (unique !== entries.length) content = `👥 Total Entries: ${entries.length}\n` + content;
+                  const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n👤 Unique Entries: ${unique}\n${content}`;
                   await postChannel.send({
                     embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF")],
                     files: [{
