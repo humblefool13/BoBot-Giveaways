@@ -2,6 +2,7 @@ const fs = require("fs");
 const fetch = require("node-fetch");
 const wallets = require("../models/wallets.js");
 const twitter = require('../models/twitter.js');
+const CryptoJS = require('crypto-js');
 const { BigNumber } = require('ethers');
 const { EmbedBuilder } = require("discord.js");
 const { RateLimiter } = require("limiter");
@@ -9,6 +10,15 @@ let etherscan_key = process.env['etherscan_key'];
 etherscan_key = etherscan_key.split(",");
 let eklength = etherscan_key.length;
 let ekv = 0;
+function encrypt(message) {
+  const cipherCode = CryptoJS.AES.encrypt(message, process.env['secretPhrase']);
+  return cipherCode.toString();
+};
+function decrypt(encryptedString) {
+  const cipherText = CryptoJS.AES.decrypt(encryptedString, process.env['secretPhrase']);
+  const plainText = cipherText.toString(CryptoJS.enc.Utf8);
+  return plainText;
+};
 const limiter_eth = new RateLimiter({
   tokensPerInterval: 5 * eklength,
   interval: "second",
@@ -40,15 +50,15 @@ function findunique(entries) {
   return unique.length;
 };
 async function refreshDiscord(refreshToken) {
-  const data = new URLSearchParams({
+  const data = {
     client_id: '1001909973938348042',
     client_secret: process.env['client_discord_secret'],
     grant_type: "refresh_token",
     code: refreshToken,
-  });
+  };
   const responseDiscord = await fetch(`https://discord.com/api/oauth2/token`, {
     method: "POST",
-    body: data.toString(),
+    body: JSON.stringify(data),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     }
@@ -68,8 +78,8 @@ async function refreshTwitterCreds(refreshToken) {
   return resultTwitter;
 };
 async function memberInGuild(memberId, credentials, guildId) {
-  let accessToken = credentials.access_token_discord;
-  let refreshToken = credentials.refresh_token_discord;
+  let accessToken = decrypt(credentials.access_token_discord);
+  let refreshToken = decrypt(credentials.refresh_token_discord);
   let body = {
     "access_token": accessToken,
   };
@@ -99,8 +109,8 @@ async function memberInGuild(memberId, credentials, guildId) {
     const find = await twitter.findOne({
       discord_id: memberId,
     });
-    find.access_token_discord = accessToken;
-    find.refresh_token_discord = refreshToken;
+    find.access_token_discord = encrypt(accessToken);
+    find.refresh_token_discord = encrypt(refreshToken);
     await find.save().catch(e => console.log(e));
   };
   if (discordResponse.status === 201 || discordResponse.status === 204) {
@@ -111,8 +121,8 @@ async function memberInGuild(memberId, credentials, guildId) {
 };
 async function retweet(creds, tweetId) {
   const twitter_id = creds.twitter_id;
-  let accessTokenTwitter = creds.access_token_twitter;
-  let refreshTokenTwitter = creds.refresh_token_twitter;
+  let accessTokenTwitter = decrypt(creds.access_token_twitter);
+  let refreshTokenTwitter = decrypt(creds.refresh_token_twitter);
   const body = {
     tweet_id: tweetId,
   };
@@ -143,8 +153,8 @@ async function retweet(creds, tweetId) {
     const find = await twitter.findOne({
       twitter_id: twitter_id,
     });
-    find.access_token_twitter = accessTokenTwitter;
-    find.refresh_token_twitter = refreshTokenTwitter;
+    find.access_token_twitter = encrypt(accessTokenTwitter);
+    find.refresh_token_twitter = encrypt(refreshTokenTwitter);
     await find.save().catch(e => console.log(e));
     if (twitterResult?.data?.retweeted) {
       return true;
@@ -155,8 +165,8 @@ async function retweet(creds, tweetId) {
 };
 async function like(creds, tweetId) {
   const twitter_id = creds.twitter_id;
-  let accessTokenTwitter = creds.access_token_twitter;
-  let refreshTokenTwitter = creds.refresh_token_twitter;
+  let accessTokenTwitter = decrypt(creds.access_token_twitter);
+  let refreshTokenTwitter = decrypt(creds.refresh_token_twitter);
   const body = {
     tweet_id: tweetId,
   };
@@ -187,8 +197,8 @@ async function like(creds, tweetId) {
     const find = await twitter.findOne({
       twitter_id: twitter_id,
     });
-    find.access_token_twitter = accessTokenTwitter;
-    find.refresh_token_twitter = refreshTokenTwitter;
+    find.access_token_twitter = encrypt(accessTokenTwitter);
+    find.refresh_token_twitter = encrypt(refreshTokenTwitter);
     await find.save().catch(e => console.log(e));
     if (twitterResult?.data?.liked) {
       return true;
@@ -199,8 +209,8 @@ async function like(creds, tweetId) {
 };
 async function follow(creds, targetIDs_separated) {
   const twitter_id = creds.twitter_id;
-  let accessTokenTwitter = creds.access_token_twitter;
-  let refreshTokenTwitter = creds.refresh_token_twitter;
+  let accessTokenTwitter = decrypt(creds.access_token_twitter);
+  let refreshTokenTwitter = decrypt(creds.refresh_token_twitter);
   const userIds = targetIDs_separated.split("_");
   let followSuccess = [];
   let refreshed = false;
@@ -236,8 +246,8 @@ async function follow(creds, targetIDs_separated) {
       const find = await twitter.findOne({
         twitter_id: twitter_id,
       });
-      find.access_token_twitter = accessTokenTwitter;
-      find.refresh_token_twitter = refreshTokenTwitter;
+      find.access_token_twitter = encrypt(accessTokenTwitter);
+      find.refresh_token_twitter = encrypt(refreshTokenTwitter);
       await find.save().catch(e => console.log(e));
       if (twitterResult?.data?.following || twitterResponse?.data?.pending_follow) {
         followSuccess.push(true);
@@ -246,8 +256,8 @@ async function follow(creds, targetIDs_separated) {
       };
     };
   };
-  for (let status in followSuccess) {
-    if (!followSuccess[status]) return false;
+  for (let status of followSuccess) {
+    if (!status) return false;
   };
   return true;
 };
