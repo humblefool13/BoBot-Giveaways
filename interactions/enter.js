@@ -357,7 +357,7 @@ module.exports = {
           };
         });
       };
-      if (discordMemberReq != "NA") {
+      if (discordMemberReq !== "NA") {
         const creds = await twitter.findOne({
           discord_id: interaction.user.id,
         });

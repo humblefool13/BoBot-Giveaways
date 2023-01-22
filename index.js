@@ -128,7 +128,7 @@ app.post('/post', async (req, res) => {
   res.sendStatus(200);
 });
 app.get('/style.css', function (req, res) {
-  res.sendFile("C:\\Users\\akksy\\codes\\nodejs\\BG\\views\\style.css");
+  res.sendFile("/home/bo/projects/BoBot-Giveaways/views/style.css");
 });
 app.listen(3000, () => { });
 
