@@ -151,7 +151,9 @@ module.exports = {
       const guildMemberReq = interaction.options.getString('discord-member-req');
 
       const permissions = channel.permissionsFor(client.user.id);
-      if (description.length > 3000) return interaction.editReply('Please make sure the description does not exceed 3000 characters.')
+      if (description) {
+        if (description.length > 3000) return interaction.editReply('Please make sure the description does not exceed 3000 characters.');
+      };
       if (!permissions.has(PermissionsBitField.Flags.ViewChannel)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
       if (!permissions.has(PermissionsBitField.Flags.SendMessages)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
       if (!permissions.has(PermissionsBitField.Flags.ReadMessageHistory)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
