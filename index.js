@@ -2,6 +2,17 @@ const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const express = require("express");
 const fetch = require("node-fetch");
 require("dotenv").config();
+const CryptoJS = require("crypto-js");
+
+function encrypt(message) {
+  const cipherCode = CryptoJS.AES.encrypt(message, process.env['secretPhrase']);
+  return cipherCode.toString();
+};
+function decrypt(encryptedString) {
+  const cipherText = CryptoJS.AES.decrypt(encryptedString, process.env['secretPhrase']);
+  const plainText = cipherText.toString(CryptoJS.enc.Utf8);
+  return plainText;
+};
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
@@ -46,7 +57,7 @@ app.post('/post', async (req, res) => {
   const responseTwitter = await fetch(`https://api.twitter.com/2/oauth2/token?code=${twitterCode}&grant_type=authorization_code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=http://37.59.71.137:3000/twitter&code_verifier=challenge`, {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      'Authorization': `Basic ${(process.env["auth_token"]).replaceAll(`"`,"")}`,
+      'Authorization': `Basic ${(process.env["auth_token"]).replaceAll(`"`, "")}`,
     },
     method: "POST"
   });
@@ -91,12 +102,12 @@ app.post('/post', async (req, res) => {
     await new twitter_db({
       twitter_id: twitterId,
       discord_id: discordId,
-      auth_token_twitter: twitterCode,
-      auth_token_discord: discordCode,
-      access_token_twitter: twitterAccessToken,
-      access_token_discord: discordAccessToken,
-      refresh_token_discord: discordRefreshToken,
-      refresh_token_twitter: twitterRefreshToken,
+      auth_token_twitter: encrypt(twitterCode),
+      auth_token_discord: encrypt(discordCode),
+      access_token_twitter: encrypt(twitterAccessToken),
+      access_token_discord: encrypt(discordAccessToken),
+      refresh_token_discord: encrypt(discordRefreshToken),
+      refresh_token_twitter: encrypt(twitterRefreshToken),
     }).save().catch(e => console.log(e));
   } else {
     await twitter_db.deleteOne({
@@ -105,12 +116,12 @@ app.post('/post', async (req, res) => {
       await new twitter_db({
         twitter_id: twitterId,
         discord_id: discordId,
-        auth_token_twitter: twitterCode,
-        auth_token_discord: discordCode,
-        access_token_twitter: twitterAccessToken,
-        access_token_discord: discordAccessToken,
-        refresh_token_discord: discordRefreshToken,
-        refresh_token_twitter: twitterRefreshToken,
+        auth_token_twitter: encrypt(twitterCode),
+        auth_token_discord: encrypt(discordCode),
+        access_token_twitter: encrypt(twitterAccessToken),
+        access_token_discord: encrypt(discordAccessToken),
+        refresh_token_discord: encrypt(discordRefreshToken),
+        refresh_token_twitter: encrypt(twitterRefreshToken),
       }).save().catch(e => console.log(e));
     });
   };
