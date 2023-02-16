@@ -19,7 +19,7 @@ module.exports = {
       });
       if (!sub) return interaction.editReply({
         ephemeral: true,
-        embeds: [MakeEmbed("The subscription for this server has expired, please renew at the [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to continue using the services.")],
+        embeds: [MakeEmbed("The subscription for this server has expired, please contact ST6 to continue using the services.")],
       });
       const find = await wallets.findOne({
         discord_id: interaction.user.id,
