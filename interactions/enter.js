@@ -50,15 +50,15 @@ function findunique(entries) {
   return unique.length;
 };
 async function refreshDiscord(refreshToken) {
-  const data = {
+  const data = new URLSearchParams({
     client_id: '1001909973938348042',
     client_secret: process.env['client_discord_secret'],
     grant_type: "refresh_token",
     code: refreshToken,
-  };
+  });
   const responseDiscord = await fetch(`https://discord.com/api/oauth2/token`, {
     method: "POST",
-    body: JSON.stringify(data),
+    body: data.toString(),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     }
@@ -66,6 +66,8 @@ async function refreshDiscord(refreshToken) {
   const resultDiscord = await responseDiscord.json();
   return resultDiscord;
 };
+
+
 async function refreshTwitterCreds(refreshToken) {
   const responseTwitter = await fetch(`https://api.twitter.com/2/oauth2/token?refresh_token=${refreshToken}&grant_type=refresh_token`, {
     headers: {
@@ -357,7 +359,7 @@ module.exports = {
           };
         });
       };
-      if (discordMemberReq != "NA") {
+      if (discordMemberReq !== "NA") {
         const creds = await twitter.findOne({
           discord_id: interaction.user.id,
         });

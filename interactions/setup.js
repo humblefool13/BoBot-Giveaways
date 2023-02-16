@@ -6,7 +6,7 @@ const { ChannelType, PermissionsBitField, EmbedBuilder, ButtonBuilder, ButtonSty
 function makeEmbed(name, guild_icon, guild_id) {
   const embed = new EmbedBuilder()
     .setTitle("Account Configuration")
-    .setDescription(`Hello there! :wave:\n\n<a:hexstar:1002639618409250836> __**${name}**__ uses BoBot Lab's Giveaway Bot for most advanced giveaways and post giveaways operations.\n<a:hexstar:1002639618409250836> Everytime you win a giveaway, your wallet address is instantly and automatically submitted.\n\nTo faciliate above please submit your wallet using the **Submit** button below!\n\nPlease make sure you enter the wallet address you want to be submitted to projects for the WLs you win.\n\n**[ :warning: Burner wallet highly recommended :warning: ]**`)
+    .setDescription(`Hello there! :wave:\n\n<a:hexstar:1002639618409250836> __**${name}**__ uses ST6's Giveaway Bot for most advanced giveaways and post giveaways operations.\n<a:hexstar:1002639618409250836> Everytime you win a giveaway, your wallet address is instantly and automatically submitted.\n\nTo faciliate above please submit your wallet using the **Submit** button below!\n\nPlease make sure you enter the wallet address you want to be submitted to projects for the WLs you win.\n\n**[ :warning: Burner wallet highly recommended :warning: ]**`)
     .setColor("#35FF6E");
   if (guild_icon.startsWith("a_") && guild_icon !== "N") {
     embed.setThumbnail(`https://cdn.discordapp.com/icons/${guild_id}/${guild_icon}.gif`);
