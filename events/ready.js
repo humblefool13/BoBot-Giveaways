@@ -212,7 +212,7 @@ module.exports = {
                     embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF")],
                     files: [{
                       attachment: bufferFile,
-                      name: `${prize}_${guild.name.replaceAll(" ","")}.xlsx`
+                      name: `${prize}_${guild.name.replaceAll(" ","")}_giveaway.xlsx`
                     }],
                     components: [messageLinkRow],
                   });
