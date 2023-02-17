@@ -179,19 +179,13 @@ module.exports = {
                   });
                 };
                 const workbook = new excel.Workbook();
-                const workSheetOnlyWallets = workbook.addWorksheet('Wallets Only');
                 const workSheetWalletsAndUserDetails = workbook.addWorksheet('Wallets With User Info');
-                workSheetOnlyWallets.addRow(['Server Name:', guild.name]);
-                workSheetOnlyWallets.addRow(['Prize Name:', prize]);
-                workSheetOnlyWallets.addRow(['Wallet Address'])
                 workSheetWalletsAndUserDetails.addRow(['Server Name:', guild.name]);
                 workSheetWalletsAndUserDetails.addRow(['Prize Name:', prize]);
+                workSheetWalletsAndUserDetails.addRow(['⠀','⠀','⠀']);
                 workSheetWalletsAndUserDetails.addRow(['Wallet Address', 'User ID', 'User Tag']);
                 tagArray.forEach((detailArray) => {
                   workSheetWalletsAndUserDetails.addRow(detailArray);
-                });
-                walletsArray.forEach((detailArray) => {
-                  workSheetOnlyWallets.addRow(detailArray);
                 });
                 const bufferFile = await workbook.xlsx.writeBuffer();
                 const config = await config_records.findOne({
@@ -218,7 +212,7 @@ module.exports = {
                     embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF")],
                     files: [{
                       attachment: bufferFile,
-                      name: `${prize}_${guild.name}.xlsx`
+                      name: `${prize}_${guild.name.replaceAll(" ","")}.xlsx`
                     }],
                     components: [messageLinkRow],
                   });
