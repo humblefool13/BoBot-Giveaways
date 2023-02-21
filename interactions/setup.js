@@ -15,20 +15,58 @@ function makeEmbed(name, guild_icon, guild_id) {
   };
   return embed;
 };
-const row = new ActionRowBuilder()
+const row1 = new ActionRowBuilder()
+.addComponents(
+  new ButtonBuilder()
+    .setLabel("Wallets:")
+    .setCustomId("disabledLOL")
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(true)
+    .setEmoji("📝"),
+  new ButtonBuilder()
+    .setLabel("Ethereum")
+    .setCustomId("ethereumWallet")
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji("997764237025890318"),
+  new ButtonBuilder()
+    .setLabel("Solana")
+    .setCustomId("solanaWallet")
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji("1026406242370990102"),
+  new ButtonBuilder()
+    .setLabel("Aptos")
+    .setCustomId("aptosWallet")
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji("1077708380703051797"),
+  new ButtonBuilder()
+    .setLabel("MultiversX")
+    .setCustomId("multiversxWallet")
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji("1077709867889995846")
+);
+const row2 = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
-      .setLabel("Submit Wallet")
-      .setCustomId("submit")
-      .setStyle(ButtonStyle.Success)
-      .setEmoji("📝"),
+      .setLabel("Connections:")
+      .setCustomId("disabledLOL")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(true)
+      .setEmoji("🔗"),
     new ButtonBuilder()
-      .setLabel("Verify Twitter")
-      .setCustomId("twitterv")
+      .setLabel("Authorize Discord & Twitter")
+      .setCustomId("authorizeConnections")
       .setStyle(ButtonStyle.Success)
-      .setEmoji("1014979186655514695"),
+      .setEmoji("☑️"),
     new ButtonBuilder()
-      .setLabel("Check")
+      .setLabel("Revoke Discord & Twitter")
+      .setCustomId("revokeConnections")
+      .setStyle(ButtonStyle.Danger)
+      .setEmoji("❎"),
+  );
+const row3 = new ActionRowBuilder()
+  .addComponents(
+    new ButtonBuilder()
+      .setLabel("Check Saved Info")
       .setCustomId("check")
       .setStyle(ButtonStyle.Primary)
       .setEmoji("🔎")
@@ -44,6 +82,9 @@ module.exports = {
   name: "setup",
   async interact(client, interaction) {
     try {
+      const timezone = interaction.options.getString('server_timezone');
+      const winnerChannel = interaction.options.getChannel('winners_announcement_channel');
+      const winnerChannelId = winnerChannel.id;
       await interaction.deferReply({ ephemeral: true });
       if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageGuild) && interaction.user.id !== interaction.guild?.ownerId) return interaction.editReply({
         embeds: [MakeEmbedDes("This command can only be used by you in a Discord Server where either of the following apply:\n1) You are the Owner of the Discord Server.\n2) You have the **ADMINISTRATOR** permission in the server.\n3) You have the **MANAGE SERVER** permission in the server.")],
@@ -63,7 +104,7 @@ module.exports = {
         reason: "The role for Giveaway Manager.",
       });
       const setupChannel = await interaction.guild.channels.create({
-        name: "✅︱submit-wallet",
+        name: "✅︱submit-info",
         parent: category,
         permissionOverwrites: [
           {
@@ -102,14 +143,16 @@ module.exports = {
         expired: false,
         expired_timestamp: 0,
         role: role.id,
+        server_timezone: timezone,
         submit_channel: outputChannel.id,
+        winnners_channel: winnerChannelId,
       }).save().catch((e) => {
         console.log(e)
       });
       const embed = makeEmbed(interaction.guild.name, interaction.guild.icon ? interaction.guild.icon : "N", interaction.guildId);
       await setupChannel.send({
         embeds: [embed],
-        components: [row],
+        components: [row1, row2, row3],
       });
       let des = `:ledger: Please read the following instructions:\n\n1) I have made a role <@&${role.id}> who will be able to use management commands. Giving the role to anyone will allow them to start giveaways and add/edit/remove number of entries for roles. Please head to server settings and put the role on high hierarchy position for safety. You can rename the role or change color but if the role gets deleted you will have to \`/setup\` again.\n\n2) I have made 2 channels:\n:white_small_square: <#${setupChannel.id}>:\nThis channel will be used by people to submit the wallets and view the wallet submitted. Please change the permission of channel and allow the required role to "View Channel".\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel you will receive the file/link with winners' details every time a giveaway ends. Always make sure I have permission to "View Channel", "Send Messages" and "Attach Files". Keep this channel private, the giveaway manager role I created can see the channel by default while others cannot.\nFeel free to rename the channels or move them to another location/category but if gets deleted you will have to \`/setup\` again.\n\n3) Once your subscription ends, I will keep all configurations and wallets saved for 7 days. If you renew within 7 days, eveything will be smooth and keep working fine with old channels/roles/wallets and no data will be lost. But if the subscription is not renewed within 7 days, I will erase all data **permanently**, after which if you decide to use the bot, the users will have to submit wallets again and you will have to \`/setup\` again.`;
       await interaction.editReply(":ledger: Please read the following instructions:");
