@@ -136,14 +136,14 @@ module.exports = {
       const channel = interaction.options.getChannel("channel");
       if (channel.type !== ChannelType.GuildText) return interaction.editReply('The channel should be a guild text channel.');
       const winners = interaction.options.getInteger("winners");
-      const walletReq = interaction.options.getBoolean("req-wallet");
+      const walletReq = interaction.options.getBoolean("wallet-req");
       const time = interaction.options.getString("duration");
       const description = interaction.options.getString("description");
       let ping = interaction.options.getString("ping-role");
       let blacklistedRoles = interaction.options.getString("blacklist-roles");
       let bonus = interaction.options.getString("bonus-entries");
       let balReq = interaction.options.getNumber("minimum-balance");
-      let reqRoles = interaction.options.getString("req-roles");
+      let reqRoles = interaction.options.getString("roles-req");
       let winnerRole = interaction.options.getRole("winner-role-add");
       const picture = interaction.options.getAttachment("attach-picture");
       const followReq = interaction.options.getString("follow-twit-req");
