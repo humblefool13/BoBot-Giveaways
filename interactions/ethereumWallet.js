@@ -129,7 +129,7 @@ module.exports = {
         };
         if (wallet === "Not Saved Yet.") {
           sentv2 = await interaction.editReply({
-            embeds: [MakeEmbedDes(`:tada: Congratulations! You just saved your Ethereumwallet address for this server!\nEverytime you win a Ethereum WL giveaway, this wallet will be automatically submitted to the team!\n\nAlso consider setting it as global Ethereum wallet if not done yet.\nA global wallet is the wallet address that the bot will remember for all discord servers this bot is used for giveaways in. Advantage of saving a wallet as global wallet address is that you won't have to save wallet address in all discord servers. The global one will automatically be used everywhere UNLESS you specifically save a wallet in a discord server.`)],
+            embeds: [MakeEmbedDes(`:tada: Congratulations! You just saved your Ethereum wallet address for this server!\nEverytime you win a Ethereum WL giveaway, this wallet will be automatically submitted to the team!\n\nAlso consider setting it as global Ethereum wallet if not done yet.\nA global wallet is the wallet address that the bot will remember for all discord servers this bot is used for giveaways in. Advantage of saving a wallet as global wallet address is that you won't have to save wallet address in all discord servers. The global one will automatically be used everywhere UNLESS you specifically save a wallet in a discord server.`)],
             components: [rowGlobal],
           });
         } else {
