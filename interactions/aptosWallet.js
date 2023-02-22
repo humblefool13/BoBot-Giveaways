@@ -1,7 +1,7 @@
 const wallets = require("../models/wallets.js");
 const subs = require("../models/subscriptions.js");
 const { TxnBuilderTypes } = require("aptos");
-const { AccountAddress } = require(TxnBuilderTypes);
+const AccountAddress = TxnBuilderTypes.AccountAddress;
 const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder } = require('discord.js');
 const rownew = new ActionRowBuilder()
   .addComponents(
