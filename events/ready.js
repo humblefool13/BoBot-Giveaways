@@ -182,7 +182,7 @@ module.exports = {
                 const workSheetWalletsAndUserDetails = workbook.addWorksheet('Wallets With User Info');
                 workSheetWalletsAndUserDetails.addRow(['Server Name:', guild.name]);
                 workSheetWalletsAndUserDetails.addRow(['Prize Name:', prize]);
-                workSheetWalletsAndUserDetails.addRow(['⠀','⠀','⠀']);
+                workSheetWalletsAndUserDetails.addRow(['⠀', '⠀', '⠀']);
                 workSheetWalletsAndUserDetails.addRow(['Wallet Address', 'User ID', 'User Tag']);
                 tagArray.forEach((detailArray) => {
                   workSheetWalletsAndUserDetails.addRow(detailArray);
@@ -212,7 +212,7 @@ module.exports = {
                     embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF")],
                     files: [{
                       attachment: bufferFile,
-                      name: `${prize}_${guild.name.replaceAll(" ","")}_giveaway.xlsx`
+                      name: `${prize}_${guild.name.replaceAll(" ", "")}_giveaway.xlsx`
                     }],
                     components: [messageLinkRow],
                   });
