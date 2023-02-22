@@ -4,21 +4,21 @@ const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, Button
 const rownew = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
-      .setLabel("Submit new wallet!")
+      .setLabel("Submit new Ethereum wallet!")
       .setCustomId("submitmodal")
       .setStyle(ButtonStyle.Success),
   );
 const rowchange = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
-      .setLabel("Yes, change wallet!")
+      .setLabel("Yes, change Ethereum wallet!")
       .setCustomId("submitmodal")
       .setStyle(ButtonStyle.Success),
   );
 const rowGlobal = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
-      .setLabel("Make this my global wallet!")
+      .setLabel("Make this my global Ethereum wallet!")
       .setEmoji("✅")
       .setCustomId("globalyes")
       .setStyle(ButtonStyle.Primary),
@@ -26,7 +26,7 @@ const rowGlobal = new ActionRowBuilder()
 const rowGlobalDis = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
-      .setLabel("Make this my global wallet!")
+      .setLabel("Make this my global Ethereum wallet!")
       .setEmoji("✅")
       .setDisabled(true)
       .setCustomId("globalyes")
@@ -39,15 +39,15 @@ function MakeEmbedDes(des) {
   return embed;
 };
 
-module.exports = {
-  name: "submit",
+module.exports = { 
+  name: "ethereumWallet",
   async interact(client, interaction) {
     const modal = new ModalBuilder()
-      .setTitle("Submit Wallet Address")
+      .setTitle("Submit Ethereum Wallet Address")
       .setCustomId("modal");
     const question = new TextInputBuilder()
       .setCustomId('walletAddress')
-      .setLabel("Please enter your wallet address below.")
+      .setLabel("Please enter your ETH wallet address below.")
       .setStyle(TextInputStyle.Short);
     const firstActionRow = new ActionRowBuilder().addComponents(question);
     modal.addComponents(firstActionRow);
@@ -63,20 +63,20 @@ module.exports = {
       let sent, wallet = "Not Saved Yet.", globalWallet, savedWallets;
       if (!find) {
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes("You have not saved any wallet in this server previously ( and neither have a global wallet saved ). Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button.")],
+          embeds: [MakeEmbedDes("You have not saved any ETH wallet in this server previously ( and neither have a global ETH wallet saved ). Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button.")],
           components: [rownew],
           fetchReply: true
         });
         question.setPlaceholder('0x.........');
       } else {
-        globalWallet = find.wallet_global;
-        savedWallets = find.wallets;
+        globalWallet = find.wallet_global_eth;
+        savedWallets = find.wallets_eth;
         savedWallets.forEach((walletLol) => {
           if (walletLol[0] !== interaction.guild.id) return;
           wallet = walletLol[1];
         });
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have saved the following wallet addresses:\n\nServer Wallet: **${wallet}**\nGlobal Wallet: **${globalWallet}**\n\nWould you like to change the wallets or want to save a new server wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
+          embeds: [MakeEmbedDes(`You have saved the following Ethereum wallet addresses:\n\nServer Ethereum Wallet: **${wallet}**\nGlobal Ethereum Wallet: **${globalWallet}**\n\nWould you like to change the wallets or want to save a new server wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
           components: [rowchange],
           fetchReply: true,
         });
@@ -100,21 +100,21 @@ module.exports = {
         const input = modalSubmit.fields.getTextInputValue('walletAddress');
         const walletNew = input.trim();
         if (walletNew.includes(" ")) return i.editReply({
-          embeds: [MakeEmbedDes(`Please enter a valid address. The currently entered one (**${walletNew}**) includes a space \` \`.`)],
+          embeds: [MakeEmbedDes(`Please enter a valid Ethereum address. The currently entered one ( **${walletNew}** ) includes a space \` \`.`)],
           components: [],
         });
         let ens = false;
         if (walletNew.toLowerCase().endsWith(".eth")) ens = true;
         if (!ens && (!walletNew.startsWith("0x") || walletNew.length !== 42)) return i.editReply({
-          embeds: [MakeEmbedDes(`Please enter a valid address. The currently entered one (**${walletNew}**) is invalid.`)],
+          embeds: [MakeEmbedDes(`Please enter a valid Ethereum address. The currently entered one ( **${walletNew}** ) is invalid.`)],
           components: [],
         });
         let sentv2;
         if (!find) {
           await new wallets({
             discord_id: interaction.user.id,
-            wallet_global: "Not Submitted Yet.",
-            wallets: [[interaction.guild.id, walletNew]],
+            wallet_global_eth: "Not Submitted Yet.",
+            wallets_eth: [[interaction.guild.id, walletNew]],
           }).save().catch(e => { });
         } else {
           if (wallet === "Not Saved Yet.") {
@@ -124,17 +124,17 @@ module.exports = {
             const index = savedWallets.indexOf(findWalletIndex);
             savedWallets[index] = [interaction.guild.id, walletNew];
           };
-          find.wallets = savedWallets;
+          find.wallets_eth = savedWallets;
           await find.save().catch((e) => { console.log(e) });
         };
         if (wallet === "Not Saved Yet.") {
           sentv2 = await interaction.editReply({
-            embeds: [MakeEmbedDes(`:tada: Congratulations! You just saved your wallet address for this server!\nEverytime you win a WL giveaway, this wallet will be automatically submitted to the team!\n\nAlso consider setting it as global wallet if not done yet.\nA global wallet is the wallet address that the bot will remember for all discord servers this bot is used for giveaways in. Advantage of saving a wallet as global wallet address is that you won't have to save wallet address in all discord servers. The global one will automatically be used everywhere UNLESS you specifically save a wallet in a discord server.`)],
+            embeds: [MakeEmbedDes(`:tada: Congratulations! You just saved your Ethereumwallet address for this server!\nEverytime you win a Ethereum WL giveaway, this wallet will be automatically submitted to the team!\n\nAlso consider setting it as global Ethereum wallet if not done yet.\nA global wallet is the wallet address that the bot will remember for all discord servers this bot is used for giveaways in. Advantage of saving a wallet as global wallet address is that you won't have to save wallet address in all discord servers. The global one will automatically be used everywhere UNLESS you specifically save a wallet in a discord server.`)],
             components: [rowGlobal],
           });
         } else {
           sentv2 = await interaction.editReply({
-            embeds: [MakeEmbedDes(`:tada: Congratulations! You just changed your wallet address for this server!\n\nFrom: **${wallet}**\nTo: **${walletNew}**\n\nEverytime you win a WL giveaway, this wallet will be automatically submitted to the team!\n\nAlso consider setting it as global wallet if not done yet.\nA global wallet is the wallet address that the bot will remember for all discord servers this bot is used for giveaways in. Advantage of saving a wallet as global wallet address is that you won't have to save wallet address in all discord servers. The global one will automatically be used everywhere UNLESS you specifically save a wallet in a discord server.`)],
+            embeds: [MakeEmbedDes(`:tada: Congratulations! You just changed your Ethereum wallet address for this server!\n\nFrom: **${wallet}**\nTo: **${walletNew}**\n\nEverytime you win a Ethereum WL giveaway, this wallet will be automatically submitted to the team!\n\nAlso consider setting it as global Ethereum wallet if not done yet.\nA global wallet is the wallet address that the bot will remember for all discord servers this bot is used for giveaways in. Advantage of saving a wallet as global wallet address is that you won't have to save wallet address in all discord servers. The global one will automatically be used everywhere UNLESS you specifically save a wallet in a discord server.`)],
             components: [rowGlobal],
           });
         };
@@ -144,11 +144,11 @@ module.exports = {
           const findNew = await wallets.findOne({
             discord_id: interaction.user.id,
           });
-          findNew.wallet_global = walletNew;
+          findNew.wallet_global_eth = walletNew;
           await findNew.save().catch(e => { });
           await i.update({
             components: [rowGlobalDis],
-            embeds: [MakeEmbedDes(`The wallet address\n\n**${walletNew}**\n\nis now set as your global wallet and will be automatically used in all discord servers unless you save a new wallet in a specific server.`)],
+            embeds: [MakeEmbedDes(`The Ethereum wallet address\n\n**${walletNew}**\n\nis now set as your global wallet and will be automatically used in all discord servers unless you save a new wallet in a specific server.`)],
           });
         });
       });
