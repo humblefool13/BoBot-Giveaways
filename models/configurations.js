@@ -6,7 +6,7 @@ const format = {
   expired_timestamp: Number,
   role: String,
   submit_channel: String,
-  winnners_channel: String,
+  winners_channel: String,
   server_timezone: String,
 };
 

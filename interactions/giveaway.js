@@ -1,4 +1,4 @@
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, ActionRowBuilder, PermissionsBitField } = require("discord.js");
+const { ChannelType, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, ActionRowBuilder, PermissionsBitField } = require("discord.js");
 const configs = require("../models/configurations.js");
 const subs = require("../models/subscriptions.js");
 const defaults = require("../models/defaults.js");
@@ -134,6 +134,7 @@ module.exports = {
 
       const prize = interaction.options.getString("prize");
       const channel = interaction.options.getChannel("channel");
+      if (channel.type !== ChannelType.GuildText) return interaction.editReply('The channel should be a guild text channel.');
       const winners = interaction.options.getInteger("winners");
       const walletReq = interaction.options.getBoolean("req-wallet");
       const time = interaction.options.getString("duration");

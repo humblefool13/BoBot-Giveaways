@@ -16,34 +16,34 @@ function makeEmbed(name, guild_icon, guild_id) {
   return embed;
 };
 const row1 = new ActionRowBuilder()
-.addComponents(
-  new ButtonBuilder()
-    .setLabel("Wallets:")
-    .setCustomId("disabledLOL")
-    .setStyle(ButtonStyle.Primary)
-    .setDisabled(true)
-    .setEmoji("📝"),
-  new ButtonBuilder()
-    .setLabel("Ethereum")
-    .setCustomId("ethereumWallet")
-    .setStyle(ButtonStyle.Secondary)
-    .setEmoji("997764237025890318"),
-  new ButtonBuilder()
-    .setLabel("Solana")
-    .setCustomId("solanaWallet")
-    .setStyle(ButtonStyle.Secondary)
-    .setEmoji("1026406242370990102"),
-  new ButtonBuilder()
-    .setLabel("Aptos")
-    .setCustomId("aptosWallet")
-    .setStyle(ButtonStyle.Secondary)
-    .setEmoji("1077708380703051797"),
-  new ButtonBuilder()
-    .setLabel("MultiversX")
-    .setCustomId("multiversxWallet")
-    .setStyle(ButtonStyle.Secondary)
-    .setEmoji("1077709867889995846")
-);
+  .addComponents(
+    new ButtonBuilder()
+      .setLabel("Wallets:")
+      .setCustomId("disabledLOL")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(true)
+      .setEmoji("📝"),
+    new ButtonBuilder()
+      .setLabel("Ethereum")
+      .setCustomId("ethereumWallet")
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji("997764237025890318"),
+    new ButtonBuilder()
+      .setLabel("Solana")
+      .setCustomId("solanaWallet")
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji("1026406242370990102"),
+    new ButtonBuilder()
+      .setLabel("Aptos")
+      .setCustomId("aptosWallet")
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji("1077708380703051797"),
+    new ButtonBuilder()
+      .setLabel("MultiversX")
+      .setCustomId("multiversxWallet")
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji("1077709867889995846")
+  );
 const row2 = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
@@ -82,10 +82,11 @@ module.exports = {
   name: "setup",
   async interact(client, interaction) {
     try {
+      await interaction.deferReply({ ephemeral: true });
       const timezone = interaction.options.getString('server_timezone');
       const winnerChannel = interaction.options.getChannel('winners_announcement_channel');
       const winnerChannelId = winnerChannel.id;
-      await interaction.deferReply({ ephemeral: true });
+      if (winnerChannel.type !== ChannelType.GuildText) return interaction.editReply('The winner channel should be a guild text channel.');
       if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageGuild) && interaction.user.id !== interaction.guild?.ownerId) return interaction.editReply({
         embeds: [MakeEmbedDes("This command can only be used by you in a Discord Server where either of the following apply:\n1) You are the Owner of the Discord Server.\n2) You have the **ADMINISTRATOR** permission in the server.\n3) You have the **MANAGE SERVER** permission in the server.")],
         ephemeral: true,
@@ -145,7 +146,7 @@ module.exports = {
         role: role.id,
         server_timezone: timezone,
         submit_channel: outputChannel.id,
-        winnners_channel: winnerChannelId,
+        winners_channel: winnerChannelId,
       }).save().catch((e) => {
         console.log(e)
       });
