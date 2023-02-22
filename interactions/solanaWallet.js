@@ -144,7 +144,7 @@ module.exports = {
           await findNew.save().catch(e => { });
           await i.update({
             components: [rowGlobalDis],
-            embeds: [MakeEmbedDes(`The Solana wallet address\n\n**${walletNew}**\n\nis now set as your global wallet and will be automatically used in all discord servers unless you save a new wallet in a specific server.`)],
+            embeds: [MakeEmbedDes(`The Solana wallet address\n\n**${walletNew}**\n\nis now set as your global Solana wallet and will be automatically used in all discord servers unless you save a new wallet in a specific server.`)],
           });
         });
       });
