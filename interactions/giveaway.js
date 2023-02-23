@@ -150,6 +150,19 @@ module.exports = {
       const likeReq = interaction.options.getString("like-twit-req");
       const rtReq = interaction.options.getString("rt-twit-req");
       const guildMemberReq = interaction.options.getString('discord-member-req');
+      const chain = interaction.options.getString('blockchain');
+      const type = interaction.options.getString('type');
+      const socialDiscord = interaction.options.getString('socials-discord');
+      const socialTwitter = interaction.options.getString('socials-twitter');
+      const pubPrice = interaction.options.getString('mint-price-public');
+      const privPrice = interaction.options.getString('mint-price-presale');
+      const mintTime = interaction.options.getString('mint-time');
+
+      if (chain !== 'eth' && balReq) {
+        return interaction.editReply({
+          content: 'The balance requirement is only supported for Ethereum blockchain.'
+        });
+      };
 
       const permissions = channel.permissionsFor(client.user.id);
       if (description) {
@@ -372,8 +385,32 @@ module.exports = {
             descriptionString += description + "\n\n";
           };
           descriptionString += `:crown: **Winners** : ${winners}\n\n`;
+          descriptionString += `:link: **Chain**: ${chain}\n\n`;
+          descriptionString += `:grey_exclamation: **Type**: ${type}\n\n`;
           descriptionString += `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
           descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${walletReq}\n\n`;
+          if (socialDiscord || socialTwitter) {
+            let socialString = "";
+            if (socialTwitter) {
+              socialString += `<:Twitter:1003000521214402680> [Twitter](${socialTwitter})`;
+            };
+            if (socialDiscord) {
+              socialString += `  <:discordn:1014982172240789505> [Discord](${socialDiscord})`;
+            };
+            descriptionString += `:handshake: **Socials**: ${socialString}\n\n`;
+          };
+          if (pubPrice || privPrice) {
+            let mintPriceString = "";
+            if (pubPrice) {
+              mintPriceString += ` Public Price = ${pubPrice}`;
+            };
+            if (privPrice && pubPrice) {
+              mintPriceString += `\n Presale Price = ${privPrice}`;
+            } else if (privPrice && !pubPrice) {
+              mintPriceString += ` Presale Price = ${privPrice}`;
+            };
+            descriptionString += `:dollar: **Mint Price**:\n${mintPriceString}\n\n`;
+          };
           if (balReq) descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required** : ${balReq} Ξ\n\n`;
           if (winnerRole) {
             const roleFromId = interaction.guild.roles.cache.get(winnerRole);
@@ -525,8 +562,32 @@ module.exports = {
           descriptionString += description + "\n\n";
         };
         descriptionString += `:crown: **Winners** : ${winners}\n\n`;
+        descriptionString += `:link: **Chain**: ${chain}\n\n`;
+        descriptionString += `:grey_exclamation: **Type**: ${type}\n\n`;
         descriptionString += `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
         descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${walletReq}\n\n`;
+        if (socialDiscord || socialTwitter) {
+          let socialString = "";
+          if (socialTwitter) {
+            socialString += `<:Twitter:1003000521214402680> [Twitter](${socialTwitter})`;
+          };
+          if (socialDiscord) {
+            socialString += `  <:discordn:1014982172240789505> [Discord](${socialDiscord})`;
+          };
+          descriptionString += `:handshake: **Socials**: ${socialString}\n\n`;
+        };
+        if (pubPrice || privPrice) {
+          let mintPriceString = "";
+          if (pubPrice) {
+            mintPriceString += ` Public Price = ${pubPrice}`;
+          };
+          if (privPrice && pubPrice) {
+            mintPriceString += `\n Presale Price = ${privPrice}`;
+          } else if (privPrice && !pubPrice) {
+            mintPriceString += ` Presale Price = ${privPrice}`;
+          };
+          descriptionString += `:dollar: **Mint Price**:\n${mintPriceString}\n\n`;
+        };
         if (balReq) descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required** : ${balReq} Ξ\n\n`;
         if (winnerRole) {
           const position = botRole.comparePositionTo(winnerRole);
@@ -599,7 +660,7 @@ module.exports = {
           });
         };
         const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-        const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url];
+        const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url, (mintTime) ? mintTime : "NA"];
         writeFileSync("./giveaways/giveawayConfigs" + filename, data.join("\n"));
         writeFileSync("./giveaways/giveawayEntries" + filename, "");
         const messageLinkRow = new ActionRowBuilder()
