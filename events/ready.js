@@ -2,6 +2,7 @@ const fs = require("fs");
 const config_records = require("../models/configurations.js");
 const wallets_records = require("../models/wallets.js");
 const sub_records = require("../models/subscriptions.js");
+const socials = require("../models/twitter.js");
 const excel = require('exceljs');
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType } = require("discord.js");
 const row = new ActionRowBuilder()
@@ -54,16 +55,43 @@ function messagesGenerator(arr) {
   messages[messages.length - 1] = lastOne;
   return messages;
 };
-function findWallet(walletData, userId, guildId) {
+function findWallet(walletData, userId, guildId, chain) {
   for (let i in walletData) {
     const userAccount = walletData[i];
     if (userAccount.discord_id === userId) {
-      const guildWallets = userAccount.wallets;
-      const find = guildWallets.find((el => el[0] === guildId));
-      if (find) {
-        return find[1];
-      } else {
-        return userAccount.wallet_global;
+      let guildWallets = '';
+      if (chain === "Ethereum") {
+        guildWallets = userAccount.wallets_eth;
+        const find = guildWallets.find((el => el[0] === guildId));
+        if (find) {
+          return find[1];
+        } else {
+          return (userAccount.wallet_global_eth) ? (userAccount.wallet_global_eth) : "Not Found.";
+        }
+      } else if (chain === "Solana") {
+        guildWallets = userAccount.wallets_sol;
+        const find = guildWallets.find((el => el[0] === guildId));
+        if (find) {
+          return find[1];
+        } else {
+          return (userAccount.wallet_global_sol) ? (userAccount.wallet_global_sol) : "Not Found.";
+        }
+      } else if (chain === "Aptos") {
+        guildWallets = userAccount.wallets_apt;
+        const find = guildWallets.find((el => el[0] === guildId));
+        if (find) {
+          return find[1];
+        } else {
+          return (userAccount.wallet_global_apt) ? (userAccount.wallet_global_apt) : "Not Found.";
+        }
+      } else if (chain === "MultiversX") {
+        guildWallets = userAccount.wallets_mulx;
+        const find = guildWallets.find((el => el[0] === guildId));
+        if (find) {
+          return find[1];
+        } else {
+          return (userAccount.wallet_global_mulx) ? (userAccount.wallet_global_mulx) : "Not Found.";
+        }
       };
     };
   };
@@ -92,6 +120,7 @@ module.exports = {
             const numWinners = fileData2[1];
             const winnerRole = fileData2[5];
             const msgUrl = fileData2[13];
+            const chain = fileData2[15];
             fs.rename(`./giveaways/giveawayConfigs/${file}`, `./giveaways/giveawayConfigs/processing-${file}`, (e) => { if (e) console.log(e) });
             const entries1 = fs.readFileSync(`./giveaways/giveawayEntries/${file}`, { encoding: 'utf8', flag: 'r' });
             const entries2 = entries1.split("\n");
@@ -102,8 +131,7 @@ module.exports = {
             const message = await channel.messages.fetch(location[2]).catch((e) => { });
             const guild = client.guilds.cache.get(location[0]);
             const members = await client.guilds.cache.get(location[0]).members.fetch().catch((e) => { });
-            let walletsArray = [];
-            let tagArray = [];
+            let walletsArray = [], walletTagArray = [], walletTagIDArray = [], walletTagIDTwitterArray = [];
             if (entries.length === 1 && entries[0] === "") {
               if (message && channel) {
                 const description = message.embeds[0].description;
@@ -142,9 +170,19 @@ module.exports = {
                       tag: "NOT FOUND"
                     }
                   };
-                  const wallet = findWallet(walletData, entries[index], location[0]);
-                  tagArray.push([wallet, member.id, member.user.tag]);
+                  const wallet = findWallet(walletData, entries[index], location[0], chain);
+                  let twitterUsername = await socials.findOne({
+                    discord_id: entries[index]
+                  });
+                  if (twitterUsername) {
+                    twitterUsername = twitterUsername.twitter_username;
+                  } else {
+                    twitterUsername = 'Account not connected.'
+                  };
                   walletsArray.push([wallet]);
+                  walletTagArray.push([wallet, member.user.tag]);
+                  walletTagIDArray.push([wallet, member.user.tag, member.id]);
+                  walletTagIDTwitterArray.push([wallet, member.user.tag, member.id, twitterUsername]);
                 }
               } while (winners.length < numWinners && winners.length < unique);
               winners = shuffleArray(winners);
@@ -267,11 +305,6 @@ module.exports = {
         const diff = Date.now() - timestamp;
         if (diff < 1000 * 60 * 60 * 24 * 7) return;
         await config_records.deleteOne({
-          server_id: config.server_id,
-        }).catch((e) => {
-          console.log(e);
-        });
-        await wallets_records.deleteMany({
           server_id: config.server_id,
         }).catch((e) => {
           console.log(e);
