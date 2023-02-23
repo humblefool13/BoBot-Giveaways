@@ -86,11 +86,11 @@ module.exports = {
       const timezone = interaction.options.getString('server_timezone');
       const winnerChannel = interaction.options.getChannel('winners_announcement_channel');
       const winnerChannelId = winnerChannel.id;
-      if (winnerChannel.type !== ChannelType.GuildText) return interaction.editReply('The winner channel should be a guild text channel.');
       if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageGuild) && interaction.user.id !== interaction.guild?.ownerId) return interaction.editReply({
         embeds: [MakeEmbedDes("This command can only be used by you in a Discord Server where either of the following apply:\n1) You are the Owner of the Discord Server.\n2) You have the **ADMINISTRATOR** permission in the server.\n3) You have the **MANAGE SERVER** permission in the server.")],
         ephemeral: true,
       });
+      if (winnerChannel.type !== ChannelType.GuildText) return interaction.editReply('The winner channel should be a guild text channel.');
       const sub = await subs.findOne({
         server_id: interaction.guildId,
       });
