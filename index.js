@@ -88,6 +88,7 @@ app.post('/post', async (req, res) => {
   });
   const twitterUserInfoResult = await twitterUserInfoResponse.json();
   const twitterId = twitterUserInfoResult.data.id;
+  const twitterUsername = twitterUserInfoResponse.data.username;
   const discordUserInfoResponse = await fetch('https://discord.com/api/users/@me', {
     headers: {
       'Authorization': `Bearer ${discordAccessToken}`
@@ -95,6 +96,8 @@ app.post('/post', async (req, res) => {
   });
   const discordUserInfoResult = await discordUserInfoResponse.json();
   const discordId = discordUserInfoResult.id;
+  const discordUsername = discordUserInfoResponse.username;
+  const discordDiscriminator = discordUserInfoResponse.discriminator;
   const find = await twitter_db.findOne({
     twitter_id: twitterId,
   });
@@ -102,8 +105,8 @@ app.post('/post', async (req, res) => {
     await new twitter_db({
       twitter_id: twitterId,
       discord_id: discordId,
-      auth_token_twitter: encrypt(twitterCode),
-      auth_token_discord: encrypt(discordCode),
+      twitter_username: "@"+twitterUsername,
+      discord_username: discordUsername+"#"+discordDiscriminator,
       access_token_twitter: encrypt(twitterAccessToken),
       access_token_discord: encrypt(discordAccessToken),
       refresh_token_discord: encrypt(discordRefreshToken),
@@ -116,8 +119,8 @@ app.post('/post', async (req, res) => {
       await new twitter_db({
         twitter_id: twitterId,
         discord_id: discordId,
-        auth_token_twitter: encrypt(twitterCode),
-        auth_token_discord: encrypt(discordCode),
+        twitter_username: "@"+twitterUsername,
+        discord_username: discordUsername+"#"+discordDiscriminator,
         access_token_twitter: encrypt(twitterAccessToken),
         access_token_discord: encrypt(discordAccessToken),
         refresh_token_discord: encrypt(discordRefreshToken),
