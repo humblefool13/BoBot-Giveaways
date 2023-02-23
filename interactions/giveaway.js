@@ -158,7 +158,7 @@ module.exports = {
       const privPrice = interaction.options.getString('mint-price-presale');
       const mintTime = interaction.options.getString('mint-time');
 
-      if (chain !== 'eth' && balReq) {
+      if (chain !== 'Ethereum' && balReq) {
         return interaction.editReply({
           content: 'The balance requirement is only supported for Ethereum blockchain.'
         });

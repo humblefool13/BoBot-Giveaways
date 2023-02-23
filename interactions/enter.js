@@ -309,7 +309,7 @@ module.exports = {
           discord_id: interaction.user.id,
         });
         if (!wallet) return interaction.editReply("You have never saved any wallet. This giveaway requires you to have a saved wallet. Please save a wallet on appropriate chain and try to join again.");
-        if (chain === 'eth') {
+        if (chain === 'Ethereum') {
           const serverWallets = wallet.wallets_eth;
           const serverWallet = serverWallets.find((el) => el[0] === interaction.guildId);
           if (!serverWallet && wallet.wallet_global_eth === "Not Submitted Yet.") return interaction.editReply("You need to either save a global or a server ethereum wallet to enter this giveaway.");
@@ -318,7 +318,7 @@ module.exports = {
           } else {
             walletAddress = wallet.wallet_global_eth;
           };
-        } else if (chain === 'sol') {
+        } else if (chain === 'Solana') {
           const serverWallets = wallet.wallets_sol;
           const serverWallet = serverWallets.find((el) => el[0] === interaction.guildId);
           if (!serverWallet && wallet.wallet_global_sol === "Not Submitted Yet.") return interaction.editReply("You need to either save a global or a server solana wallet to enter this giveaway.");
@@ -327,7 +327,7 @@ module.exports = {
           } else {
             walletAddress = wallet.wallet_global_sol;
           };
-        } else if (chain === 'apt') {
+        } else if (chain === 'Aptos') {
           const serverWallets = wallet.wallets_apt;
           const serverWallet = serverWallets.find((el) => el[0] === interaction.guildId);
           if (!serverWallet && wallet.wallet_global_apt === "Not Submitted Yet.") return interaction.editReply("You need to either save a global or a server aptos wallet to enter this giveaway.");
@@ -336,7 +336,7 @@ module.exports = {
           } else {
             walletAddress = wallet.wallet_global_apt;
           };
-        } else if (chain === 'mulx') {
+        } else if (chain === 'MultiversX') {
           const serverWallets = wallet.wallets_mulx;
           const serverWallet = serverWallets.find((el) => el[0] === interaction.guildId);
           if (!serverWallet && wallet.wallet_global_mulx === "Not Submitted Yet.") return interaction.editReply("You need to either save a global or a server multiversx wallet to enter this giveaway.");
