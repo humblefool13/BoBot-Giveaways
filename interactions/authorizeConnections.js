@@ -11,7 +11,7 @@ const rowFirst = new ActionRowBuilder()
   );
 
 module.exports = {
-  name: "twitterv",
+  name: "authorizeConnections",
   async interact(client, interaction) {
     try {
       await interaction.deferReply({ ephemeral: true });
