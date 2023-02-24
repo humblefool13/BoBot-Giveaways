@@ -21,47 +21,109 @@ module.exports = {
         ephemeral: true,
         embeds: [MakeEmbed("The subscription for this server has expired, please contact ST6 to continue using the services.")],
       });
-      const find = await wallets.findOne({
-        discord_id: interaction.user.id,
+      const socialsData = await twitter.findOne({
+        discord_id: interaction.user.id
       });
-      if (!find) {
-        interaction.editReply({
-          ephemeral: true,
-          content: "You have not saved a wallet address yet.\n\nDo so by clicking the button beside." 
-        });
-      } else {
-        let wallet = "Same as Global Wallet.";
-        const global = find.wallet_global;
-        const savedWallets = find.wallets;
-        savedWallets.forEach((wallets) => {
-          if (wallets[0] !== interaction.guild.id) return;
-          wallet = wallets[1];
-        });
-        if (global === "Not Submitted Yet.") {
-          if (wallet !== "Same as Global Wallet.") {
-            interaction.editReply({ ephemeral: true, content: `The following wallets are saved by you\n\nin this server:\n**${wallet}**\n\nGlobal wallet:\n**${global}**` });
-          } else {
-            interaction.editReply({ ephemeral: true, content: `The following wallets are saved by you\n\nin this server:\n**Not Submitted Yet.**\n\nGlobal wallet:\n**${global}**` });
+      const walletsData = await wallets.findOne({
+        discord_id: interaction.user.id
+      });
+      let description = "";
+      if (socialsData) {
+        description += `You have connected your socials to the bot.\nConnected Discord Account: **[${socialsData.discord_username}](https://discordapp.com/users/${socialsData.discord_id})**\nConnected Twitter Account: **[${socialsData.twitter_username}](https://twitter.com/${socialsData.twitter_username})**`;
+        if (walletsData) {
+          description += `\n\nThe wallet configuration is shown below:\n`;
+          if (walletsData.wallet_global_eth) {
+            description += `Global Ethereum Wallet Address:\n**${walletsData.wallet_global_eth}**\n\n`;
+          };
+          if (walletsData.wallet_global_sol) {
+            description += `Global Solana Wallet Address:\n**${walletsData.wallet_global_sol}**\n\n`;
+          };
+          if (walletsData.wallet_global_apt) {
+            description += `Global Aptos Wallet Address:\n**${walletsData.wallet_global_apt}**\n\n`;
+          };
+          if (walletsData.wallet_global_mulx) {
+            description += `Global MultiversX Wallet Address:\n**${walletsData.wallet_global_mulx}**\n\n`;
+          };
+          if (walletsData.wallets_eth) {
+            const wallets = walletsData.wallets_eth;
+            const find = wallets.find((el) => el[0] === interaction.guildId);
+            if (find) {
+              description += `Server Ethereum Wallet:\n**${find[1]}**\n\n`;
+            };
+          };
+          if (walletsData.wallets_sol) {
+            const wallets = walletsData.wallets_sol;
+            const find = wallets.find((el) => el[0] === interaction.guildId);
+            if (find) {
+              description += `Server Solana Wallet:\n**${find[1]}**\n\n`;
+            };
+          };
+          if (walletsData.wallets_apt) {
+            const wallets = walletsData.wallets_apt;
+            const find = wallets.find((el) => el[0] === interaction.guildId);
+            if (find) {
+              description += `Server Aptos Wallet:\n**${find[1]}**\n\n`;
+            };
+          };
+          if (walletsData.wallets_mulx) {
+            const wallets = walletsData.wallets_mulx;
+            const find = wallets.find((el) => el[0] === interaction.guildId);
+            if (find) {
+              description += `Server MultiversX Wallet:\n**${find[1]}**`;
+            };
           };
         } else {
-          interaction.editReply({ ephemeral: true, content: `The following wallets are saved by you\n\nin this server:\n**${wallet}**\n\nGlobal wallet:\n**${global}**` });
+          description += `\n\nNo Data saved on your wallets.`
+        };
+      } else {
+        if (walletsData) {
+          description += `No data saved on your social connections.\n\n`;
+          description += `The wallet configuration is shown below:\n`;
+          if (walletsData.wallet_global_eth) {
+            description += `Global Ethereum Wallet Address:\n**${walletsData.wallet_global_eth}**\n\n`;
+          };
+          if (walletsData.wallet_global_sol) {
+            description += `Global Solana Wallet Address:\n**${walletsData.wallet_global_sol}**\n\n`;
+          };
+          if (walletsData.wallet_global_apt) {
+            description += `Global Aptos Wallet Address:\n**${walletsData.wallet_global_apt}**\n\n`;
+          };
+          if (walletsData.wallet_global_mulx) {
+            description += `Global MultiversX Wallet Address:\n**${walletsData.wallet_global_mulx}**\n\n`;
+          };
+          if (walletsData.wallets_eth) {
+            const wallets = walletsData.wallets_eth;
+            const find = wallets.find((el) => el[0] === interaction.guildId);
+            if (find) {
+              description += `Server Ethereum Wallet:\n**${find[1]}**\n\n`;
+            };
+          };
+          if (walletsData.wallets_sol) {
+            const wallets = walletsData.wallets_sol;
+            const find = wallets.find((el) => el[0] === interaction.guildId);
+            if (find) {
+              description += `Server Solana Wallet:\n**${find[1]}**\n\n`;
+            };
+          };
+          if (walletsData.wallets_apt) {
+            const wallets = walletsData.wallets_apt;
+            const find = wallets.find((el) => el[0] === interaction.guildId);
+            if (find) {
+              description += `Server Aptos Wallet:\n**${find[1]}**\n\n`;
+            };
+          };
+          if (walletsData.wallets_mulx) {
+            const wallets = walletsData.wallets_mulx;
+            const find = wallets.find((el) => el[0] === interaction.guildId);
+            if (find) {
+              description += `Server MultiversX Wallet:\n**${find[1]}**`;
+            };
+          };
+        } else {
+          description += 'No data available.\nTry this after authorizing the bot or saving your wallets.'
         };
       };
-      const twitterFind = await twitter.findOne({
-        discord_id: interaction.user.id,
-      });
-      if (!twitterFind) {
-        return interaction.followUp({
-          ephemeral: true,
-          embeds: [MakeEmbed(`You have not verified your twitter account. Please do so by clicking the button beside to be able to enter twitter actions gated giveaways.`)],
-        });
-      } else {
-        const twitterUsername = twitterFind.twitter_id;
-        return interaction.followUp({
-          ephemeral: true,
-          embeds: [MakeEmbed(`You have verified your twitter account-\n\n**ID: ${twitterUsername}**\n\nIf you ever need to change it, you can hit the verify twitter button again and associate your new account to your discord account.`)],
-        });
-      };
+      interaction.editReply({ ephemeral: true, embeds: [MakeEmbed(description)] });
     } catch (e) {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
