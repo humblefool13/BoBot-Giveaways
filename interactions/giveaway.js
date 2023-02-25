@@ -369,15 +369,11 @@ module.exports = {
           };
           let followRequirement;
           if (followReq) followRequirement = processFollow(followReq);
-          let guildId;
+          let guildId, botInGuild = true;
           if (guildMemberReq) {
             const invite = await client.fetchInvite(guildMemberReq);
             guildId = invite.guild.id;
-            if (!client.guilds.cache.find(guild => guild.id === guildId)) {
-              return interaction.editReply({
-                content: `I need to be a member of the target server to check for discord server membership requirement.\nInvite me to the other server using:\n\nhttps://discord.com/oauth2/authorize?client_id=1001909973938348042&scope=bot%20applications.commands&permissions=137707441169`,
-              });
-            };
+            if (!client.guilds.cache.find(guild => guild.id === guildId)) botInGuild = false;
           };
           let descriptionString = "";
           descriptionString += `:trophy: **Prize Name** : ${prize}\n\n`;
@@ -484,7 +480,7 @@ module.exports = {
             });
           };
           const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-          const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url];
+          const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url, (mintTime) ? mintTime : "NA", (chain) ? chain : "NA", botInGuild];
           writeFileSync("./giveaways/giveawayConfigs" + filename, data.join("\n"));
           writeFileSync("./giveaways/giveawayEntries" + filename, "");
           const messageLinkRow = new ActionRowBuilder()
@@ -546,15 +542,11 @@ module.exports = {
         };
         let followRequirement;
         if (followReq) followRequirement = processFollow(followReq);
-        let guildId;
+        let guildId, botInGuild = true;
         if (guildMemberReq) {
           const invite = await client.fetchInvite(guildMemberReq);
           guildId = invite.guild.id;
-          if (!client.guilds.cache.find(guild => guild.id === guildId)) {
-            return interaction.editReply({
-              content: `I need to be a member of the target server to check for discord server membership requirement.\nInvite me to the other server using:\n\nhttps://discord.com/oauth2/authorize?client_id=1001909973938348042&scope=bot%20applications.commands&permissions=137707441169`,
-            });
-          };
+          if (!client.guilds.cache.find(guild => guild.id === guildId)) botInGuild = false;
         };
         let descriptionString = "";
         descriptionString += `:trophy: **Prize Name** : \`${prize}\`\n\n`;
@@ -660,7 +652,7 @@ module.exports = {
           });
         };
         const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-        const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url, (mintTime) ? mintTime : "NA", (chain) ? chain : "NA"];
+        const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url, (mintTime) ? mintTime : "NA", (chain) ? chain : "NA", botInGuild];
         writeFileSync("./giveaways/giveawayConfigs" + filename, data.join("\n"));
         writeFileSync("./giveaways/giveawayEntries" + filename, "");
         const messageLinkRow = new ActionRowBuilder()
