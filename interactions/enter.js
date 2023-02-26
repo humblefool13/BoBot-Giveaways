@@ -4,7 +4,7 @@ const wallets = require("../models/wallets.js");
 const twitter = require('../models/twitter.js');
 const CryptoJS = require('crypto-js');
 const { BigNumber } = require('ethers');
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require("discord.js");
 const { RateLimiter } = require("limiter");
 let etherscan_key = process.env['etherscan_key'];
 etherscan_key = etherscan_key.split(",");
@@ -271,6 +271,34 @@ async function findBalance(walletAddress) {
   const balanceResult = await balanceResponse.json();
   return balanceResult;
 };
+async function getGuildsOfUser(memberId, credentials) {
+  let discordAccessToken = decrypt(credentials.access_token_discord);
+  let discordRefreshToken = decrypt(credentials.refresh_token_discord);
+  const url = `https://discord.com/api/v10/users/@me/guilds`;
+  let response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${discordAccessToken}`
+    },
+  });
+  if (!response.status.toString().startsWith("20")) {
+    const newCreds = await refreshDiscord(discordRefreshToken);
+    discordAccessToken = newCreds.access_token;
+    discordRefreshToken = newCreds.refresh_token;
+    response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${discordAccessToken}`
+      },
+    });
+    const find = await twitter.findOne({
+      discord_id: memberId,
+    });
+    find.access_token_discord = encrypt(discordAccessToken);
+    find.refresh_token_discord = encrypt(discordRefreshToken);
+    await find.save().catch(e => console.log(e));
+  };
+  const result = await response.json();
+  return result;
+};
 
 module.exports = {
   name: "enter",
@@ -303,6 +331,7 @@ module.exports = {
       const balReq = configs[4];
       const discordMemberReq = configs[12];
       const chain = configs[15];
+      const guildInviteLink = configs[16];
       let bonusApplicable = "", userEntries = 1;
       if (walletReq === "YES") {
         const wallet = await wallets.findOne({
@@ -398,11 +427,31 @@ module.exports = {
             content: 'This giveaway requires you to verify twitter account so please do so to enter.'
           });
         };
-        const member = await memberInGuild(interaction.user.id, creds, discordMemberReq);
-        if (!member) {
-          return interaction.editReply({
-            content: 'Something went wrong. Please join the required server and try again later.'
-          });
+        const joinButtonRow = new ActionRowBuilder()
+          .addComponents(
+            new ButtonBuilder()
+              .setLabel("Join Server")
+              .setStyle(ButtonStyle.Link)
+              .setURL(guildInviteLink)
+          );
+        const userGuilds = await getGuildsOfUser(interaction.user.id, creds);
+        const botIsInGuild = client.guilds.cache.has(discordMemberReq);
+        const userIsInGuild = userGuilds.find((el) => el.id === discordMemberReq);
+        if (!userIsInGuild) {
+          if (botIsInGuild) {
+            const member = await memberInGuild(interaction.user.id, creds, discordMemberReq);
+            if (!member) {
+              return interaction.editReply({
+                content: 'Something went wrong. Please join the required server and try again later.',
+                components: [joinButtonRow],
+              });
+            };
+          } else {
+            return interaction.editReply({
+              content: "Please join the required server and then try to enter the giveaway.",
+              components: [joinButtonRow],
+            });
+          };
         };
       };
       if (followReq !== "NA") {
