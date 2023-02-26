@@ -201,18 +201,19 @@ module.exports = {
                 };
                 const splitted = splitWinners(winners, 70);
                 const messages = messagesGenerator(splitted);
+                const winnerChannel = await client.guilds.cache.get(location[0]).channels.fetch(config.winners_channel).catch((e) => { });
                 let sent;
                 if (unique !== entries.length) {
-                  sent = await message.reply({
+                  sent = await winnerChannel.send({
                     embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Unique Entries: ${unique}\n:busts_in_silhouette: Total Entries: ${entries.length}\n\nThe winners are posted below! :fire:`).setColor("#8A45FF")],
                   });
                 } else {
-                  sent = await message.reply({
+                  sent = await winnerChannel.send({
                     embeds: [new EmbedBuilder().setDescription(`:tada: Congratulations to all the **${prize}** winners! :tada:\n:bust_in_silhouette: Entries: ${unique}\n\nThe winners are posted below! :fire:`).setColor("#8A45FF")],
                   });
                 };
                 for (const msg of messages) {
-                  await message.channel.send({
+                  await winnerChannel.send({
                     content: msg,
                   });
                 };
