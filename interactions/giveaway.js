@@ -131,7 +131,6 @@ module.exports = {
       if (defaultsData) defaultsData = defaultsData.defaults;
       if (!defaultsData) defaultsData = {};
       const botRole = interaction.guild.members.me.roles.botRole;
-
       const prize = interaction.options.getString("prize");
       const channel = interaction.options.getChannel("channel");
       if (channel.type !== ChannelType.GuildText) return interaction.editReply('The channel should be a guild text channel.');
@@ -157,13 +156,20 @@ module.exports = {
       const pubPrice = interaction.options.getString('mint-price-public');
       const privPrice = interaction.options.getString('mint-price-presale');
       const mintTime = interaction.options.getString('mint-time');
-
+      const endTimestamp = findTimestamp(time.toLowerCase().trim());
       if (chain !== 'Ethereum' && balReq) {
         return interaction.editReply({
           content: 'The balance requirement is only supported for Ethereum blockchain.'
         });
       };
-
+      let guildId;
+      if (guildMemberReq) {
+        const invite = await client.fetchInvite(guildMemberReq);
+        guildId = invite.guild.id;
+        if (invite.expiresTimestamp <= endTimestamp) {
+          return interaction.editReply('The required discord server invite link expires before giveaway ends. Please get a new link that is valid atleast till giveaway end time.');
+        };
+      };
       const permissions = channel.permissionsFor(client.user.id);
       if (description) {
         if (description.length > 3000) return interaction.editReply('Please make sure the description does not exceed 3000 characters.');
@@ -323,7 +329,6 @@ module.exports = {
           };
         });
         collector.on('end', async () => {
-          const endTimestamp = findTimestamp(time.toLowerCase().trim());
           if (blacklistedRoles) {
             let roles = 0;
             for (i = 0; i < blacklistedRoles.length; i++) {
@@ -369,12 +374,6 @@ module.exports = {
           };
           let followRequirement;
           if (followReq) followRequirement = processFollow(followReq);
-          let guildId, botInGuild = true;
-          if (guildMemberReq) {
-            const invite = await client.fetchInvite(guildMemberReq);
-            guildId = invite.guild.id;
-            if (!client.guilds.cache.find(guild => guild.id === guildId)) botInGuild = false;
-          };
           let descriptionString = "";
           descriptionString += `:trophy: **Prize Name** : ${prize}\n\n`;
           if (description) {
@@ -480,7 +479,7 @@ module.exports = {
             });
           };
           const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-          const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url, (mintTime) ? mintTime : "NA", (chain) ? chain : "NA", botInGuild];
+          const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url, (mintTime) ? mintTime : "NA", (chain) ? chain : "NA", (guildMemberReq) ? guildMemberReq : "NA"];
           writeFileSync("./giveaways/giveawayConfigs" + filename, data.join("\n"));
           writeFileSync("./giveaways/giveawayEntries" + filename, "");
           const messageLinkRow = new ActionRowBuilder()
@@ -496,7 +495,6 @@ module.exports = {
           });
         })
       } else {
-        const endTimestamp = findTimestamp(time.toLowerCase().trim());
         if (blacklistedRoles) {
           let roles = 0;
           for (i = 0; i < blacklistedRoles.length; i++) {
@@ -542,12 +540,6 @@ module.exports = {
         };
         let followRequirement;
         if (followReq) followRequirement = processFollow(followReq);
-        let guildId, botInGuild = true;
-        if (guildMemberReq) {
-          const invite = await client.fetchInvite(guildMemberReq);
-          guildId = invite.guild.id;
-          if (!client.guilds.cache.find(guild => guild.id === guildId)) botInGuild = false;
-        };
         let descriptionString = "";
         descriptionString += `:trophy: **Prize Name** : \`${prize}\`\n\n`;
         if (description) {
@@ -652,7 +644,7 @@ module.exports = {
           });
         };
         const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
-        const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url, (mintTime) ? mintTime : "NA", (chain) ? chain : "NA", botInGuild];
+        const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url, (mintTime) ? mintTime : "NA", (chain) ? chain : "NA", (guildMemberReq) ? guildMemberReq : "NA"];
         writeFileSync("./giveaways/giveawayConfigs" + filename, data.join("\n"));
         writeFileSync("./giveaways/giveawayEntries" + filename, "");
         const messageLinkRow = new ActionRowBuilder()
