@@ -48,7 +48,7 @@ const row2 = new ActionRowBuilder()
   .addComponents(
     new ButtonBuilder()
       .setLabel("Connections:")
-      .setCustomId("disabledLOL")
+      .setCustomId("disabledLOL2")
       .setStyle(ButtonStyle.Primary)
       .setDisabled(true)
       .setEmoji("🔗"),

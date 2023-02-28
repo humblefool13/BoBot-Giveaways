@@ -8,7 +8,7 @@ module.exports = {
     try {
       if (interaction.isChatInputCommand()) {
         Icommand = interaction.commandName;
-      } else if (interaction.type === InteractionType.MessageComponent && (interaction.customId === "enter" || interaction.customId === "twitterv" || interaction.customId === "submit" || interaction.customId === "check")) {
+      } else if (interaction.type === InteractionType.MessageComponent) {
         Icommand = interaction.customId;
       } else {
         return;
