@@ -12,17 +12,6 @@ function decrypt(encryptedString) {
   const plainText = cipherText.toString(CryptoJS.enc.Utf8);
   return plainText;
 };
-async function refreshTwitterCreds(refreshToken) {
-  const responseTwitter = await fetch(`https://api.twitter.com/2/oauth2/token?refresh_token=${refreshToken}&grant_type=refresh_token`, {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      'Authorization': `Basic ${(process.env["auth_token"]).replaceAll(`"`, "")}`,
-    },
-    method: "POST"
-  });
-  const resultTwitter = await responseTwitter.json();
-  return resultTwitter;
-};
 async function refreshDiscord(refreshToken) {
   const data = new URLSearchParams({
     client_id: '1001909973938348042',
@@ -52,20 +41,12 @@ module.exports = {
       if (!socialData) {
         return interaction.editReply("You have not authorzied the application yet.")
       };
-      const twitterAccessToken = decrypt(socialData.access_token_twitter);
-      const discordAccessToken = decrypt(socialData.access_token_discord);
-      const twitterResponse = await fetch(`https://api.twitter.com/2/oauth2/revoke?token=${twitterAccessToken}`, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          'Authorization': `Basic ${(process.env["auth_token"]).replaceAll(`"`, "")}`,
-        },
-        method: "POST"
-      });
-      const twitterResult = twitterResponse.status;
+      const discordRefreshToken = decrypt(socialData.refresh_token_discord);
+      const newDiscordCreds = await refreshDiscord(discordRefreshToken);
       const data = new URLSearchParams({
         client_id: '1001909973938348042',
         client_secret: process.env['client_discord_secret'],
-        token: discordAccessToken,
+        token: newDiscordCreds.access_token,
       });
       const discordResponse = await fetch('https://discord.com/api/oauth2/token/revoke', {
         method: "POST",
@@ -74,46 +55,14 @@ module.exports = {
           'Content-Type': 'application/x-www-form-urlencoded',
         }
       });
-      const discordResult = discordResponse.status;
-      if (discordResult == 200 && twitterResult == 200) {
+      const discordStatusCode = discordResponse.status;
+      if (discordStatusCode == 200) {
         await twitter_db.deleteOne({
           discord_id: interaction.user.id,
         });
-        return interaction.editReply('The revoke was successful!\nThe application no longer has access to your Authorization Credentials.');
+        return interaction.editReply('The revoke was successful!');
       } else {
-        const discordRefreshToken = decrypt(socialData.refresh_token_discord);
-        const twitterRefreshToken = decrypt(socialData.refresh_token_twitter);
-        const newDiscordCreds = await refreshDiscord(discordRefreshToken);
-        const newTwitterCreds = await refreshTwitterCreds(twitterRefreshToken);
-        const newtwitterResponse = await fetch(`https://api.twitter.com/2/oauth2/revoke?token=${newTwitterCreds.access_token}`, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            'Authorization': `Basic ${(process.env["auth_token"]).replaceAll(`"`, "")}`,
-          },
-          method: "POST"
-        });
-        const newTwitterResult = newtwitterResponse.status;
-        const newdata = new URLSearchParams({
-          client_id: '1001909973938348042',
-          client_secret: process.env['client_discord_secret'],
-          token: newDiscordCreds.access_token,
-        });
-        const newdiscordResponse = await fetch('https://discord.com/api/oauth2/token/revoke', {
-          method: "POST",
-          body: newdata.toString(),
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          }
-        });
-        const newDiscordResult = newdiscordResponse.status;
-        if (newDiscordResult == 200 && newTwitterResult == 200) {
-          await twitter_db.deleteOne({
-            discord_id: interaction.user.id,
-          });
-          return interaction.editReply('The revoke was successful!\nThe application no longer has access to your Authorization Credentials.');
-        } else {
-          return interaction.editReply('Something went wrong. We are fixing it, please try again later.');
-        };
+        return interaction.editReply('Something went wrong. We are fixing it, please try again later.');
       };
     } catch (e) {
       console.log(e);

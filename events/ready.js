@@ -131,7 +131,7 @@ module.exports = {
             const message = await channel.messages.fetch(location[2]).catch((e) => { });
             const guild = client.guilds.cache.get(location[0]);
             const members = await client.guilds.cache.get(location[0]).members.fetch().catch((e) => { });
-            let walletsArray = [], walletTagArray = [], walletTagIDArray = [], walletTagIDTwitterArray = [];
+            let walletTagIDTwitterArray = [];
             if (entries.length === 1 && entries[0] === "") {
               if (message && channel) {
                 const description = message.embeds[0].description;
@@ -179,9 +179,6 @@ module.exports = {
                   } else {
                     twitterUsername = 'Account not connected.'
                   };
-                  walletsArray.push([wallet]);
-                  walletTagArray.push([wallet, member.user.tag]);
-                  walletTagIDArray.push([wallet, member.user.tag, member.id]);
                   walletTagIDTwitterArray.push([wallet, member.user.tag, member.id, twitterUsername]);
                 }
               } while (winners.length < numWinners && winners.length < unique);
