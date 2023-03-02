@@ -1,9 +1,9 @@
 const fs = require("fs");
 const config_records = require("../models/configurations.js");
 const wallets_records = require("../models/wallets.js");
+const winners_records = require("../models/winners.js");
 const sub_records = require("../models/subscriptions.js");
 const socials = require("../models/twitter.js");
-const excel = require('exceljs');
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ActivityType } = require("discord.js");
 const row = new ActionRowBuilder()
   .addComponents(
@@ -97,7 +97,31 @@ function findWallet(walletData, userId, guildId, chain) {
   };
   return 'Not Found.';
 };
-
+const rowExport = new ActionRowBuilder()
+  .addComponents(
+    new ButtonBuilder()
+      .setLabel("Format:")
+      .setCustomId("exportFormat")
+      .setDisabled(true)
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setLabel("1")
+      .setCustomId("exportA")
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setLabel("2")
+      .setCustomId("exportB")
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setLabel("3")
+      .setCustomId("exportC")
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setLabel("4")
+      .setCustomId("exportD")
+      .setStyle(ButtonStyle.Primary)
+  );
+const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
 
 module.exports = {
   name: 'ready',
@@ -182,6 +206,17 @@ module.exports = {
                   walletTagIDTwitterArray.push([wallet, member.user.tag, member.id, twitterUsername]);
                 }
               } while (winners.length < numWinners && winners.length < unique);
+              const entryString = unique;
+              const exportID = genRanHex(12);
+              await new winners_records({
+                guild_id: location[0],
+                prize_name: prize,
+                entries: entryString,
+                deleteTimestamp: Date.now() + 30 * 24 * 60 * 60 * 1000,
+                reminderTimestamp: mintTimestamp,
+                exportID: exportID,
+                winnersData: walletTagIDTwitterArray,
+              }).save().catch();
               winners = shuffleArray(winners);
               if (message && channel) {
                 const description = message.embeds[0].description;
@@ -214,16 +249,6 @@ module.exports = {
                     content: msg,
                   });
                 };
-                const workbook = new excel.Workbook();
-                const workSheetWalletsAndUserDetails = workbook.addWorksheet('Wallets With User Info');
-                workSheetWalletsAndUserDetails.addRow(['Server Name:', guild.name]);
-                workSheetWalletsAndUserDetails.addRow(['Prize Name:', prize]);
-                workSheetWalletsAndUserDetails.addRow(['⠀', '⠀', '⠀']);
-                workSheetWalletsAndUserDetails.addRow(['Wallet Address', 'User ID', 'User Tag']);
-                tagArray.forEach((detailArray) => {
-                  workSheetWalletsAndUserDetails.addRow(detailArray);
-                });
-                const bufferFile = await workbook.xlsx.writeBuffer();
                 const config = await config_records.findOne({
                   server_id: guild.id,
                 });
@@ -241,24 +266,20 @@ module.exports = {
                         .setStyle(ButtonStyle.Link)
                         .setURL(sent.url)
                     );
-                  let content = `\nThe file with winners' details and wallets is attached above!\n`;
-                  if (unique !== entries.length) content = `👥 Total Entries: ${entries.length}\n` + content;
-                  const postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n👤 Unique Entries: ${unique}\n${content}`;
+                  let postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n👤 Unique Entries: ${unique}`;
+                  if (unique !== entries.length) {
+                    postDescription += `\n👥 Total Entries: ${entries.length}`;
+                  };
+                  postDescription += '\n\nYou can export winners\'s data in 4 formats using buttons below:\n1) Wallet Address of Winners Only\n2) Wallet Address and Discord User Tag of Winners Only\n3) Wallet Address, Discord ID and Discord User Tag of Winners\n4) Wallet Address, Discord ID, Discord User Tag and Twitter Username of Winners.\n\nYou can export anytime in upcoming 30 days.';
                   await postChannel.send({
-                    embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF")],
-                    files: [{
-                      attachment: bufferFile,
-                      name: `${prize}_${guild.name.replaceAll(" ", "")}_giveaway.xlsx`
-                    }],
-                    components: [messageLinkRow],
+                    embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: exportID })],
+                    components: [rowExport, messageLinkRow],
                   });
                   if (winnerRole !== "NA") {
                     for (let winner in winners) {
                       winner.roles.add(winnerRole).catch((e) => { });
                     };
                   };
-                  fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
-                  fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
                 } else {
                   fs.unlinkSync(`./giveaways/giveawayConfigs/processing-${file}`);
                   fs.unlinkSync(`./giveaways/giveawayEntries/${file}`);
@@ -274,6 +295,25 @@ module.exports = {
     };
     endGiveaways();
     setInterval(endGiveaways, 60 * 1000);
+
+    async function deleteWinners() {
+      const winnersData = await winners_records.find();
+      winnersData.forEach((giveawayProfile) => {
+        const guildId = giveawayProfile.guild_id;
+        const prizeName = giveawayProfile.prize_name;
+        const deleteTimestamp = giveawayProfile.deleteTimestamp;
+        if (Date.now() >= deleteTimestamp) {
+          await winners_records.deleteOne({
+            guild_id: guildId,
+            prize_name: prizeName,
+          }).catch((e) => {
+            console.log(e);
+          });
+        };
+      });
+    };
+    deleteWinners();
+    setInterval(deleteWinners, 60 * 1000);
 
     async function checkSubs() {
       const subs = await sub_records.find();
