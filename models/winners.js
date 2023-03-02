@@ -6,6 +6,7 @@ const format = {
   entries: String,
   deleteTimestamp: String,
   reminderTimestamp: String,
+  exportID: String,
   winnersData: [[]],
 };
 
