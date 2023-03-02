@@ -1,10 +1,9 @@
 const subs = require("../models/subscriptions");
 const winnersdb = require("../models/winners.js");
 const exceljs = require('exceljs');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
-  name: "exportA",
+  name: "exportB",
   async interact(client, interaction) {
     try {
       await interaction.deferReply({ ephemeral: true });

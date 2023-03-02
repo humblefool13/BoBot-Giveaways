@@ -1,10 +1,9 @@
 const subs = require("../models/subscriptions");
 const winnersdb = require("../models/winners.js");
 const exceljs = require('exceljs');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
-  name: "exportA",
+  name: "exportD",
   async interact(client, interaction) {
     try {
       await interaction.deferReply({ ephemeral: true });
@@ -71,7 +70,7 @@ module.exports = {
         content: `Below is the file attached which contains wallet addresses, discord user tags, discord user IDs and twitter usernames of ${winnersData.prize_name} winners.`,
         files: [{
           attachment: bufferFile,
-          name: `${winnersData.prize_name}_${guild.name.replaceAll(" ", "")}_2.xlsx`
+          name: `${winnersData.prize_name}_${guild.name.replaceAll(" ", "")}_4.xlsx`
         }],
       });
     } catch (e) {
