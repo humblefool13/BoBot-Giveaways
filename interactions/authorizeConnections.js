@@ -15,7 +15,7 @@ module.exports = {
   async interact(client, interaction) {
     try {
       await interaction.deferReply({ ephemeral: true });
-      const sub = subs.findOne({
+      const sub = await subs.findOne({
         server_id: interaction.guildId,
       });
       if (!sub) return interaction.editReply({ embeds: [MakeEmbedDes("The subscription for this server has expired, please contact ST6 to continue using the services.")] });
