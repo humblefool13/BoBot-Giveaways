@@ -80,7 +80,7 @@ module.exports = {
           components: [rowchange],
           fetchReply: true,
         });
-        if (globalWallet.startsWith("0x")) {
+        if (globalWallet?.startsWith("0x")) {
           question.setPlaceholder(globalWallet);
         } else {
           question.setPlaceholder('0x.........');
