@@ -8,7 +8,7 @@ module.exports = {
     try {
       if (interaction.isChatInputCommand()) {
         Icommand = interaction.commandName;
-      } else if (interaction.type === InteractionType.MessageComponent) {
+      } else if (interaction.type === InteractionType.MessageComponent && ['aptosWallet', 'authorizeConnections', 'check', 'enter', 'ethereumWallet', 'exportA', 'exportB', 'exportC', 'exportD', 'multiversxWallet', 'revokeConnections', 'solanaWallet'].includes(interaction.customId)) {
         Icommand = interaction.customId;
       } else {
         return;
