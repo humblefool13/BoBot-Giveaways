@@ -118,13 +118,13 @@ module.exports = {
         server_id: interaction.guildId,
       });
       if (!getRole) return interaction.editReply({
-        embeds: [MakeEmbedDes("The subscription for this server has expired, please contact ST6 to continue using the services.")],
+        embeds: [MakeEmbedDes("You need to `/setup` before using this command, or the subscription for this server has expired, please contact ST6 to continue using the services.")],
       });
+      const giveawayChannel = getRole.giveaways_channel;
       const managerRole = getRole.role;
       if (!interaction.member.roles.cache.has(managerRole)) return interaction.editReply({
         content: `Only <@&${managerRole}> can use this command.`
       });
-
       let defaultsData = await defaults.findOne({
         server_id: interaction.guildId,
       });
@@ -132,8 +132,6 @@ module.exports = {
       if (!defaultsData) defaultsData = {};
       const botRole = interaction.guild.members.me.roles.botRole;
       const prize = interaction.options.getString("prize");
-      const channel = interaction.options.getChannel("channel");
-      if (channel.type !== ChannelType.GuildText) return interaction.editReply('The channel should be a guild text channel.');
       const winners = interaction.options.getInteger("winners");
       const walletReq = interaction.options.getBoolean("wallet-req");
       const time = interaction.options.getString("duration");
@@ -170,15 +168,9 @@ module.exports = {
           return interaction.editReply('The required discord server invite link expires before giveaway ends. Please get a new link that is valid atleast till giveaway end time.');
         };
       };
-      const permissions = channel.permissionsFor(client.user.id);
       if (description) {
         if (description.length > 3000) return interaction.editReply('Please make sure the description does not exceed 3000 characters.');
       };
-      if (!permissions.has(PermissionsBitField.Flags.ViewChannel)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-      if (!permissions.has(PermissionsBitField.Flags.SendMessages)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-      if (!permissions.has(PermissionsBitField.Flags.ReadMessageHistory)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-      if (!permissions.has(PermissionsBitField.Flags.EmbedLinks)) return interaction.editReply(`Please give me the following permissions in <#${channel.id}>:\n1) View Channel\n2) Send Messages\n3) Read Message History\n4) Embed Links`);
-
       const row1 = new ActionRowBuilder();
       const row2 = new ActionRowBuilder();
       const row3 = new ActionRowBuilder().addComponents(
@@ -214,7 +206,6 @@ module.exports = {
           .setCustomId("done")
       );
       let rowsIds = ["done", "skip"];
-
       if (!ping && defaultsData?.ping) {
         row1.addComponents(
           new ButtonBuilder()
@@ -454,7 +445,7 @@ module.exports = {
           if (picture && picture.contentType.startsWith("image")) {
             embed.setImage(picture.url);
           };
-          const postChannel = await client.guilds.cache.get(interaction.guild.id).channels.fetch(channel.id);
+          const postChannel = await client.guilds.cache.get(interaction.guild.id).channels.fetch(giveawayChannel);
           let ids, idsArr;
           if (followReq) {
             ids = await idsOfAccounts(followReq);
@@ -478,7 +469,7 @@ module.exports = {
               components: [row]
             });
           };
-          const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
+          const filename = "/" + [interaction.guildId, giveawayChannel, sent.id].join("_") + ".txt";
           const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url, (mintTime) ? mintTime : "NA", (chain) ? chain : "NA", (guildMemberReq) ? guildMemberReq : "NA"];
           writeFileSync("./giveaways/giveawayConfigs" + filename, data.join("\n"));
           writeFileSync("./giveaways/giveawayEntries" + filename, "");
@@ -619,7 +610,7 @@ module.exports = {
         if (picture && picture.contentType.startsWith("image")) {
           embed.setImage(picture.url);
         };
-        const postChannel = await client.guilds.cache.get(interaction.guild.id).channels.fetch(channel.id);
+        const postChannel = await client.guilds.cache.get(interaction.guild.id).channels.fetch(giveawayChannel);
         let ids, idsArr;
         if (followReq) {
           ids = await idsOfAccounts(followReq);
@@ -643,7 +634,7 @@ module.exports = {
             components: [row]
           });
         };
-        const filename = "/" + [interaction.guildId, channel.id, sent.id].join("_") + ".txt";
+        const filename = "/" + [interaction.guildId, giveawayChannel, sent.id].join("_") + ".txt";
         const data = [prize, winners, (walletReq) ? "YES" : "NO", endTimestamp, (balReq) ? balReq : "NA", (winnerRole) ? winnerRole.id : "NA", (reqRoles) ? parseRoles(reqRoles).join(",") : "NA", (blacklistedRoles) ? parseRoles(blacklistedRoles).join(",") : "NA", (bonus) ? processBonus(bonus) : "NA", (followReq) ? ids : "NA", (likeReq) ? likeReq : "NA", (rtReq) ? rtReq : "NA", (guildId) ? guildId : "NA", sent.url, (mintTime) ? mintTime : "NA", (chain) ? chain : "NA", (guildMemberReq) ? guildMemberReq : "NA"];
         writeFileSync("./giveaways/giveawayConfigs" + filename, data.join("\n"));
         writeFileSync("./giveaways/giveawayEntries" + filename, "");
