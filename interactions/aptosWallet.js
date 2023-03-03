@@ -41,7 +41,7 @@ function MakeEmbedDes(des) {
   return embed;
 };
 
-module.exports = { 
+module.exports = {
   name: "aptosWallet",
   async interact(client, interaction) {
     const modal = new ModalBuilder()
@@ -62,7 +62,7 @@ module.exports = {
       const find = await wallets.findOne({
         discord_id: interaction.user.id,
       });
-      let sent, wallet = "Not Saved Yet.", globalWallet, savedWallets;
+      let sent, wallet = "Not Saved Yet.", globalWallet = "Not Saved Yet.", savedWallets;
       if (!find) {
         sent = await interaction.editReply({
           embeds: [MakeEmbedDes("You have not saved any Aptos wallet in this server previously ( and neither have a global Aptos wallet saved ). Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button.")],
@@ -105,7 +105,7 @@ module.exports = {
           embeds: [MakeEmbedDes(`Please enter a valid Aptos address. The currently entered one ( **${walletNew}** ) includes a space \` \`.`)],
           components: [],
         });
-        if(!AccountAddress.isValid(walletNew)){
+        if (!AccountAddress.isValid(walletNew)) {
           return i.editReply({
             embeds: [MakeEmbedDes(`Please enter a valid Aptos address. The currently entered one ( **${walletNew}** ) is invalid.`)],
             components: [],

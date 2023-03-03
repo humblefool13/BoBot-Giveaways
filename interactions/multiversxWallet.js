@@ -39,7 +39,7 @@ function MakeEmbedDes(des) {
   return embed;
 };
 
-module.exports = { 
+module.exports = {
   name: "multiversxWallet",
   async interact(client, interaction) {
     const modal = new ModalBuilder()
@@ -60,7 +60,7 @@ module.exports = {
       const find = await wallets.findOne({
         discord_id: interaction.user.id,
       });
-      let sent, wallet = "Not Saved Yet.", globalWallet, savedWallets;
+      let sent, wallet = "Not Saved Yet.", globalWallet = "Not Saved Yet.", savedWallets;
       if (!find) {
         sent = await interaction.editReply({
           embeds: [MakeEmbedDes("You have not saved any MultiversX wallet in this server previously ( and neither have a global MultiversX wallet saved ). Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button.")],
