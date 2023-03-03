@@ -213,9 +213,6 @@ module.exports = {
           const endTimestamp = Number(fileData2[3]);
           if (Date.now() >= endTimestamp) {
             const prize = fileData2[0];
-            const config = await config_records.findOne({
-              server_id: guild.id,
-            });
             const numWinners = fileData2[1];
             const winnerRole = fileData2[5];
             const msgUrl = fileData2[13];
@@ -231,6 +228,9 @@ module.exports = {
             const message = await channel.messages.fetch(location[2]).catch((e) => { });
             const guild = client.guilds.cache.get(location[0]);
             const members = await client.guilds.cache.get(location[0]).members.fetch().catch((e) => { });
+            const config = await config_records.findOne({
+              server_id: guild.id,
+            });
             let walletTagIDTwitterArray = [];
             if (entries.length === 1 && entries[0] === "") {
               if (message && channel) {
@@ -398,7 +398,7 @@ module.exports = {
           const configs = await config_records.findOne({
             server_id: giveawayWinnerData.guild_id,
           });
-          const winnerChannel = await client.guilds.cache.get(giveawayWinnerData.guild_id).channels.fetch(configs.winners_channel);
+          const winnerChannel = await client.guilds.cache.get(giveawayWinnerData.guild_id).channels.fetch(configs.reminders_channel);
           let winnersID = giveawayWinnerData.winnersData.map((el) => el[2]);
           const jumpButton = new ActionRowBuilder()
             .addComponents(
