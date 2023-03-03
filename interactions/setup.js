@@ -93,7 +93,7 @@ module.exports = {
       });
       if (!sub) return interaction.editReply({ embeds: [MakeEmbedDes("This discord server does not has a valid subscription. Please contact at [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to get a subscription/renew an expired subscription.")] });
       const category = await interaction.guild.channels.create({
-        name: "GIVEAWAYS",
+        name: "ST6 GIVEAWAYS",
         type: ChannelType.GuildCategory,
       });
       const role = await interaction.guild.roles.create({
@@ -131,6 +131,24 @@ module.exports = {
             id: client.user.id,
             allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
           },
+        ],
+      });
+      const giveawaysChannel = await interaction.guild.channels.create({
+        name: "🎉︱giveaways",
+        parent: category,
+        permissionOverwrites: [
+          {
+            id: interaction.guildId,
+            deny: [PermissionsBitField.Flags.ViewChannel],
+          },
+          {
+            id: client.user.id,
+            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
+          },
+          {
+            id: role.id,
+            allow: [PermissionsBitField.Flags.ViewChannel],
+          }
         ],
       });
       const winnerChannel = await interaction.guild.channels.create({
@@ -181,6 +199,7 @@ module.exports = {
         submit_channel: outputChannel.id,
         winners_channel: winnerChannel.id,
         reminders_channel: reminderChannel.id,
+        giveaways_channel: giveawaysChannel.id,
       }).save().catch((e) => {
         console.log(e)
       });
