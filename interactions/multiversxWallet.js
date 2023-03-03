@@ -47,7 +47,7 @@ module.exports = {
       .setCustomId("modal");
     const question = new TextInputBuilder()
       .setCustomId('walletAddress')
-      .setLabel("Please enter your MultiversX wallet address below.")
+      .setLabel("Enter your MultiversX wallet address below.")
       .setStyle(TextInputStyle.Short);
     const firstActionRow = new ActionRowBuilder().addComponents(question);
     modal.addComponents(firstActionRow);

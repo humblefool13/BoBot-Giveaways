@@ -47,7 +47,7 @@ module.exports = {
       .setCustomId("modal");
     const question = new TextInputBuilder()
       .setCustomId('walletAddress')
-      .setLabel("Please enter your ETH wallet address below.")
+      .setLabel("Enter your ETH wallet address below.")
       .setStyle(TextInputStyle.Short);
     const firstActionRow = new ActionRowBuilder().addComponents(question);
     modal.addComponents(firstActionRow);
@@ -60,7 +60,7 @@ module.exports = {
       const find = await wallets.findOne({
         discord_id: interaction.user.id,
       });
-      let sent, wallet = "Not Saved Yet.", globalWallet, savedWallets;
+      let sent, wallet = "Not Saved Yet.", globalWallet = 'Not Saved Yet.', savedWallets;
       if (!find) {
         sent = await interaction.editReply({
           embeds: [MakeEmbedDes("You have not saved any ETH wallet in this server previously ( and neither have a global ETH wallet saved ). Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button.")],

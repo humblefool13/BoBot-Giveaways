@@ -49,7 +49,7 @@ module.exports = {
       .setCustomId("modal");
     const question = new TextInputBuilder()
       .setCustomId('walletAddress')
-      .setLabel("Please enter your Aptos wallet address below.")
+      .setLabel("Enter your Aptos wallet address below.")
       .setStyle(TextInputStyle.Short);
     const firstActionRow = new ActionRowBuilder().addComponents(question);
     modal.addComponents(firstActionRow);

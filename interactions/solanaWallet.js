@@ -48,7 +48,7 @@ module.exports = {
       .setCustomId("modal");
     const question = new TextInputBuilder()
       .setCustomId('walletAddress')
-      .setLabel("Please enter your Solana wallet address below.")
+      .setLabel("Enter your Solana wallet address below.")
       .setStyle(TextInputStyle.Short);
     const firstActionRow = new ActionRowBuilder().addComponents(question);
     modal.addComponents(firstActionRow);
