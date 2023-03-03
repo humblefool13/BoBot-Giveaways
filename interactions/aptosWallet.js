@@ -78,7 +78,7 @@ module.exports = {
           wallet = walletLol[1];
         });
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have saved the following Aptos wallet addresses:\n\nServer Aptos Wallet: **${wallet}**\nGlobal Aptos Wallet: **${globalWallet}**\n\nWould you like to change the wallets or want to save a new server wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
+          embeds: [MakeEmbedDes(`You have saved the following Aptos wallet addresses:\n\nServer Aptos Wallet: **${wallet}**\nGlobal Aptos Wallet: **${globalWallet ? globalWallet : 'Not Saved Yet.'}**\n\nWould you like to change the wallets or want to save a new server wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
           components: [rowchange],
           fetchReply: true,
         });
@@ -105,7 +105,9 @@ module.exports = {
           embeds: [MakeEmbedDes(`Please enter a valid Aptos address. The currently entered one ( **${walletNew}** ) includes a space \` \`.`)],
           components: [],
         });
-        if (!AccountAddress.isValid(walletNew)) {
+        try {
+          const validity = AccountAddress.isValid(walletNew);
+        } catch (e) {
           return i.editReply({
             embeds: [MakeEmbedDes(`Please enter a valid Aptos address. The currently entered one ( **${walletNew}** ) is invalid.`)],
             components: [],

@@ -76,7 +76,7 @@ module.exports = {
           wallet = walletLol[1];
         });
         sent = await interaction.editReply({
-          embeds: [MakeEmbedDes(`You have saved the following MultiversX wallet addresses:\n\nServer MultiversX Wallet: **${wallet}**\nGlobal MultiversX Wallet: **${globalWallet}**\n\nWould you like to change the wallets or want to save a new server wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
+          embeds: [MakeEmbedDes(`You have saved the following MultiversX wallet addresses:\n\nServer MultiversX Wallet: **${wallet}**\nGlobal MultiversX Wallet: **${globalWallet ? globalWallet : 'Not Saved Yet.'}**\n\nWould you like to change the wallets or want to save a new server wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`)],
           components: [rowchange],
           fetchReply: true,
         });
