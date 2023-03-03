@@ -400,8 +400,18 @@ module.exports = {
           });
           const winnerChannel = await client.guilds.cache.get(giveawayWinnerData.guild_id).channels.fetch(configs.winners_channel);
           let winnersID = giveawayWinnerData.winnersData.map((el) => el[2]);
+          const jumpButton = new ActionRowBuilder()
+            .addComponents(
+              new ButtonBuilder()
+                .setTitle("Jump To GIveaway")
+                .setStyle(ButtonStyle.Link)
+                .setURL(giveawayWinnerData.messageLink)
+            );
           let description = `⏰ REMINDER ⏰\n**${giveawayWinnerData.prize_name}** is minting soon - <t:${ParseInt((giveawayWinnerData.reminderTimestamp + 10 * 60 * 1000) / 1000)}:R>\n\n<@${winnersID.join(">, <@")}>`;
-          await winnerChannel.send(description);
+          await winnerChannel.send({
+            content: description,
+            components: [jumpButton],
+          });
         };
       });
     };
