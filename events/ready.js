@@ -122,6 +122,78 @@ const rowExport = new ActionRowBuilder()
       .setStyle(ButtonStyle.Primary)
   );
 const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+function getMonthNumberFromName(monthName) {
+  switch (monthName.toLowerCase()) {
+    case "jan":
+    case "january":
+      return '1';
+    case "feb":
+    case "february":
+      return '2';
+    case 'march':
+    case 'mar':
+      return '3';
+    case 'april':
+    case 'apr':
+      return '4';
+    case 'may':
+      return '5';
+    case 'june':
+    case 'jun':
+      return '6';
+    case 'july':
+    case 'jul':
+      return '7';
+    case 'august':
+    case 'aug':
+      return '8';
+    case 'september':
+    case 'sep':
+      return '9';
+    case 'october':
+    case 'oct':
+      return '10';
+    case 'november':
+    case 'nov':
+      return '11';
+    case 'december':
+    case 'dec':
+      return '12';
+    default:
+      const datenow = new Date;
+      const month = datenow.getMonth();
+      return (month + 1).toString();
+  }
+};
+function parseTimestamp(mintTime, timezone) {
+  if (mintTime.toLowerCase() === 'na') return Date.now() + 40 * 24 * 60 * 60 * 1000;
+  const params = mintTime.split(" ");
+  const date = params[0];
+  const year = '2023';
+  const month = getMonthNumberFromName(params[1]);
+  const time = params[2] + ":00";
+  let timestampString = `${date}/${month}/${year} ${time}`;
+  if (timezone === 'utc') {
+    const dateOfIt = new Date(timestampString);
+    const timestamp = dateOfIt.getTime();
+    return timestamp;
+  } else if (timezone === 'est') {
+    timestampString += ` GMT-0500`;
+    const dateOfIt = new Date(timestampString);
+    const timestamp = dateOfIt.getTime();
+    return timestamp;
+  } else if (timezone === 'cet') {
+    timestampString += ` GMT+0100`;
+    const dateOfIt = new Date(timestampString);
+    const timestamp = dateOfIt.getTime();
+    return timestamp;
+  } else if (timezone === 'cst') {
+    timestampString += ` GMT+0800`;
+    const dateOfIt = new Date(timestampString);
+    const timestamp = dateOfIt.getTime();
+    return timestamp;
+  };
+};
 
 module.exports = {
   name: 'ready',
@@ -141,6 +213,9 @@ module.exports = {
           const endTimestamp = Number(fileData2[3]);
           if (Date.now() >= endTimestamp) {
             const prize = fileData2[0];
+            const config = await config_records.findOne({
+              server_id: guild.id,
+            });
             const numWinners = fileData2[1];
             const winnerRole = fileData2[5];
             const msgUrl = fileData2[13];
@@ -151,6 +226,7 @@ module.exports = {
             let entries = shuffleArray(entries2);
             const locationString = file.slice(0, file.length - 4);
             const location = locationString.split("_");
+            const mintTime = fileData2[14];
             const channel = await client.guilds.cache.get(location[0]).channels.fetch(location[1]).catch((e) => { });
             const message = await channel.messages.fetch(location[2]).catch((e) => { });
             const guild = client.guilds.cache.get(location[0]);
@@ -208,12 +284,14 @@ module.exports = {
               } while (winners.length < numWinners && winners.length < unique);
               const entryString = unique;
               const exportID = genRanHex(12);
+              const mintTimestamp = parseTimestamp(mintTime, config.server_timezone.toLowerCase());
               await new winners_records({
                 guild_id: location[0],
                 prize_name: prize,
                 entries: entryString,
+                messageLink: message.url,
                 deleteTimestamp: Date.now() + 30 * 24 * 60 * 60 * 1000,
-                reminderTimestamp: mintTimestamp,
+                reminderTimestamp: mintTimestamp - 10 * 60 * 1000,
                 exportID: exportID,
                 winnersData: walletTagIDTwitterArray,
               }).save().catch();
@@ -249,9 +327,6 @@ module.exports = {
                     content: msg,
                   });
                 };
-                const config = await config_records.findOne({
-                  server_id: guild.id,
-                });
                 const channelID = config.submit_channel;
                 const postChannel = await client.guilds.cache.get(location[0]).channels.fetch(channelID).catch((e) => { });
                 if (postChannel) {
@@ -298,7 +373,7 @@ module.exports = {
 
     async function deleteWinners() {
       const winnersData = await winners_records.find();
-      winnersData.forEach((giveawayProfile) => {
+      winnersData.forEach(async (giveawayProfile) => {
         const guildId = giveawayProfile.guild_id;
         const prizeName = giveawayProfile.prize_name;
         const deleteTimestamp = giveawayProfile.deleteTimestamp;
@@ -314,6 +389,24 @@ module.exports = {
     };
     deleteWinners();
     setInterval(deleteWinners, 60 * 1000);
+
+    async function sendReminders() {
+      const winners_data = await winners_records.find();
+      winners_data.forEach(async (giveawayWinnerData) => {
+        const reminderTimestamp = giveawayWinnerData.reminderTimestamp;
+        if (reminderTimestamp <= Date.now()) {
+          const configs = await config_records.findOne({
+            server_id: giveawayWinnerData.guild_id,
+          });
+          const winnerChannel = await client.guilds.cache.get(giveawayWinnerData.guild_id).channels.fetch(configs.winners_channel);
+          let winnersID = giveawayWinnerData.winnersData.map((el) => el[2]);
+          let description = `⏰ REMINDER ⏰\n**${giveawayWinnerData.prize_name}** is minting soon - <t:${ParseInt((giveawayWinnerData.reminderTimestamp + 10 * 60 * 1000) / 1000)}:R>\n\n<@${winnersID.join(">, <@")}>`;
+          await winnerChannel.send(description);
+        };
+      });
+    };
+    sendReminders();
+    setInterval(sendReminders, 60 * 1000);
 
     async function checkSubs() {
       const subs = await sub_records.find();
