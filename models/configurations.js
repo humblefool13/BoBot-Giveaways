@@ -9,6 +9,7 @@ const format = {
   winners_channel: String,
   server_timezone: String,
   reminders_channel: String,
+  giveaways_channel: String,
 };
 
 module.exports = mongoose.model('configs', format);
