@@ -345,7 +345,7 @@ module.exports = {
                   if (unique !== entries.length) {
                     postDescription += `\n👥 Total Entries: ${entries.length}`;
                   };
-                  postDescription += '\n\nYou can export winners\'s data in 4 formats using buttons below:\n1) Wallet Address of Winners Only\n2) Wallet Address and Discord User Tag of Winners Only\n3) Wallet Address, Discord ID and Discord User Tag of Winners\n4) Wallet Address, Discord ID, Discord User Tag and Twitter Username of Winners.\n\nYou can export anytime in upcoming 30 days.';
+                  postDescription += '\n\nYou can export winners\' data in 4 formats using buttons below:\n1) Wallet Address of Winners Only\n2) Wallet Address and Discord User Tag of Winners Only\n3) Wallet Address, Discord ID and Discord User Tag of Winners\n4) Wallet Address, Discord ID, Discord User Tag and Twitter Username of Winners.\n\nWinners\' data will be available for 30 days.';
                   await postChannel.send({
                     embeds: [new EmbedBuilder().setDescription(postDescription).setColor("#8A45FF").setFooter({ text: exportID })],
                     components: [rowExport, messageLinkRow],
