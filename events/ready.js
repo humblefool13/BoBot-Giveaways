@@ -393,6 +393,7 @@ module.exports = {
     async function sendReminders() {
       const winners_data = await winners_records.find();
       winners_data.forEach(async (giveawayWinnerData) => {
+        const exportID = giveawayWinnerData.exportID;
         const reminderTimestamp = giveawayWinnerData.reminderTimestamp;
         if (reminderTimestamp <= Date.now()) {
           const configs = await config_records.findOne({
@@ -403,15 +404,20 @@ module.exports = {
           const jumpButton = new ActionRowBuilder()
             .addComponents(
               new ButtonBuilder()
-                .setTitle("Jump To GIveaway")
+                .setLabel("Jump To Giveaway")
                 .setStyle(ButtonStyle.Link)
                 .setURL(giveawayWinnerData.messageLink)
             );
-          let description = `⏰ REMINDER ⏰\n**${giveawayWinnerData.prize_name}** is minting soon - <t:${ParseInt((giveawayWinnerData.reminderTimestamp + 10 * 60 * 1000) / 1000)}:R>\n\n<@${winnersID.join(">, <@")}>`;
+          let description = `⏰ REMINDER ⏰\n**${giveawayWinnerData.prize_name}** is minting soon - <t:${parseInt((giveawayWinnerData.reminderTimestamp + 10 * 60 * 1000) / 1000)}:R>\n\n<@${winnersID.join(">, <@")}>`;
           await winnerChannel.send({
             content: description,
             components: [jumpButton],
           });
+          const find = await winners_records.findOne({
+            exportID: exportID
+          });
+          find.reminderTimestamp = Date.now() + 40 * 24 * 60 * 60 * 1000;
+          find.save().catch();
         };
       });
     };
