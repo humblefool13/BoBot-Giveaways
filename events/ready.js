@@ -408,7 +408,7 @@ module.exports = {
                 .setStyle(ButtonStyle.Link)
                 .setURL(giveawayWinnerData.messageLink)
             );
-          const endTimestamp = giveawayWinnerData.reminderTimestamp + 10 * 60 * 1000;
+          const endTimestamp = Number(giveawayWinnerData.reminderTimestamp) + 10 * 60 * 1000;
           let description = `⏰ REMINDER ⏰\n**${giveawayWinnerData.prize_name}** is minting soon - <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n<@${winnersID.join(">, <@")}>`;
           await winnerChannel.send({
             content: description,
