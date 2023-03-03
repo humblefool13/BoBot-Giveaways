@@ -418,7 +418,7 @@ module.exports = {
             exportID: exportID
           });
           find.reminderTimestamp = Date.now() + 40 * 24 * 60 * 60 * 1000;
-          find.save().catch();
+          await find.save().catch();
         };
       });
     };
