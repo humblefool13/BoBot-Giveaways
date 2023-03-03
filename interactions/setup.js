@@ -88,6 +88,9 @@ module.exports = {
         embeds: [MakeEmbedDes("This command can only be used by you in a Discord Server where either of the following apply:\n1) You are the Owner of the Discord Server.\n2) You have the **ADMINISTRATOR** permission in the server.\n3) You have the **MANAGE SERVER** permission in the server.")],
         ephemeral: true,
       });
+      const sub = subs.findOne({
+        server_id: interaction.guildId,
+      });
       if (!sub) return interaction.editReply({ embeds: [MakeEmbedDes("This discord server does not has a valid subscription. Please contact at [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to get a subscription/renew an expired subscription.")] });
       const category = await interaction.guild.channels.create({
         name: "GIVEAWAYS",
@@ -98,22 +101,8 @@ module.exports = {
         color: "#8A45FF",
         reason: "The role for Giveaway Manager.",
       });
-      const setupChannel = await interaction.guild.channels.create({
-        name: "✅︱submit-info",
-        parent: category,
-        permissionOverwrites: [
-          {
-            id: interaction.guildId,
-            deny: [PermissionsBitField.Flags.ViewChannel],
-          },
-          {
-            id: client.user.id,
-            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
-          },
-        ],
-      });
       const outputChannel = await interaction.guild.channels.create({
-        name: "✅︱giveaway-managers",
+        name: "🔐︱giveaway-managers",
         parent: category,
         permissionOverwrites: [
           {
@@ -128,6 +117,20 @@ module.exports = {
             id: role.id,
             allow: [PermissionsBitField.Flags.ViewChannel],
           }
+        ],
+      });
+      const setupChannel = await interaction.guild.channels.create({
+        name: "✅︱submit-info",
+        parent: category,
+        permissionOverwrites: [
+          {
+            id: interaction.guildId,
+            deny: [PermissionsBitField.Flags.ViewChannel],
+          },
+          {
+            id: client.user.id,
+            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
+          },
         ],
       });
       const winnerChannel = await interaction.guild.channels.create({
