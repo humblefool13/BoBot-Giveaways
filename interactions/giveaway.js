@@ -383,7 +383,7 @@ module.exports = {
           descriptionString += `:link: **Chain**: ${chain}\n\n`;
           descriptionString += `:grey_exclamation: **Type**: ${type}\n\n`;
           descriptionString += `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
-          descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${walletReq}\n\n`;
+          descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${(walletReq) ? "Yes" : "No"}\n\n`;
           if (socialDiscord || socialTwitter) {
             let socialString = "";
             if (socialTwitter) {
@@ -549,7 +549,7 @@ module.exports = {
         descriptionString += `:link: **Chain**: ${chain}\n\n`;
         descriptionString += `:grey_exclamation: **Type**: ${type}\n\n`;
         descriptionString += `:stopwatch: **Ending** : <t:${parseInt(endTimestamp / 1000)}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
-        descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${walletReq}\n\n`;
+        descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${(walletReq) ? "Yes" : "No"}\n\n`;
         if (socialDiscord || socialTwitter) {
           let socialString = "";
           if (socialTwitter) {
