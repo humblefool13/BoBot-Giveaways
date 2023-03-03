@@ -84,15 +84,9 @@ module.exports = {
     try {
       await interaction.deferReply({ ephemeral: true });
       const timezone = interaction.options.getString('server_timezone');
-      const winnerChannel = interaction.options.getChannel('winners_announcement_channel');
-      const winnerChannelId = winnerChannel.id;
       if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageGuild) && interaction.user.id !== interaction.guild?.ownerId) return interaction.editReply({
         embeds: [MakeEmbedDes("This command can only be used by you in a Discord Server where either of the following apply:\n1) You are the Owner of the Discord Server.\n2) You have the **ADMINISTRATOR** permission in the server.\n3) You have the **MANAGE SERVER** permission in the server.")],
         ephemeral: true,
-      });
-      if (winnerChannel.type !== ChannelType.GuildText) return interaction.editReply('The winner channel should be a guild text channel.');
-      const sub = await subs.findOne({
-        server_id: interaction.guildId,
       });
       if (!sub) return interaction.editReply({ embeds: [MakeEmbedDes("This discord server does not has a valid subscription. Please contact at [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to get a subscription/renew an expired subscription.")] });
       const category = await interaction.guild.channels.create({
@@ -136,6 +130,42 @@ module.exports = {
           }
         ],
       });
+      const winnerChannel = await interaction.guild.channels.create({
+        name: "👑︱winners",
+        parent: category,
+        permissionOverwrites: [
+          {
+            id: interaction.guildId,
+            deny: [PermissionsBitField.Flags.ViewChannel],
+          },
+          {
+            id: client.user.id,
+            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
+          },
+          {
+            id: role.id,
+            allow: [PermissionsBitField.Flags.ViewChannel],
+          }
+        ],
+      });
+      const reminderChannel = await interaction.guild.channels.create({
+        name: "⏰︱reminders",
+        parent: category,
+        permissionOverwrites: [
+          {
+            id: interaction.guildId,
+            deny: [PermissionsBitField.Flags.ViewChannel],
+          },
+          {
+            id: client.user.id,
+            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
+          },
+          {
+            id: role.id,
+            allow: [PermissionsBitField.Flags.ViewChannel],
+          }
+        ],
+      });
       await configs.deleteOne({
         server_id: interaction.guildId,
       });
@@ -146,7 +176,8 @@ module.exports = {
         role: role.id,
         server_timezone: timezone,
         submit_channel: outputChannel.id,
-        winners_channel: winnerChannelId,
+        winners_channel: winnerChannel.id,
+        reminders_channel: reminderChannel.id,
       }).save().catch((e) => {
         console.log(e)
       });
