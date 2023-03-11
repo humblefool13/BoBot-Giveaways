@@ -102,6 +102,54 @@ async function idsOfAccounts(accountNames) {
   const ids = data.map((account) => account.id);
   return ids.join("_");
 };
+function toggleButton(customId, message) {
+  const MessageComponent = message.components;
+  const buttonsInRow1 = MessageComponent[0].components;
+  const buttonsInRow2 = MessageComponent[1].components;
+  const customIdsInRow1 = buttonsInRow1.map((button) => button.data.custom_id);
+  const customIdsInRow2 = buttonsInRow2.map((button) => button.data.custom_id);
+  let newComponent = [];
+  if (customIdsInRow1.includes(customId)) {
+    const button = buttonsInRow1.find((button) => customId === button.data.custom_id);
+    const style = button.data.style;
+    const newRow = new ActionRowBuilder();
+    for (let rowButton of buttonsInRow1) {
+      if (rowButton.data.custom_id === customId) {
+        newRow.addComponents(
+          new ButtonBuilder()
+            .setLabel(button.data.label)
+            .setStyle((style === 'Danger' || style === ButtonStyle.Danger) ? ButtonStyle.Success : ButtonStyle.Danger)
+            .setCustomId(button.data.custom_id),
+        );
+      } else {
+        newRow.addComponents(rowButton);
+      };
+    };
+    newComponent.push(newRow);
+    newComponent.push(MessageComponent[1]);
+    newComponent.push(MessageComponent[2]);
+  } else {
+    newComponent.push(MessageComponent[0]);
+    const button = buttonsInRow2.find((button) => customId === button.data.custom_id);
+    const style = button.data.style;
+    const newRow = new ActionRowBuilder();
+    for (let rowButton of buttonsInRow2) {
+      if (rowButton.data.custom_id === customId) {
+        newRow.addComponents(
+          new ButtonBuilder()
+            .setLabel(button.data.label)
+            .setStyle((style === 'Danger' || style === ButtonStyle.Danger) ? ButtonStyle.Success : ButtonStyle.Danger)
+            .setCustomId(button.data.custom_id),
+        );
+      } else {
+        newRow.addComponents(rowButton);
+      };
+    };
+    newComponent.push(newRow);
+    newComponent.push(MessageComponent[2]);
+  };
+  return newComponent;
+};
 
 module.exports = {
   name: "giveaway",
@@ -175,31 +223,9 @@ module.exports = {
       const row2 = new ActionRowBuilder();
       const row3 = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-          .setLabel("\u200B")
-          .setStyle(ButtonStyle.Secondary)
-          .setCustomId("lol1")
-          .setDisabled(true),
-        new ButtonBuilder()
-          .setLabel("\u200B")
-          .setStyle(ButtonStyle.Secondary)
-          .setCustomId("lol2")
-          .setDisabled(true),
-        new ButtonBuilder()
-          .setLabel("\u200B")
-          .setStyle(ButtonStyle.Secondary)
-          .setCustomId("lol3")
-          .setDisabled(true),
-      );
-      const row4 = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
           .setLabel("Skip")
           .setStyle(ButtonStyle.Primary)
           .setCustomId("skip"),
-        new ButtonBuilder()
-          .setLabel("\u200B")
-          .setStyle(ButtonStyle.Secondary)
-          .setCustomId("lol4")
-          .setDisabled(true),
         new ButtonBuilder()
           .setLabel("Done")
           .setStyle(ButtonStyle.Success)
@@ -209,7 +235,16 @@ module.exports = {
       if (!ping && defaultsData?.ping) {
         row1.addComponents(
           new ButtonBuilder()
-            .setLabel("Message Ping")
+            .setLabel("1")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultPing")
+        );
+        rowsIds.push('defaultPing');
+      } else {
+        row1.addComponents(
+          new ButtonBuilder()
+            .setLabel("1")
+            .setDisabled(true)
             .setStyle(ButtonStyle.Danger)
             .setCustomId("defaultPing")
         );
@@ -218,7 +253,16 @@ module.exports = {
       if (!blacklistedRoles && defaultsData?.blacklistedRoles) {
         row1.addComponents(
           new ButtonBuilder()
-            .setLabel("Blacklist Roles")
+            .setLabel("2")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultBL")
+        );
+        rowsIds.push('defaultBL');
+      } else {
+        row1.addComponents(
+          new ButtonBuilder()
+            .setLabel("2")
+            .setDisabled(true)
             .setStyle(ButtonStyle.Danger)
             .setCustomId("defaultBL")
         );
@@ -227,7 +271,16 @@ module.exports = {
       if (!bonus && defaultsData?.bonus) {
         row1.addComponents(
           new ButtonBuilder()
-            .setLabel("Bonus Entries")
+            .setLabel("3")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultBonus")
+        );
+        rowsIds.push('defaultBonus');
+      } else {
+        row1.addComponents(
+          new ButtonBuilder()
+            .setLabel("3")
+            .setDisabled(true)
             .setStyle(ButtonStyle.Danger)
             .setCustomId("defaultBonus")
         );
@@ -236,7 +289,16 @@ module.exports = {
       if (!balReq && defaultsData?.balReq) {
         row2.addComponents(
           new ButtonBuilder()
-            .setLabel("Balance Req.")
+            .setLabel("4")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultBal")
+        );
+        rowsIds.push('defaultBal');
+      } else {
+        row2.addComponents(
+          new ButtonBuilder()
+            .setLabel("4")
+            .setDisabled(true)
             .setStyle(ButtonStyle.Danger)
             .setCustomId("defaultBal")
         );
@@ -245,8 +307,17 @@ module.exports = {
       if (!reqRoles && defaultsData?.reqRoles) {
         row2.addComponents(
           new ButtonBuilder()
-            .setLabel("Roles Req.")
+            .setLabel("5")
             .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultRoles")
+        );
+        rowsIds.push('defaultRoles');
+      } else {
+        row2.addComponents(
+          new ButtonBuilder()
+            .setLabel("5")
+            .setStyle(ButtonStyle.Danger)
+            .setDisabled(true)
             .setCustomId("defaultRoles")
         );
         rowsIds.push('defaultRoles');
@@ -254,7 +325,16 @@ module.exports = {
       if (!winnerRole && defaultsData?.winnerRole) {
         row2.addComponents(
           new ButtonBuilder()
-            .setLabel("Winner Role")
+            .setLabel("6")
+            .setStyle(ButtonStyle.Danger)
+            .setCustomId("defaultWinner")
+        );
+        rowsIds.push('defaultWinner');
+      } else {
+        row2.addComponents(
+          new ButtonBuilder()
+            .setLabel("6")
+            .setDisabled(true)
             .setStyle(ButtonStyle.Danger)
             .setCustomId("defaultWinner")
         );
@@ -269,9 +349,8 @@ module.exports = {
           compArray.push(row2);
         };
         compArray.push(row3);
-        compArray.push(row4);
         const sent = await interaction.editReply({
-          content: `Would you like to apply any default settings?\nYou have 2 minutes.`,
+          embeds: [MakeEmbedDes(`Would you like to apply any of the default settings?\nYou have 2 minutes to choose.\n\n1) Default Message Ping\n2) Default Blacklisted Roles\n3) Default Bonus Entries\n4) Default Ethereum Balance Requirement\n5) Default Required Roles\n6) Default Winner Role\n\nSome options might be disabled because the default fields were not saved for them.`)],
           components: compArray,
           fetchReply: true
         });
@@ -288,38 +367,58 @@ module.exports = {
             });
             return collector.stop();
           };
+          const newMessageComponent = toggleButton(i.customId, i.message);
           if (doneFields.includes(i.customId)) {
-            return interaction.followUp({
-              ephemeral: true,
-              content: "You have already chosen this."
-            });
+            const index = doneFields.indexOf(i.customId);
+            doneFields.splice(index, 1);
+          } else {
+            if (i.customId === 'defaultPing') {
+              doneFields.push(i.customId);
+            };
+            if (i.customId === 'defaultBL') {
+              doneFields.push(i.customId);
+            };
+            if (i.customId === 'defaultBonus') {
+              doneFields.push(i.customId);
+            };
+            if (i.customId === 'defaultBal') {
+              doneFields.push(i.customId);
+            };
+            if (i.customId === 'defaultRoles') {
+              doneFields.push(i.customId);
+            };
+            if (i.customId === 'defaultWinner') {
+              doneFields.push(i.customId);
+            };
           };
-          if (i.customId === 'defaultPing') {
-            ping = defaultsData.ping;
-            doneFields.push(i.customId);
-          };
-          if (i.customId === 'defaultBL') {
-            blacklistedRoles = defaultsData.blacklistedRoles;
-            doneFields.push(i.customId);
-          };
-          if (i.customId === 'defaultBonus') {
-            bonus = defaultsData.bonus;
-            doneFields.push(i.customId);
-          };
-          if (i.customId === 'defaultBal') {
-            balReq = defaultsData.balReq;
-            doneFields.push(i.customId);
-          };
-          if (i.customId === 'defaultRoles') {
-            reqRoles = defaultsData.reqRoles;
-            doneFields.push(i.customId);
-          };
-          if (i.customId === 'defaultWinner') {
-            winnerRole = defaultsData.winnerRole;
-            doneFields.push(i.customId);
-          };
+          await i.editReply({
+            embeds: [MakeEmbedDes(`Would you like to apply any of the default settings?\nYou have 2 minutes to choose.\n\n1) Default Message Ping\n2) Default Blacklisted Roles\n3) Default Bonus Entries\n4) Default Ethereum Balance Requirement\n5) Default Required Roles\n6) Default Winner Role\n\nSome options might be disabled because the default fields were not saved for them.`)],
+            components: newMessageComponent,
+          });
         });
         collector.on('end', async () => {
+          for (let choseOption of doneFields) {
+            switch (choseOption) {
+              case "defaultPing":
+                ping = defaultsData.ping;
+                break;
+              case "defaultBL":
+                blacklistedRoles = defaultsData.blacklistedRoles;
+                break;
+              case "defaultBonus":
+                bonus = defaultsData.bonus;
+                break;
+              case "defaultBal":
+                balReq = defaultsData.balReq;
+                break;
+              case "defaultRoles":
+                reqRoles = defaultsData.reqRoles;
+                break;
+              case "defaultWinner":
+                winnerRole = defaultsData.winnerRole;
+                break;
+            };
+          };
           if (blacklistedRoles) {
             let roles = 0;
             for (i = 0; i < blacklistedRoles.length; i++) {
