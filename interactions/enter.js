@@ -531,9 +531,9 @@ module.exports = {
       });
       let replycontent;
       if (bonusApplicable.length) {
-        replycontent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\n${bonusApplicable}\nGoodluck! :slight_smile:`;
+        replycontent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries:\n${bonusApplicable}\nGood luck! :slight_smile:`;
       } else {
-        replycontent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries!\nGoodluck! :slight_smile:`;
+        replycontent = `You have successfully entered this giveaway!\nYou have a total of ${userEntries} entry/entries!\nGood luck! :slight_smile:`;
       };
       return interaction.editReply({
         embeds: [MakeEmbedDes(replycontent)],
