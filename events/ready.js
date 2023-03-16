@@ -172,7 +172,7 @@ function parseTimestamp(mintTime, timezone) {
   const year = '2023';
   const month = getMonthNumberFromName(params[1]);
   const time = params[2] + ":00";
-  let timestampString = `${date}/${month}/${year} ${time}`;
+  let timestampString = `${month}/${date}/${year} ${time}`;
   if (timezone === 'utc') {
     const dateOfIt = new Date(timestampString);
     const timestamp = dateOfIt.getTime();
