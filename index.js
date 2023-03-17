@@ -1,23 +1,25 @@
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const express = require("express");
-const fetch = require("node-fetch");
-require("dotenv").config();
-const CryptoJS = require("crypto-js");
+const express = require('express');
+const fetch = require('node-fetch');
+require('dotenv').config();
+const CryptoJS = require('crypto-js');
 
 function encrypt(message) {
   const cipherCode = CryptoJS.AES.encrypt(message, process.env['secretPhrase']);
   return cipherCode.toString();
-};
+}
 function decrypt(encryptedString) {
-  const cipherText = CryptoJS.AES.decrypt(encryptedString, process.env['secretPhrase']);
+  const cipherText = CryptoJS.AES.decrypt(
+    encryptedString,
+    process.env['secretPhrase']
+  );
   const plainText = cipherText.toString(CryptoJS.enc.Utf8);
   return plainText;
-};
+}
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
 });
-
 
 client.interactions = new Collection();
 
@@ -26,15 +28,15 @@ require('./handlers/interactions')(client);
 
 require('./databases/rafflesDB')();
 
-process.on("unhandledRejection", (reason, p) => {
+process.on('unhandledRejection', (reason, p) => {
   console.log('[ ANTICRASH ] :: Unhandled Rejection / Catch');
   console.log(reason?.stack, p);
 });
-process.on("uncaughtException", (err, origin) => {
+process.on('uncaughtException', (err, origin) => {
   console.log('[ ANTICRASH ] :: Uncaught Exception / Catch');
   console.log(err?.stack, origin);
 });
-process.on("uncaughtExceptionMonitor", (err, origin) => {
+process.on('uncaughtExceptionMonitor', (err, origin) => {
   console.log('[ ANTICRASH ] :: Uncaught Exception / Catch { MONITOR }');
   console.log(err?.stack, origin);
 });
@@ -44,7 +46,7 @@ const app = express();
 app.set('view engine', 'ejs');
 app.use(express.static('views'));
 app.use(express.urlencoded({ extended: true }));
-app.use(require("body-parser").json());
+app.use(require('body-parser').json());
 app.get('/discord', (req, res) => {
   res.render('discord');
 });
@@ -54,46 +56,55 @@ app.get('/twitter', (req, res) => {
 app.post('/post', async (req, res) => {
   const discordCode = req.body.discordCode;
   const twitterCode = req.body.twitterCode;
-  const responseTwitter = await fetch(`https://api.twitter.com/2/oauth2/token?code=${twitterCode}&grant_type=authorization_code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=http://37.59.71.137:3000/twitter&code_verifier=challenge`, {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      'Authorization': `Basic ${(process.env["auth_token"]).replaceAll(`"`, "")}`,
-    },
-    method: "POST"
-  });
+  const responseTwitter = await fetch(
+    `https://api.twitter.com/2/oauth2/token?code=${twitterCode}&grant_type=authorization_code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=http://37.59.71.137:3000/twitter&code_verifier=challenge`,
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${process.env['auth_token'].replaceAll(`"`, '')}`,
+      },
+      method: 'POST',
+    }
+  );
   const resultTwitter = await responseTwitter.json();
   const data = new URLSearchParams({
     client_id: '1001909973938348042',
     client_secret: process.env['client_discord_secret'],
-    grant_type: "authorization_code",
+    grant_type: 'authorization_code',
     code: discordCode,
-    redirect_uri: 'http://37.59.71.137:3000/discord'
+    redirect_uri: 'http://37.59.71.137:3000/discord',
   });
   const responseDiscord = await fetch(`https://discord.com/api/oauth2/token`, {
-    method: "POST",
+    method: 'POST',
     body: data.toString(),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-    }
+    },
   });
   const resultDiscord = await responseDiscord.json();
   const discordAccessToken = resultDiscord.access_token;
   const twitterAccessToken = resultTwitter.access_token;
   const discordRefreshToken = resultDiscord.refresh_token;
   const twitterRefreshToken = resultTwitter.refresh_token;
-  const twitterUserInfoResponse = await fetch('https://api.twitter.com/2/users/me', {
-    headers: {
-      'Authorization': `Bearer ${twitterAccessToken}`
-    },
-  });
+  const twitterUserInfoResponse = await fetch(
+    'https://api.twitter.com/2/users/me',
+    {
+      headers: {
+        Authorization: `Bearer ${twitterAccessToken}`,
+      },
+    }
+  );
   const twitterUserInfoResult = await twitterUserInfoResponse.json();
   const twitterId = twitterUserInfoResult.data.id;
   const twitterUsername = twitterUserInfoResult.data.username;
-  const discordUserInfoResponse = await fetch('https://discord.com/api/users/@me', {
-    headers: {
-      'Authorization': `Bearer ${discordAccessToken}`
-    },
-  });
+  const discordUserInfoResponse = await fetch(
+    'https://discord.com/api/users/@me',
+    {
+      headers: {
+        Authorization: `Bearer ${discordAccessToken}`,
+      },
+    }
+  );
   const discordUserInfoResult = await discordUserInfoResponse.json();
   const discordId = discordUserInfoResult.id;
   const discordUsername = discordUserInfoResult.username;
@@ -105,35 +116,40 @@ app.post('/post', async (req, res) => {
     await new twitter_db({
       twitter_id: twitterId,
       discord_id: discordId,
-      twitter_username: "@" + twitterUsername,
-      discord_username: discordUsername + "#" + discordDiscriminator,
+      twitter_username: '@' + twitterUsername,
+      discord_username: discordUsername + '#' + discordDiscriminator,
       access_token_twitter: encrypt(twitterAccessToken),
       access_token_discord: encrypt(discordAccessToken),
       refresh_token_discord: encrypt(discordRefreshToken),
       refresh_token_twitter: encrypt(twitterRefreshToken),
-    }).save().catch(e => console.log(e));
+    })
+      .save()
+      .catch((e) => console.log(e));
   } else {
-    await twitter_db.deleteOne({
-      twitter_id: twitterId,
-    }).then(async () => {
-      await new twitter_db({
+    await twitter_db
+      .deleteOne({
         twitter_id: twitterId,
-        discord_id: discordId,
-        twitter_username: "@" + twitterUsername,
-        discord_username: discordUsername + "#" + discordDiscriminator,
-        access_token_twitter: encrypt(twitterAccessToken),
-        access_token_discord: encrypt(discordAccessToken),
-        refresh_token_discord: encrypt(discordRefreshToken),
-        refresh_token_twitter: encrypt(twitterRefreshToken),
-      }).save().catch(e => console.log(e));
-    });
-  };
+      })
+      .then(async () => {
+        await new twitter_db({
+          twitter_id: twitterId,
+          discord_id: discordId,
+          twitter_username: '@' + twitterUsername,
+          discord_username: discordUsername + '#' + discordDiscriminator,
+          access_token_twitter: encrypt(twitterAccessToken),
+          access_token_discord: encrypt(discordAccessToken),
+          refresh_token_discord: encrypt(discordRefreshToken),
+          refresh_token_twitter: encrypt(twitterRefreshToken),
+        })
+          .save()
+          .catch((e) => console.log(e));
+      });
+  }
   res.sendStatus(200);
 });
 app.get('/style.css', function (req, res) {
-  res.sendFile("/home/bo/projects/BoBot-Giveaways/views/style.css");
+  res.sendFile('/home/bo/projects/BoBot-Giveaways/views/style.css');
 });
-app.listen(3000, () => { });
-
+app.listen(3000, () => {});
 
 client.login(process.env['bot_token']);

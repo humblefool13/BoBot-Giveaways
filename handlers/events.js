@@ -5,7 +5,9 @@ table.setHeading('Events', 'Load status');
 module.exports = async (client) => {
   let theevents;
   fs.readdirSync('./events/').forEach((file) => {
-    theevents = fs.readdirSync(`./events/`).filter((file) => file.endsWith('.js'));
+    theevents = fs
+      .readdirSync(`./events/`)
+      .filter((file) => file.endsWith('.js'));
     fs.readdir('./events/', (err, files) => {
       if (err) return console.error(err);
       const event = require(`../events/${file}`);

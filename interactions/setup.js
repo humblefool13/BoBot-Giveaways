@@ -1,108 +1,136 @@
-const subs = require("../models/subscriptions.js");
-const configs = require("../models/configurations.js");
+const subs = require('../models/subscriptions.js');
+const configs = require('../models/configurations.js');
 const wait = require('node:timers/promises').setTimeout;
-const { ChannelType, PermissionsBitField, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
+const {
+  ChannelType,
+  PermissionsBitField,
+  EmbedBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowBuilder,
+} = require('discord.js');
 
 function makeEmbed(name, guild_icon, guild_id) {
   const embed = new EmbedBuilder()
-    .setTitle("Account Configuration")
-    .setDescription(`Hello there! :wave:\n\n<a:hexstar:1002639618409250836> __**${name}**__ uses ST6's Giveaway Bot for most advanced giveaways and post giveaways operations.\n<a:hexstar:1002639618409250836> Everytime you win a giveaway, your wallet address is instantly and automatically submitted.\n\nTo faciliate above please submit your wallet using the **Submit** button below!\n\nPlease make sure you enter the wallet address you want to be submitted to projects for the WLs you win.\n\n**[ :warning: Burner wallet highly recommended :warning: ]**`)
-    .setColor("#35FF6E");
-  if (guild_icon.startsWith("a_") && guild_icon !== "N") {
-    embed.setThumbnail(`https://cdn.discordapp.com/icons/${guild_id}/${guild_icon}.gif`);
-  } else if (!guild_icon.startsWith("a_") && guild_icon !== "N") {
-    embed.setThumbnail(`https://cdn.discordapp.com/icons/${guild_id}/${guild_icon}.png`);
-  };
+    .setTitle('Account Configuration')
+    .setDescription(
+      `Hello there! :wave:\n\n<a:hexstar:1002639618409250836> __**${name}**__ uses ST6's Giveaway Bot for most advanced giveaways and post giveaways operations.\n<a:hexstar:1002639618409250836> Everytime you win a giveaway, your wallet address is instantly and automatically submitted.\n\nTo faciliate above please submit your wallet using the **Submit** button below!\n\nPlease make sure you enter the wallet address you want to be submitted to projects for the WLs you win.\n\n**[ :warning: Burner wallet highly recommended :warning: ]**`
+    )
+    .setColor('#35FF6E');
+  if (guild_icon.startsWith('a_') && guild_icon !== 'N') {
+    embed.setThumbnail(
+      `https://cdn.discordapp.com/icons/${guild_id}/${guild_icon}.gif`
+    );
+  } else if (!guild_icon.startsWith('a_') && guild_icon !== 'N') {
+    embed.setThumbnail(
+      `https://cdn.discordapp.com/icons/${guild_id}/${guild_icon}.png`
+    );
+  }
   return embed;
-};
-const row1 = new ActionRowBuilder()
-  .addComponents(
-    new ButtonBuilder()
-      .setLabel("Wallets:")
-      .setCustomId("disabledLOL")
-      .setStyle(ButtonStyle.Primary)
-      .setDisabled(true)
-      .setEmoji("📝"),
-    new ButtonBuilder()
-      .setLabel("Ethereum")
-      .setCustomId("ethereumWallet")
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji("997764237025890318"),
-    new ButtonBuilder()
-      .setLabel("Solana")
-      .setCustomId("solanaWallet")
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji("1026406242370990102"),
-    new ButtonBuilder()
-      .setLabel("Aptos")
-      .setCustomId("aptosWallet")
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji("1077708380703051797"),
-    new ButtonBuilder()
-      .setLabel("MultiversX")
-      .setCustomId("multiversxWallet")
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji("1077709867889995846")
-  );
-const row2 = new ActionRowBuilder()
-  .addComponents(
-    new ButtonBuilder()
-      .setLabel("Connections:")
-      .setCustomId("disabledLOL2")
-      .setStyle(ButtonStyle.Primary)
-      .setDisabled(true)
-      .setEmoji("🔗"),
-    new ButtonBuilder()
-      .setLabel("Authorize Discord & Twitter")
-      .setCustomId("authorizeConnections")
-      .setStyle(ButtonStyle.Success)
-      .setEmoji("☑️"),
-    new ButtonBuilder()
-      .setLabel("Revoke Discord & Twitter")
-      .setCustomId("revokeConnections")
-      .setStyle(ButtonStyle.Danger)
-      .setEmoji("❎"),
-  );
-const row3 = new ActionRowBuilder()
-  .addComponents(
-    new ButtonBuilder()
-      .setLabel("Check Saved Info")
-      .setCustomId("check")
-      .setStyle(ButtonStyle.Primary)
-      .setEmoji("🔎")
-  );
+}
+const row1 = new ActionRowBuilder().addComponents(
+  new ButtonBuilder()
+    .setLabel('Wallets:')
+    .setCustomId('disabledLOL')
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(true)
+    .setEmoji('📝'),
+  new ButtonBuilder()
+    .setLabel('Ethereum')
+    .setCustomId('ethereumWallet')
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji('997764237025890318'),
+  new ButtonBuilder()
+    .setLabel('Solana')
+    .setCustomId('solanaWallet')
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji('1026406242370990102'),
+  new ButtonBuilder()
+    .setLabel('Aptos')
+    .setCustomId('aptosWallet')
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji('1077708380703051797'),
+  new ButtonBuilder()
+    .setLabel('MultiversX')
+    .setCustomId('multiversxWallet')
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji('1077709867889995846')
+);
+const row2 = new ActionRowBuilder().addComponents(
+  new ButtonBuilder()
+    .setLabel('Connections:')
+    .setCustomId('disabledLOL2')
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(true)
+    .setEmoji('🔗'),
+  new ButtonBuilder()
+    .setLabel('Authorize Discord & Twitter')
+    .setCustomId('authorizeConnections')
+    .setStyle(ButtonStyle.Success)
+    .setEmoji('☑️'),
+  new ButtonBuilder()
+    .setLabel('Revoke Discord & Twitter')
+    .setCustomId('revokeConnections')
+    .setStyle(ButtonStyle.Danger)
+    .setEmoji('❎')
+);
+const row3 = new ActionRowBuilder().addComponents(
+  new ButtonBuilder()
+    .setLabel('Check Saved Info')
+    .setCustomId('check')
+    .setStyle(ButtonStyle.Primary)
+    .setEmoji('🔎')
+);
 function MakeEmbedDes(des) {
-  const embed = new EmbedBuilder()
-    .setColor("#35FF6E")
-    .setDescription(des);
+  const embed = new EmbedBuilder().setColor('#35FF6E').setDescription(des);
   return embed;
-};
+}
 
 module.exports = {
-  name: "setup",
+  name: 'setup',
   async interact(client, interaction) {
     try {
       await interaction.deferReply({ ephemeral: true });
       const timezone = interaction.options.getString('server_timezone');
-      if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageGuild) && interaction.user.id !== interaction.guild?.ownerId) return interaction.editReply({
-        embeds: [MakeEmbedDes("This command can only be used by you in a Discord Server where either of the following apply:\n1) You are the Owner of the Discord Server.\n2) You have the **ADMINISTRATOR** permission in the server.\n3) You have the **MANAGE SERVER** permission in the server.")],
-        ephemeral: true,
-      });
+      if (
+        !interaction.memberPermissions?.has(
+          PermissionsBitField.Flags.Administrator
+        ) &&
+        !interaction.memberPermissions?.has(
+          PermissionsBitField.Flags.ManageGuild
+        ) &&
+        interaction.user.id !== interaction.guild?.ownerId
+      )
+        return interaction.editReply({
+          embeds: [
+            MakeEmbedDes(
+              'This command can only be used by you in a Discord Server where either of the following apply:\n1) You are the Owner of the Discord Server.\n2) You have the **ADMINISTRATOR** permission in the server.\n3) You have the **MANAGE SERVER** permission in the server.'
+            ),
+          ],
+          ephemeral: true,
+        });
       const sub = subs.findOne({
         server_id: interaction.guildId,
       });
-      if (!sub) return interaction.editReply({ embeds: [MakeEmbedDes("This discord server does not has a valid subscription. Please contact at [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to get a subscription/renew an expired subscription.")] });
+      if (!sub)
+        return interaction.editReply({
+          embeds: [
+            MakeEmbedDes(
+              'This discord server does not has a valid subscription. Please contact at [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to get a subscription/renew an expired subscription.'
+            ),
+          ],
+        });
       const category = await interaction.guild.channels.create({
-        name: "ST6 GIVEAWAYS",
+        name: 'ST6 GIVEAWAYS',
         type: ChannelType.GuildCategory,
       });
       const role = await interaction.guild.roles.create({
-        name: "Giveaway Manager",
-        color: "#8A45FF",
-        reason: "The role for Giveaway Manager.",
+        name: 'Giveaway Manager',
+        color: '#8A45FF',
+        reason: 'The role for Giveaway Manager.',
       });
       const outputChannel = await interaction.guild.channels.create({
-        name: "🔐︱giveaway-managers",
+        name: '🔐︱giveaway-managers',
         parent: category,
         permissionOverwrites: [
           {
@@ -111,16 +139,20 @@ module.exports = {
           },
           {
             id: client.user.id,
-            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
+            allow: [
+              PermissionsBitField.Flags.ViewChannel,
+              PermissionsBitField.Flags.SendMessages,
+              PermissionsBitField.Flags.AttachFiles,
+            ],
           },
           {
             id: role.id,
             allow: [PermissionsBitField.Flags.ViewChannel],
-          }
+          },
         ],
       });
       const setupChannel = await interaction.guild.channels.create({
-        name: "✅︱submit-info",
+        name: '✅︱submit-info',
         parent: category,
         permissionOverwrites: [
           {
@@ -129,12 +161,16 @@ module.exports = {
           },
           {
             id: client.user.id,
-            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
+            allow: [
+              PermissionsBitField.Flags.ViewChannel,
+              PermissionsBitField.Flags.SendMessages,
+              PermissionsBitField.Flags.AttachFiles,
+            ],
           },
         ],
       });
       const giveawaysChannel = await interaction.guild.channels.create({
-        name: "🎉︱giveaways",
+        name: '🎉︱giveaways',
         parent: category,
         permissionOverwrites: [
           {
@@ -143,16 +179,20 @@ module.exports = {
           },
           {
             id: client.user.id,
-            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
+            allow: [
+              PermissionsBitField.Flags.ViewChannel,
+              PermissionsBitField.Flags.SendMessages,
+              PermissionsBitField.Flags.AttachFiles,
+            ],
           },
           {
             id: role.id,
             allow: [PermissionsBitField.Flags.ViewChannel],
-          }
+          },
         ],
       });
       const winnerChannel = await interaction.guild.channels.create({
-        name: "👑︱winners",
+        name: '👑︱winners',
         parent: category,
         permissionOverwrites: [
           {
@@ -161,16 +201,20 @@ module.exports = {
           },
           {
             id: client.user.id,
-            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
+            allow: [
+              PermissionsBitField.Flags.ViewChannel,
+              PermissionsBitField.Flags.SendMessages,
+              PermissionsBitField.Flags.AttachFiles,
+            ],
           },
           {
             id: role.id,
             allow: [PermissionsBitField.Flags.ViewChannel],
-          }
+          },
         ],
       });
       const reminderChannel = await interaction.guild.channels.create({
-        name: "⏰︱reminders",
+        name: '⏰︱reminders',
         parent: category,
         permissionOverwrites: [
           {
@@ -179,12 +223,16 @@ module.exports = {
           },
           {
             id: client.user.id,
-            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles]
+            allow: [
+              PermissionsBitField.Flags.ViewChannel,
+              PermissionsBitField.Flags.SendMessages,
+              PermissionsBitField.Flags.AttachFiles,
+            ],
           },
           {
             id: role.id,
             allow: [PermissionsBitField.Flags.ViewChannel],
-          }
+          },
         ],
       });
       await configs.deleteOne({
@@ -200,16 +248,24 @@ module.exports = {
         winners_channel: winnerChannel.id,
         reminders_channel: reminderChannel.id,
         giveaways_channel: giveawaysChannel.id,
-      }).save().catch((e) => {
-        console.log(e)
-      });
-      const embed = makeEmbed(interaction.guild.name, interaction.guild.icon ? interaction.guild.icon : "N", interaction.guildId);
+      })
+        .save()
+        .catch((e) => {
+          console.log(e);
+        });
+      const embed = makeEmbed(
+        interaction.guild.name,
+        interaction.guild.icon ? interaction.guild.icon : 'N',
+        interaction.guildId
+      );
       await setupChannel.send({
         embeds: [embed],
         components: [row1, row2, row3],
       });
       let des = `:ledger: Please read the following instructions:\n\n1) I have made a role <@&${role.id}> who will be able to use management commands. Giving the role to anyone will allow them to start giveaways and add/edit/remove number of entries for roles. Please head to server settings and put the role on high hierarchy position for safety. You can rename the role or change color but if the role gets deleted you will have to \`/setup\` again.\n\n2) I have made 2 channels:\n:white_small_square: <#${setupChannel.id}>:\nThis channel will be used by people to submit the wallets and view the wallet submitted. Please change the permission of channel and allow the required role to "View Channel".\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel you will receive the file/link with winners' details every time a giveaway ends. Always make sure I have permission to "View Channel", "Send Messages" and "Attach Files". Keep this channel private, the giveaway manager role I created can see the channel by default while others cannot.\nFeel free to rename the channels or move them to another location/category but if gets deleted you will have to \`/setup\` again.\n\n3) Once your subscription ends, I will keep all configurations and wallets saved for 7 days. If you renew within 7 days, eveything will be smooth and keep working fine with old channels/roles/wallets and no data will be lost. But if the subscription is not renewed within 7 days, I will erase all data **permanently**, after which if you decide to use the bot, the users will have to submit wallets again and you will have to \`/setup\` again.`;
-      await interaction.editReply(":ledger: Please read the following instructions:");
+      await interaction.editReply(
+        ':ledger: Please read the following instructions:'
+      );
       await wait(2000);
       await interaction.followUp({
         content: `1) I have made a role <@&${role.id}> who will be able to use management commands. Giving the role to anyone will allow them to start giveaways and add/edit/remove number of entries for roles. Please head to server settings and put the role on high hierarchy position for safety. You can rename the role or change color but if the role gets deleted you will have to \`/setup\` again.`,
@@ -235,20 +291,24 @@ module.exports = {
       console.log(e);
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
-          content: "I am facing some trouble, the dev has been informed. Please try again in some hours.",
+          content:
+            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
           embeds: [],
           components: [],
           ephemeral: true,
         });
       } else {
         await interaction.reply({
-          content: "I am facing some trouble, the dev has been informed. Please try again in some hours.",
+          content:
+            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
           embeds: [],
           components: [],
           ephemeral: true,
         });
-      };
-      client.users.cache.get("727498137232736306").send(`${client.user.username} has trouble in setup.js -\n\n${e}`);
-    };
-  }
+      }
+      client.users.cache
+        .get('727498137232736306')
+        .send(`${client.user.username} has trouble in setup.js -\n\n${e}`);
+    }
+  },
 };

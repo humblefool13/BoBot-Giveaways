@@ -11,6 +11,7 @@
     "discord.js": "^14.0.3",
     "dotenv": "^16.0.1",
     "ejs": "^3.1.8",
+    "eslint": "^8.36.0",
     "ethers": "^5.7.2",
     "exceljs": "^4.3.0",
     "express": "^4.18.2",
@@ -21,6 +22,7 @@
     "oauth": "^0.10.0",
     "pastecord": "^3.0.1",
     "path": "^0.12.7",
+    "prettier": "^2.8.4",
     "twitter-api-sdk": "^1.2.1",
     "twitter-v1-oauth": "^1.0.15",
     "ws": "^8.8.0",
@@ -31,7 +33,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "prettier": "prettier --check .",
+    "lint": "npm run prettier && eslint --fix"
   },
   "author": "",
   "license": "ISC",
@@ -43,5 +47,8 @@
     "url": "https://github.com/humblefool13/BoBot-Giveaways/issues"
   },
   "homepage": "https://github.com/humblefool13/BoBot-Giveaways#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "eslint-config-prettier": "^8.7.0"
+  }
 }
