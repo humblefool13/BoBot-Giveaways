@@ -169,6 +169,19 @@ function toggleButton(customId, message) {
   }
   return newComponent;
 }
+function getTwitterUsernames(linksOfAccounts) {
+  let usernames = [];
+  const accounts = linksOfAccounts.replaceAll(' ', '').split(',');
+  accounts.forEach((accountLink) => {
+    usernames.push(extractTwitterHandle(accountLink));
+  });
+  return usernames.join(',');
+}
+function extractTwitterHandle(url) {
+  if (!url) return null;
+  const match = url.match(/^https?:\/\/(www\.)?twitter.com\/@?(?<handle>\w+)/);
+  return match?.groups?.handle ? `@${match.groups.handle}` : null;
+}
 
 module.exports = {
   name: 'giveaway',
@@ -221,9 +234,10 @@ module.exports = {
       let reqRoles = interaction.options.getString('roles-req');
       let winnerRole = interaction.options.getRole('winner-role-add');
       const picture = interaction.options.getAttachment('attach-picture');
-      const followReq = interaction.options.getString('follow-twit-req');
-      const likeReq = interaction.options.getString('like-twit-req');
-      const rtReq = interaction.options.getString('rt-twit-req');
+      const followReqLinks = interaction.options.getString('follow-twit-req');
+      const followReq = getTwitterUsernames(followReqLinks);
+      const likeReq = interaction.options.getString('like-rt-twit-req');
+      const rtReq = likeReq;
       const guildMemberReq =
         interaction.options.getString('discord-member-req');
       const chain = interaction.options.getString('blockchain');
@@ -240,10 +254,11 @@ module.exports = {
             'The balance requirement is only supported for Ethereum blockchain.',
         });
       }
-      let guildId;
+      let guildId, guildName;
       if (guildMemberReq) {
         const invite = await client.fetchInvite(guildMemberReq);
         guildId = invite.guild.id;
+        guildName = invite.guild.name;
         if (invite.expiresTimestamp <= endTimestamp) {
           return interaction.editReply(
             'The required discord server invite link expires before giveaway ends. Please get a new link that is valid atleast till giveaway end time.'
@@ -527,10 +542,19 @@ module.exports = {
           let followRequirement;
           if (followReq) followRequirement = processFollow(followReq);
           let descriptionString = '';
-          descriptionString += `:trophy: **Prize Name** : ${prize}\n\n`;
+          descriptionString += `:trophy: **Prize Name**: ${prize}\n\n`;
           if (description) {
             descriptionString += description + '\n\n';
           }
+          descriptionString += `:crown: **Winners**: ${winners}\n\n`;
+          descriptionString += `:link: **Chain**: ${chain}\n\n`;
+          descriptionString += `:grey_exclamation: **Type**: ${type}\n\n`;
+          descriptionString += `:stopwatch: **Ending**: <t:${parseInt(
+            endTimestamp / 1000
+          )}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
+          descriptionString += `<:wallet:1030387510372741150> **Wallet Required**: ${
+            walletReq ? 'Yes' : 'No'
+          }\n\n`;
           if (socialDiscord || socialTwitter) {
             let socialString = '';
             if (socialTwitter) {
@@ -541,15 +565,6 @@ module.exports = {
             }
             descriptionString += `:handshake: **Socials**: ${socialString}\n\n`;
           }
-          descriptionString += `:crown: **Winners** : ${winners}\n\n`;
-          descriptionString += `:link: **Chain**: ${chain}\n\n`;
-          descriptionString += `:grey_exclamation: **Type**: ${type}\n\n`;
-          descriptionString += `:stopwatch: **Ending** : <t:${parseInt(
-            endTimestamp / 1000
-          )}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
-          descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${
-            walletReq ? 'Yes' : 'No'
-          }\n\n`;
           if (pubPrice || privPrice) {
             let mintPriceString = '';
             if (pubPrice) {
@@ -563,7 +578,7 @@ module.exports = {
             descriptionString += `:dollar: **Mint Price**:\n${mintPriceString}\n\n`;
           }
           if (balReq)
-            descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required** : ${balReq} Ξ\n\n`;
+            descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required**: ${balReq} Ξ\n\n`;
           if (winnerRole) {
             const roleFromId = interaction.guild.roles.cache.get(winnerRole);
             const position = botRole.comparePositionTo(roleFromId);
@@ -572,25 +587,25 @@ module.exports = {
                 'My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.'
               );
             }
-            descriptionString += `:military_medal: **Role Awarded to Winners** : <@&${winnerRole}>\n\n`;
+            descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole}>\n\n`;
           }
           if (reqRoles) {
             let reqroles = parseRoles(reqRoles);
             reqroles = reqroles.join('>, <@&');
             reqroles = `<@&${reqroles}>`;
-            descriptionString += `:lock: **Must have any of these roles** :\n${reqroles}\n\n`;
+            descriptionString += `:lock: **Must have any of these roles**:\n${reqroles}\n\n`;
           }
           if (blacklistedRoles) {
             let blacklist = parseRoles(blacklistedRoles);
             blacklist = blacklist.join('>, <@&');
             blacklist = `<@&${blacklist}>`;
-            descriptionString += `:x: **Must __*not*__ have any of these roles** :\n${blacklist}\n\n`;
+            descriptionString += `:x: **Must __*not*__ have any of these roles**:\n${blacklist}\n\n`;
           }
           if (bonus) {
             let entries = getEntries(bonus);
             descriptionString =
               descriptionString +
-              ':busts_in_silhouette: **Multiple Entries** :\n';
+              ':busts_in_silhouette: **Multiple Entries**:\n';
             entries.forEach((roleArray) => {
               descriptionString =
                 descriptionString +
@@ -599,16 +614,13 @@ module.exports = {
             descriptionString = descriptionString + '\n';
           }
           if (followReq) {
-            descriptionString += `:small_red_triangle: **Must follow these account(s)** : ${followRequirement}\n\n`;
+            descriptionString += `:small_red_triangle: **Must follow these Twitter account(s)**: ${followRequirement}\n\n`;
           }
           if (likeReq) {
-            descriptionString += `:heart: **Must like this tweet** : \n${likeReq}\n\n`;
-          }
-          if (rtReq) {
-            descriptionString += `:arrows_clockwise: **Must retweet this tweet** : \n${rtReq}\n\n`;
+            descriptionString += `:heart: **Must like & retweet this tweet**: \n${likeReq}\n\n`;
           }
           if (guildMemberReq) {
-            descriptionString += `:point_right: **Must join this server** : \n${guildMemberReq}\n\n`;
+            descriptionString += `:point_right: **Must join this Discord server**: \n${guildName} <:arrowright:1087813999137149019> ${guildMemberReq}\n\n`;
           }
           const embed = new EmbedBuilder()
             .setTitle('Active Giveaway')
@@ -742,10 +754,19 @@ module.exports = {
         let followRequirement;
         if (followReq) followRequirement = processFollow(followReq);
         let descriptionString = '';
-        descriptionString += `:trophy: **Prize Name** : \`${prize}\`\n\n`;
+        descriptionString += `:trophy: **Prize Name**: \`${prize}\`\n\n`;
         if (description) {
           descriptionString += description + '\n\n';
         }
+        descriptionString += `:crown: **Winners**: ${winners}\n\n`;
+        descriptionString += `:link: **Chain**: ${chain}\n\n`;
+        descriptionString += `:grey_exclamation: **Type**: ${type}\n\n`;
+        descriptionString += `:stopwatch: **Ending**: <t:${parseInt(
+          endTimestamp / 1000
+        )}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
+        descriptionString += `<:wallet:1030387510372741150> **Wallet Required**: ${
+          walletReq ? 'Yes' : 'No'
+        }\n\n`;
         if (socialDiscord || socialTwitter) {
           let socialString = '';
           if (socialTwitter) {
@@ -756,15 +777,6 @@ module.exports = {
           }
           descriptionString += `:handshake: **Socials**: ${socialString}\n\n`;
         }
-        descriptionString += `:crown: **Winners** : ${winners}\n\n`;
-        descriptionString += `:link: **Chain**: ${chain}\n\n`;
-        descriptionString += `:grey_exclamation: **Type**: ${type}\n\n`;
-        descriptionString += `:stopwatch: **Ending** : <t:${parseInt(
-          endTimestamp / 1000
-        )}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
-        descriptionString += `<:wallet:1030387510372741150> **Wallet Required** : ${
-          walletReq ? 'Yes' : 'No'
-        }\n\n`;
         if (pubPrice || privPrice) {
           let mintPriceString = '';
           if (pubPrice) {
@@ -778,7 +790,7 @@ module.exports = {
           descriptionString += `:dollar: **Mint Price**:\n${mintPriceString}\n\n`;
         }
         if (balReq)
-          descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required** : ${balReq} Ξ\n\n`;
+          descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required**: ${balReq} Ξ\n\n`;
         if (winnerRole) {
           const position = botRole.comparePositionTo(winnerRole);
           if (position < 0) {
@@ -786,25 +798,24 @@ module.exports = {
               'My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.'
             );
           }
-          descriptionString += `:military_medal: **Role Awarded to Winners** : <@&${winnerRole}>\n\n`;
+          descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole}>\n\n`;
         }
         if (reqRoles) {
           let reqroles = parseRoles(reqRoles);
           reqroles = reqroles.join('>, <@&');
           reqroles = `<@&${reqroles}>`;
-          descriptionString += `:lock: **Must have any of these roles** :\n${reqroles}\n\n`;
+          descriptionString += `:lock: **Must have any of these roles**:\n${reqroles}\n\n`;
         }
         if (blacklistedRoles) {
           let blacklist = parseRoles(blacklistedRoles);
           blacklist = blacklist.join('>, <@&');
           blacklist = `<@&${blacklist}>`;
-          descriptionString += `:x: **Must __*not*__ have any of these roles** :\n${blacklist}\n\n`;
+          descriptionString += `:x: **Must __*not*__ have any of these roles**:\n${blacklist}\n\n`;
         }
         if (bonus) {
           let entries = getEntries(bonus);
           descriptionString =
-            descriptionString +
-            ':busts_in_silhouette: **Multiple Entries** :\n';
+            descriptionString + ':busts_in_silhouette: **Multiple Entries**:\n';
           entries.forEach((roleArray) => {
             descriptionString =
               descriptionString +
@@ -813,16 +824,13 @@ module.exports = {
           descriptionString = descriptionString + '\n';
         }
         if (followReq) {
-          descriptionString += `:small_red_triangle: **Must follow these account(s)** : ${followRequirement}\n\n`;
+          descriptionString += `:small_red_triangle: **Must follow these Twitter account(s)**: ${followRequirement}\n\n`;
         }
         if (likeReq) {
-          descriptionString += `:heart: **Must like this tweet** : \n${likeReq}\n\n`;
-        }
-        if (rtReq) {
-          descriptionString += `:arrows_clockwise: **Must retweet this tweet** : \n${rtReq}\n\n`;
+          descriptionString += `:heart: **Must like & retweet this tweet**: \n${likeReq}\n\n`;
         }
         if (guildMemberReq) {
-          descriptionString += `:point_right: **Must join this server** : \n${guildMemberReq}\n\n`;
+          descriptionString += `:point_right: **Must join this Discord server**: \n${guildName} <:arrowright:1087813999137149019> ${guildMemberReq}\n\n`;
         }
         const embed = new EmbedBuilder()
           .setTitle('Active Giveaway')
