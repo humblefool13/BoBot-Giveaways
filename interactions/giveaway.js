@@ -182,6 +182,10 @@ function extractTwitterHandle(url) {
   const match = url.match(/^https?:\/\/(www\.)?twitter.com\/@?(?<handle>\w+)/);
   return match?.groups?.handle ? `@${match.groups.handle}` : null;
 }
+function MakeEmbedDes(des) {
+  const embed = new EmbedBuilder().setColor('#35FF6E').setDescription(des);
+  return embed;
+}
 
 module.exports = {
   name: 'giveaway',
@@ -546,49 +550,19 @@ module.exports = {
           if (description) {
             descriptionString += description + '\n\n';
           }
+          if (socialDiscord || socialTwitter) {
+            let socialString = [];
+            if (socialTwitter) {
+              socialString.push(`<:Twitter:1003000521214402680> [Twitter](${socialTwitter})`);
+            }
+            if (socialDiscord) {
+              socialString.push(`<:discordn:1014982172240789505> [Discord](${socialDiscord})`);
+            }
+            descriptionString += `:handshake: **Socials**: ${socialString.join("  ")}\n\n`;
+          }
           descriptionString += `:crown: **Winners**: ${winners}\n\n`;
           descriptionString += `:link: **Chain**: ${chain}\n\n`;
           descriptionString += `:grey_exclamation: **Type**: ${type}\n\n`;
-          descriptionString += `:stopwatch: **Ending**: <t:${parseInt(
-            endTimestamp / 1000
-          )}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
-          descriptionString += `<:wallet:1030387510372741150> **Wallet Required**: ${
-            walletReq ? 'Yes' : 'No'
-          }\n\n`;
-          if (socialDiscord || socialTwitter) {
-            let socialString = '';
-            if (socialTwitter) {
-              socialString += `<:Twitter:1003000521214402680> [Twitter](${socialTwitter})`;
-            }
-            if (socialDiscord) {
-              socialString += `  <:discordn:1014982172240789505> [Discord](${socialDiscord})`;
-            }
-            descriptionString += `:handshake: **Socials**: ${socialString}\n\n`;
-          }
-          if (pubPrice || privPrice) {
-            let mintPriceString = '';
-            if (pubPrice) {
-              mintPriceString += ` Public Price = ${pubPrice}`;
-            }
-            if (privPrice && pubPrice) {
-              mintPriceString += `\n Presale Price = ${privPrice}`;
-            } else if (privPrice && !pubPrice) {
-              mintPriceString += ` Presale Price = ${privPrice}`;
-            }
-            descriptionString += `:dollar: **Mint Price**:\n${mintPriceString}\n\n`;
-          }
-          if (balReq)
-            descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required**: ${balReq} Ξ\n\n`;
-          if (winnerRole) {
-            const roleFromId = interaction.guild.roles.cache.get(winnerRole);
-            const position = botRole.comparePositionTo(roleFromId);
-            if (position < 0) {
-              return interaction.editReply(
-                'My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.'
-              );
-            }
-            descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole}>\n\n`;
-          }
           if (reqRoles) {
             let reqroles = parseRoles(reqRoles);
             reqroles = reqroles.join('>, <@&');
@@ -613,6 +587,30 @@ module.exports = {
             });
             descriptionString = descriptionString + '\n';
           }
+          if (winnerRole) {
+            const roleFromId = interaction.guild.roles.cache.get(winnerRole);
+            const position = botRole.comparePositionTo(roleFromId);
+            if (position < 0) {
+              return interaction.editReply(
+                'My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.'
+              );
+            }
+            descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole}>\n\n`;
+          }
+          descriptionString += `<:wallet:1030387510372741150> **Wallet Required**: ${walletReq ? 'Yes' : 'No'
+            }\n\n`;
+          if (pubPrice || privPrice) {
+            let mintPriceString = '';
+            if (pubPrice) {
+              mintPriceString += ` Public Price = ${pubPrice}`;
+            }
+            if (privPrice && pubPrice) {
+              mintPriceString += `\n Presale Price = ${privPrice}`;
+            } else if (privPrice && !pubPrice) {
+              mintPriceString += ` Presale Price = ${privPrice}`;
+            }
+            descriptionString += `:dollar: **Mint Price**:\n${mintPriceString}\n\n`;
+          }
           if (followReq) {
             descriptionString += `:small_red_triangle: **Must follow these Twitter account(s)**: ${followRequirement}\n\n`;
           }
@@ -622,6 +620,10 @@ module.exports = {
           if (guildMemberReq) {
             descriptionString += `:point_right: **Must join this Discord server**: \n${guildName} <:arrowright:1087813999137149019> ${guildMemberReq}\n\n`;
           }
+          if (balReq) descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required**: ${balReq} Ξ\n\n`;
+          descriptionString += `:stopwatch: **Ending**: <t:${parseInt(
+            endTimestamp / 1000
+          )}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
           const embed = new EmbedBuilder()
             .setTitle('Active Giveaway')
             .setDescription(descriptionString)
@@ -754,52 +756,23 @@ module.exports = {
         let followRequirement;
         if (followReq) followRequirement = processFollow(followReq);
         let descriptionString = '';
-        descriptionString += `:trophy: **Prize Name**: \`${prize}\`\n\n`;
+        descriptionString += `:trophy: **Prize Name**: ${prize}\n\n`;
         if (description) {
           descriptionString += description + '\n\n';
+        }
+        if (socialDiscord || socialTwitter) {
+          let socialString = [];
+          if (socialTwitter) {
+            socialString.push(`<:Twitter:1003000521214402680> [Twitter](${socialTwitter})`);
+          }
+          if (socialDiscord) {
+            socialString.push(`<:discordn:1014982172240789505> [Discord](${socialDiscord})`);
+          }
+          descriptionString += `:handshake: **Socials**: ${socialString.join("  ")}\n\n`;
         }
         descriptionString += `:crown: **Winners**: ${winners}\n\n`;
         descriptionString += `:link: **Chain**: ${chain}\n\n`;
         descriptionString += `:grey_exclamation: **Type**: ${type}\n\n`;
-        descriptionString += `:stopwatch: **Ending**: <t:${parseInt(
-          endTimestamp / 1000
-        )}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
-        descriptionString += `<:wallet:1030387510372741150> **Wallet Required**: ${
-          walletReq ? 'Yes' : 'No'
-        }\n\n`;
-        if (socialDiscord || socialTwitter) {
-          let socialString = '';
-          if (socialTwitter) {
-            socialString += `<:Twitter:1003000521214402680> [Twitter](${socialTwitter})`;
-          }
-          if (socialDiscord) {
-            socialString += `  <:discordn:1014982172240789505> [Discord](${socialDiscord})`;
-          }
-          descriptionString += `:handshake: **Socials**: ${socialString}\n\n`;
-        }
-        if (pubPrice || privPrice) {
-          let mintPriceString = '';
-          if (pubPrice) {
-            mintPriceString += ` Public Price = ${pubPrice}`;
-          }
-          if (privPrice && pubPrice) {
-            mintPriceString += `\n Presale Price = ${privPrice}`;
-          } else if (privPrice && !pubPrice) {
-            mintPriceString += ` Presale Price = ${privPrice}`;
-          }
-          descriptionString += `:dollar: **Mint Price**:\n${mintPriceString}\n\n`;
-        }
-        if (balReq)
-          descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required**: ${balReq} Ξ\n\n`;
-        if (winnerRole) {
-          const position = botRole.comparePositionTo(winnerRole);
-          if (position < 0) {
-            return interaction.editReply(
-              'My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.'
-            );
-          }
-          descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole}>\n\n`;
-        }
         if (reqRoles) {
           let reqroles = parseRoles(reqRoles);
           reqroles = reqroles.join('>, <@&');
@@ -815,13 +788,38 @@ module.exports = {
         if (bonus) {
           let entries = getEntries(bonus);
           descriptionString =
-            descriptionString + ':busts_in_silhouette: **Multiple Entries**:\n';
+            descriptionString +
+            ':busts_in_silhouette: **Multiple Entries**:\n';
           entries.forEach((roleArray) => {
             descriptionString =
               descriptionString +
               `<@&${roleArray[0]}> +${roleArray[1]} Entries\n`;
           });
           descriptionString = descriptionString + '\n';
+        }
+        if (winnerRole) {
+          const roleFromId = interaction.guild.roles.cache.get(winnerRole);
+          const position = botRole.comparePositionTo(roleFromId);
+          if (position < 0) {
+            return interaction.editReply(
+              'My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.'
+            );
+          }
+          descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole}>\n\n`;
+        }
+        descriptionString += `<:wallet:1030387510372741150> **Wallet Required**: ${walletReq ? 'Yes' : 'No'
+          }\n\n`;
+        if (pubPrice || privPrice) {
+          let mintPriceString = '';
+          if (pubPrice) {
+            mintPriceString += ` Public Price = ${pubPrice}`;
+          }
+          if (privPrice && pubPrice) {
+            mintPriceString += `\n Presale Price = ${privPrice}`;
+          } else if (privPrice && !pubPrice) {
+            mintPriceString += ` Presale Price = ${privPrice}`;
+          }
+          descriptionString += `:dollar: **Mint Price**:\n${mintPriceString}\n\n`;
         }
         if (followReq) {
           descriptionString += `:small_red_triangle: **Must follow these Twitter account(s)**: ${followRequirement}\n\n`;
@@ -832,6 +830,10 @@ module.exports = {
         if (guildMemberReq) {
           descriptionString += `:point_right: **Must join this Discord server**: \n${guildName} <:arrowright:1087813999137149019> ${guildMemberReq}\n\n`;
         }
+        if (balReq) descriptionString += `<:ethereum:997764237025890318> **Minimum Balance Required**: ${balReq} Ξ\n\n`;
+        descriptionString += `:stopwatch: **Ending**: <t:${parseInt(
+          endTimestamp / 1000
+        )}:f> ( <t:${parseInt(endTimestamp / 1000)}:R> )\n\n`;
         const embed = new EmbedBuilder()
           .setTitle('Active Giveaway')
           .setDescription(descriptionString)

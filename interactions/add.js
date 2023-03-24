@@ -1,6 +1,5 @@
 const subs = require('../models/subscriptions.js');
 const configs = require('../models/configurations.js');
-
 module.exports = {
   name: 'add',
   async interact(client, interaction) {

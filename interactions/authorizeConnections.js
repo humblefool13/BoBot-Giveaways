@@ -10,6 +10,10 @@ const rowFirst = new ActionRowBuilder().addComponents(
     )
     .setStyle(ButtonStyle.Link)
 );
+function MakeEmbedDes(des) {
+  const embed = new EmbedBuilder().setColor('#35FF6E').setDescription(des);
+  return embed;
+}
 
 module.exports = {
   name: 'authorizeConnections',

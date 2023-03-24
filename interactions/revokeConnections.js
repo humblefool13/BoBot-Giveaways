@@ -32,6 +32,10 @@ async function refreshDiscord(refreshToken) {
   const resultDiscord = await responseDiscord.json();
   return resultDiscord;
 }
+function MakeEmbedDes(des) {
+  const embed = new EmbedBuilder().setColor('#35FF6E').setDescription(des);
+  return embed;
+}
 
 module.exports = {
   name: 'revokeConnections',
@@ -43,7 +47,7 @@ module.exports = {
       });
       if (!socialData) {
         return interaction.editReply(
-          'You have not authorzied the application yet.'
+          'You have not authorized the application yet.'
         );
       }
       const discordRefreshToken = decrypt(socialData.refresh_token_discord);
