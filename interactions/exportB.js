@@ -1,10 +1,12 @@
 const subs = require('../models/subscriptions');
 const winnersdb = require('../models/winners.js');
 const exceljs = require('exceljs');
+const { EmbedBuilder } = require('discord.js');
 function MakeEmbedDes(des) {
   const embed = new EmbedBuilder().setColor('#35FF6E').setDescription(des);
   return embed;
-}
+};
+
 module.exports = {
   name: 'exportB',
   async interact(client, interaction) {

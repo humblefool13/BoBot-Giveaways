@@ -1,5 +1,5 @@
 const twitter_db = require('../models/twitter');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 const fetch = require('node-fetch');
 const CryptoJS = require('crypto-js');
 
