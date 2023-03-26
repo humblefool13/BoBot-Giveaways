@@ -16,6 +16,6 @@ window.onload = () => {
       'users.read',
       'offline.access',
     ].join('%20');
-    window.location.href = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=http://37.59.71.137:3000/twitter&scope=${scopes}&state=state&code_challenge=challenge&code_challenge_method=plain`;
+    window.location.href = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=c0NySEZpU19vSWY4bFJYMndLMGg6MTpjaQ&redirect_uri=https://giveaway.fslabs.com/twitter&scope=${scopes}&state=state&code_challenge=challenge&code_challenge_method=plain`;
   }
 };

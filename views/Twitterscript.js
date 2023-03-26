@@ -12,7 +12,7 @@ window.onload = () => {
     const twitterAccessCode = params[1].slice(5);
     const discordCode = sessionStorage.getItem('discordAccessCode');
     const obj = { discordCode: discordCode, twitterCode: twitterAccessCode };
-    fetch('http://37.59.71.137:3000/post', {
+    fetch('https://giveaway.fslabs.xyz/post', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(obj),
