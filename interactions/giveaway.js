@@ -231,7 +231,7 @@ module.exports = {
       const walletReq = interaction.options.getBoolean('wallet-req');
       const time = interaction.options.getString('duration');
       const description = interaction.options.getString('description');
-      let ping = interaction.options.getString('ping-role');
+      let ping = interaction.options.getString('ping-message');
       let blacklistedRoles = interaction.options.getString('blacklist-roles');
       let bonus = interaction.options.getString('bonus-entries');
       let balReq = interaction.options.getNumber('minimum-balance');
@@ -250,7 +250,7 @@ module.exports = {
       const socialTwitter = interaction.options.getString('socials-twitter');
       const pubPrice = interaction.options.getString('mint-price-public');
       const privPrice = interaction.options.getString('mint-price-presale');
-      const mintTime = interaction.options.getString('mint-time');
+      const mintTime = interaction.options.getString('mint-date');
       const endTimestamp = findTimestamp(time.toLowerCase().trim());
       if (chain !== 'Ethereum' && balReq) {
         return interaction.editReply({
