@@ -310,8 +310,7 @@ async function findBalance(walletAddress) {
   if (remainingRequests < 0) return;
   if (ekv === eklength) ekv = 0;
   const balanceResponse = await fetch(
-    `https://api.etherscan.io/api?module=account&action=balance&address=${walletAddress}&tag=latest&apikey=${
-      etherscan_key[ekv++]
+    `https://api.etherscan.io/api?module=account&action=balance&address=${walletAddress}&tag=latest&apikey=${etherscan_key[ekv++]
     }`
   );
   const balanceResult = await balanceResponse.json();
@@ -406,7 +405,7 @@ module.exports = {
         });
         if (!wallet)
           return interaction.editReply(
-            'You have never saved any wallet. This giveaway requires you to have a saved wallet. Please save a wallet on appropriate chain and try to join again.'
+            'You have not submitted a wallet. You must submit your wallet to be able to join this giveaway. Please submit a wallet on the appropriate chain first and join the giveaway again.'
           );
         if (chain === 'Ethereum') {
           const serverWallets = wallet.wallets_eth;
@@ -418,7 +417,7 @@ module.exports = {
             wallet.wallet_global_eth === 'Not Submitted Yet.'
           )
             return interaction.editReply(
-              'You need to either save a global or a server ethereum wallet to enter this giveaway.'
+              'You need to submit a server Ethereum wallet to enter this giveaway.'
             );
           if (serverWallet) {
             walletAddress = serverWallet[1];
@@ -435,7 +434,7 @@ module.exports = {
             wallet.wallet_global_sol === 'Not Submitted Yet.'
           )
             return interaction.editReply(
-              'You need to either save a global or a server solana wallet to enter this giveaway.'
+              'You need to submit a server Solana wallet to enter this giveaway.'
             );
           if (serverWallet) {
             walletAddress = serverWallet[1];
@@ -452,7 +451,7 @@ module.exports = {
             wallet.wallet_global_apt === 'Not Submitted Yet.'
           )
             return interaction.editReply(
-              'You need to either save a global or a server aptos wallet to enter this giveaway.'
+              'You need to submit a server Aptos wallet to enter this giveaway.'
             );
           if (serverWallet) {
             walletAddress = serverWallet[1];
@@ -469,7 +468,7 @@ module.exports = {
             wallet.wallet_global_mulx === 'Not Submitted Yet.'
           )
             return interaction.editReply(
-              'You need to either save a global or a server multiversx wallet to enter this giveaway.'
+              'You need to submit a server MultiversX wallet to enter this giveaway.'
             );
           if (serverWallet) {
             walletAddress = serverWallet[1];
@@ -544,7 +543,7 @@ module.exports = {
         if (!creds) {
           return interaction.editReply({
             content:
-              'This giveaway requires you to verify twitter account so please do so to enter.',
+              'This giveaway requires you to connect your Discord account. Please connect your Discord account first and join the giveaway again.',
           });
         }
         const joinButtonRow = new ActionRowBuilder().addComponents(
@@ -588,14 +587,14 @@ module.exports = {
         if (!creds) {
           return interaction.editReply({
             content:
-              'This giveaway requires you to verify twitter account so please do so to enter.',
+              'This giveaway requires you to connect your Twitter account. Please connect your Twitter account first and join the giveaway again.',
           });
         }
         const followed = await follow(creds, followReq);
         if (!followed) {
           return interaction.editReply({
             content:
-              'Something went wrong. Please follow the required twitter accounts and try again later.',
+              'Something went wrong. Please follow the required Twitter accounts and try to join the giveaway again.',
           });
         }
       }
@@ -606,7 +605,7 @@ module.exports = {
         if (!creds) {
           return interaction.editReply({
             content:
-              'This giveaway requires you to verify twitter account so please do so to enter.',
+              'This giveaway requires you to connect your Twitter account. Please connect your Twitter account first and join the giveaway again.',
           });
         }
         let tweetId;
@@ -622,7 +621,7 @@ module.exports = {
         if (!liked) {
           return interaction.editReply({
             content:
-              'Something went wrong. Please like the required tweet and try again later.',
+              'Something went wrong. Please like and retweet the required tweet and try to join the giveaway again.',
           });
         }
       }
@@ -633,7 +632,7 @@ module.exports = {
         if (!creds) {
           return interaction.editReply({
             content:
-              'This giveaway requires you to verify twitter account so please do so to enter.',
+              'This giveaway requires you to connect your Twitter account. Please connect your Twitter account first and join the giveaway again.',
           });
         }
         let tweetId;
@@ -646,7 +645,7 @@ module.exports = {
         if (!rted) {
           return interaction.editReply({
             content:
-              'Something went wrong. Please retweet the required tweet and try again later.',
+              'Something went wrong. Please like and retweet the required tweet and try to join the giveaway again.',
           });
         }
       }
@@ -687,7 +686,7 @@ module.exports = {
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,
@@ -695,7 +694,7 @@ module.exports = {
       } else {
         await interaction.reply({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,

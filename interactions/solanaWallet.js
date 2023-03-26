@@ -64,7 +64,7 @@ module.exports = {
         return interaction.editReply({
           embeds: [
             MakeEmbedDes(
-              'The subscription for this server has expired, please contact ST6 to continue using the services.'
+              'SnapBot subscription for this server has expired, please contact ST6 to continue using our services.'
             ),
           ],
         });
@@ -79,7 +79,7 @@ module.exports = {
         sent = await interaction.editReply({
           embeds: [
             MakeEmbedDes(
-              'You have not saved any Solana wallet in this server previously ( and neither have a global Solana wallet saved ). Click the button below to make your first submission. Please remember this wallet is automatically submitted for all WLs you win, so submitting a burner wallet is highly recommended. Please copy your wallet address now and paste it in the pop-up after clicking the button.'
+              'You have not saved any Solana wallet on this server, nor have you saved a global Solana wallet. Please click the “Submit new Solana wallet!” button below, copy and paste your wallet address in the pop-up to submit your wallet. Please remember that this wallet address will be automatically recorded when you win WL spots, so we highly recommend you submit a burner wallet.'
             ),
           ],
           components: [rownew],
@@ -97,7 +97,7 @@ module.exports = {
             MakeEmbedDes(
               `You have saved the following Solana wallet addresses:\n\nServer Solana Wallet: **${wallet}**\nGlobal Solana Wallet: **${
                 globalWallet ? globalWallet : 'Not Saved Yet.'
-              }**\n\nWould you like to change the wallets or want to save a new server wallet? If so, please copy your wallet address now and paste it in the pop-up after clicking the button below else "Dismiss Message".`
+              }**\n\nWould you like to change your wallet addresses? If so, please click the “Yes, change my Solana wallet!” copy and paste your new wallet address in the pop-up to submit your new wallet address. If you do not need to change your wallet addresses, please click “Dismiss message” at the bottom of the message.`
             ),
           ],
           components: [rowchange],
@@ -184,7 +184,7 @@ module.exports = {
           sentv2 = await interaction.editReply({
             embeds: [
               MakeEmbedDes(
-                `:tada: Congratulations! You just saved your Solana wallet address for this server!\nEverytime you win a Solana WL giveaway, this wallet will be automatically submitted to the team!\n\nAlso consider setting it as global Solana wallet if not done yet.\nA global wallet is the wallet address that the bot will remember for all discord servers this bot is used for giveaways in. Advantage of saving a wallet as global wallet address is that you won't have to save wallet address in all discord servers. The global one will automatically be used everywhere UNLESS you specifically save a wallet in a discord server.`
+                `You just saved your Solana wallet address for this server!\nEverytime you win a Solana WL giveaway, this wallet will be automatically recorded!\n\nPlease also consider setting it as global Solana wallet if not done so yet:\nA global wallet is the wallet address that the bot will remember for all discord servers that use SnapBot. The advantage of saving a wallet address as a global wallet is that you will not have to submit your wallet again in all discord servers that use SnapBot. SnapBot will use your global wallet in those servers **UNLESS** you specifically set a server wallet for a particular discord server.\n\nIf you do not need to set your global wallet, please click “Dismiss message” at the bottom of the message.`
               ),
             ],
             components: [rowGlobal],
@@ -193,7 +193,7 @@ module.exports = {
           sentv2 = await interaction.editReply({
             embeds: [
               MakeEmbedDes(
-                `:tada: Congratulations! You just changed your Solana wallet address for this server!\n\nFrom: **${wallet}**\nTo: **${walletNew}**\n\nEverytime you win a Solana WL giveaway, this wallet will be automatically submitted to the team!\n\nAlso consider setting it as global Solana wallet if not done yet.\nA global wallet is the wallet address that the bot will remember for all discord servers this bot is used for giveaways in. Advantage of saving a wallet as global wallet address is that you won't have to save wallet address in all discord servers. The global one will automatically be used everywhere UNLESS you specifically save a wallet in a discord server.`
+                `You have successfully changed your Solana wallet address for this server!\n\n**Removed: ${wallet}\nNew: ${walletNew}**\n\nEverytime you win a Solana WL giveaway, this wallet will be automatically recorded!\n\nPlease also consider setting it as global Solana wallet if not done so yet:\nA global wallet is the wallet address that the bot will remember for all discord servers that use SnapBot. The advantage of saving a wallet address as a global wallet is that you will not have to submit your wallet again in all discord servers that use SnapBot. SnapBot will use your global wallet in those servers **UNLESS** you specifically set a server wallet for a particular discord server.\n\nIf you do not need to set your global wallet, please click “Dismiss message” at the bottom of the message.`
               ),
             ],
             components: [rowGlobal],
@@ -217,7 +217,7 @@ module.exports = {
             components: [rowGlobalDis],
             embeds: [
               MakeEmbedDes(
-                `The Solana wallet address\n\n**${walletNew}**\n\nis now set as your global Solana wallet and will be automatically used in all discord servers unless you save a new wallet in a specific server.`
+                `Global Solana wallet address:\n\n**${walletNew}**\n\nThis is now set as your global Solana wallet and will be used for all discord servers that use SnapBot **UNLESS** you specifically set a server wallet for a particular discord server.`
               ),
             ],
           });
@@ -228,7 +228,7 @@ module.exports = {
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,
@@ -236,7 +236,7 @@ module.exports = {
       } else {
         await interaction.reply({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,

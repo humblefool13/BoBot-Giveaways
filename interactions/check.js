@@ -20,7 +20,7 @@ module.exports = {
           ephemeral: true,
           embeds: [
             MakeEmbed(
-              'The subscription for this server has expired, please contact ST6 to continue using the services.'
+              'SnapBot subscription for this server has expired, please contact ST6 to continue using our services.'
             ),
           ],
         });
@@ -136,7 +136,7 @@ module.exports = {
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,
@@ -144,7 +144,7 @@ module.exports = {
       } else {
         await interaction.reply({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,

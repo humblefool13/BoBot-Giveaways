@@ -19,7 +19,7 @@ module.exports = {
         return interaction.editReply({
           embeds: [
             MakeEmbedDes(
-              'The subscription for this server has expired, please contact ST6 to continue using the services.'
+              'SnapBot subscription for this server has expired, please contact ST6 to continue using our services.'
             ),
           ],
         });
@@ -30,7 +30,7 @@ module.exports = {
         return interaction.editReply({
           embeds: [
             MakeEmbedDes(
-              'The subscription for this server has expired, please contact ST6 to continue using the services.'
+              'SnapBot subscription for this server has expired, please contact ST6 to continue using our services.'
             ),
           ],
         });
@@ -57,7 +57,7 @@ module.exports = {
         return interaction.editReply({
           embeds: [
             MakeEmbedDes(
-              'Please fill atleast one option to add to default settings of this server.'
+              'Please fill in the information for at least one option to add to the giveaway default settings of this server.'
             ),
           ],
         });
@@ -78,7 +78,7 @@ module.exports = {
         }
         if (roles - 1 !== commas)
           return interaction.editReply(
-            `Please enter the blacklisted roles in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``
+            `Please enter the blacklisted roles in the correct format.\n\nFor 1 role: Tag the role\nFor example - @role\n\nFor multiple roles: The first step is the same as for one role, you tag role 1. Then separate role 1 and role 2 with a comma and space repeat the first step for role 2, so on and so forth.\nFor example - @role1, @role2, @role3, …`
           );
         arr.blacklistedRoles = blacklistedRoles;
       }
@@ -96,7 +96,7 @@ module.exports = {
         }
         if (roles - 1 !== commas)
           return interaction.editReply(
-            `Please enter the bonus roles in correct format.\nexample:\nFor 1 role: \`@role 5\`\nFor multiple roles: Mention the roles and state number of entries ( **separated by space** ) and the roles **must be separated by commas ","**:\n\`@role1 5, @role2 6, @role3 7 ( ... )\``
+            `Please enter the bonus roles in the correct format.\n\nFor 1 role: Tag the role, hit spacebar, and state the number of entries.\nFor example - @role 5\n\nFor multiple roles: The first step is the same as for one role, you tag role 1, hit spacebar, and state the number of entries. Then separate role 1 and role 2 with a comma and space repeat the first step for role 2, so on and so forth.\nFor example - @role1 5, @role2 6, @role3 7, …`
           );
         arr.bonus = bonus;
       }
@@ -117,7 +117,7 @@ module.exports = {
         }
         if (roles - 1 !== commas)
           return interaction.editReply(
-            `Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``
+            `Please enter the role requirements in the correct format.\n\nFor 1 role: Tag the role\nFor example - @role\n\nFor multiple roles: The first step is the same as for one role, you tag role 1. Then separate role 1 and role 2 with a comma and space repeat the first step for role 2, so on and so forth.\nFor example - @role1, @role2, @role3, …`
           );
         arr.reqRoles = reqRoles;
       }
@@ -125,7 +125,7 @@ module.exports = {
         const position = botRole.comparePositionTo(winnerRole);
         if (position < 0) {
           return interaction.editReply(
-            'My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.'
+            'My bot role should be higher than the winner role to let me assign it to users. Please go to role settings and place my role above the winner role.'
           );
         }
         arr.winnerRole = winnerRole;
@@ -147,7 +147,7 @@ module.exports = {
           return interaction.editReply({
             embeds: [
               MakeEmbedDes(
-                "Your default settings are successfully saved and will be applied when you choose to. After giveaway creation command, you will get an option to add these if you hadn't added the fields in command."
+                "Your default settings are saved. You will have the option to apply the default settings when you create a giveaway."
               ),
             ],
           });
@@ -160,7 +160,7 @@ module.exports = {
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,
@@ -168,7 +168,7 @@ module.exports = {
       } else {
         await interaction.reply({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,

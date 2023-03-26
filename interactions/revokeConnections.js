@@ -72,7 +72,7 @@ module.exports = {
         await twitter_db.deleteOne({
           discord_id: interaction.user.id,
         });
-        return interaction.editReply('The revoke was successful!');
+        return interaction.editReply('You have successfully revoked your Twitter and Discord connections with SnapBot.');
       } else {
         return interaction.editReply(
           'Something went wrong. We are fixing it, please try again later.'
@@ -83,7 +83,7 @@ module.exports = {
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,
@@ -91,7 +91,7 @@ module.exports = {
       } else {
         await interaction.reply({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,

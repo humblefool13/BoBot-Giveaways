@@ -199,7 +199,7 @@ module.exports = {
         return interaction.editReply({
           embeds: [
             MakeEmbedDes(
-              'The subscription for this server has expired, please contact ST6 to continue using the services.'
+              'SnapBot subscription for this server has expired, please contact ST6 to continue using our services.'
             ),
           ],
         });
@@ -210,7 +210,7 @@ module.exports = {
         return interaction.editReply({
           embeds: [
             MakeEmbedDes(
-              'You need to `/setup` before using this command, or the subscription for this server has expired, please contact ST6 to continue using the services.'
+              'You need to `/setup` first before using this command, or your SnapBot subscription has expired, please contact ST6 to continue using our services.'
             ),
           ],
         });
@@ -218,7 +218,7 @@ module.exports = {
       const managerRole = getRole.role;
       if (!interaction.member.roles.cache.has(managerRole))
         return interaction.editReply({
-          content: `Only <@&${managerRole}> can use this command.`,
+          content: `You are not authorized to use this command as you do not have the <@&${managerRole}>.`,
         });
       let defaultsData = await defaults.findOne({
         server_id: interaction.guildId,
@@ -255,7 +255,7 @@ module.exports = {
       if (chain !== 'Ethereum' && balReq) {
         return interaction.editReply({
           content:
-            'The balance requirement is only supported for Ethereum blockchain.',
+            'The balance requirement is only supported for the Ethereum blockchain.',
         });
       }
       let guildId, guildName;
@@ -265,7 +265,7 @@ module.exports = {
         guildName = invite.guild.name;
         if (invite.expiresTimestamp <= endTimestamp) {
           return interaction.editReply(
-            'The required discord server invite link expires before giveaway ends. Please get a new link that is valid atleast till giveaway end time.'
+            'The entered discord server invite link expires before giveaway ends. Please generate a new link that remains valid until the giveaway ends.'
           );
         }
       }
@@ -408,7 +408,7 @@ module.exports = {
         const sent = await interaction.editReply({
           embeds: [
             MakeEmbedDes(
-              `Would you like to apply any of the default settings?\nYou have 2 minutes to choose.\n\n1) Default Message Ping\n2) Default Blacklisted Roles\n3) Default Bonus Entries\n4) Default Ethereum Balance Requirement\n5) Default Required Roles\n6) Default Winner Role\n\nSome options might be disabled because the default fields were not saved for them.`
+              `Would you like to apply any of the default settings?\nYou have 5 minutes to choose.\n\n1) Default Message Ping\n2) Default Blacklisted Roles\n3) Default Bonus Entries\n4) Default Ethereum Balance Requirement\n5) Default Required Roles\n6) Default Winner Role\n\nSome options might be disabled because the default fields were not saved for them.`
             ),
           ],
           components: compArray,
@@ -420,7 +420,7 @@ module.exports = {
         const collector = await sent.createMessageComponentCollector({
           filter,
           componentType: ComponentType.Button,
-          time: 120000,
+          time: 5 * 60 * 1000,
         });
         collector.on('collect', async (i) => {
           await i.deferUpdate();
@@ -502,7 +502,7 @@ module.exports = {
             }
             if (roles - 1 !== commas)
               return interaction.editReply(
-                `Please enter the blacklisted roles in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``
+                `Please enter the blacklisted roles in the correct format.\n\nFor 1 role: Tag the role\nFor example - @role\n\nFor multiple roles: The first step is the same as for one role, you tag role 1. Then separate role 1 and role 2 with a comma and space repeat the first step for role 2, so on and so forth.\nFor example - @role1, @role2, @role3, …`
               );
           }
           if (bonus) {
@@ -519,12 +519,12 @@ module.exports = {
             }
             if (roles - 1 !== commas)
               return interaction.editReply(
-                `Please enter the bonus roles in correct format.\nexample:\nFor 1 role: \`@role 5\`\nFor multiple roles: Mention the roles and state number of entries ( **separated by space** ) and the roles **must be separated by commas ","**:\n\`@role1 5, @role2 6, @role3 7 ( ... )\``
+                `Please enter the bonus roles in the correct format.\n\nFor 1 role: Tag the role, hit spacebar, and state the number of entries.\nFor example - @role 5\n\nFor multiple roles: The first step is the same as for one role, you tag role 1, hit spacebar, and state the number of entries. Then separate role 1 and role 2 with a comma and space repeat the first step for role 2, so on and so forth.\nFor example - @role1 5, @role2 6, @role3 7, …`
               );
           }
           if (balReq && !walletReq)
             return interaction.editReply(
-              'Minimum balance requirement is only supported in giveaways with wallet required set to true.'
+              'Minimum balance requirement is only supported in giveaways with the wallet required option set to true.'
             );
           if (reqRoles) {
             let roles = 0;
@@ -540,7 +540,7 @@ module.exports = {
             }
             if (roles - 1 !== commas)
               return interaction.editReply(
-                `Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``
+                `Please enter the role requirements in the correct format.\n\nFor 1 role: Tag the role\nFor example - @role\n\nFor multiple roles: The first step is the same as for one role, you tag role 1. Then separate role 1 and role 2 with a comma and space repeat the first step for role 2, so on and so forth.\nFor example - @role1, @role2, @role3, …`
               );
           }
           let followRequirement;
@@ -592,7 +592,7 @@ module.exports = {
             const position = botRole.comparePositionTo(roleFromId);
             if (position < 0) {
               return interaction.editReply(
-                'My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.'
+                'My bot role should be higher than the winner role to let me assign it to users. Please go to role settings and place my role above the winner role.'
               );
             }
             descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole}>\n\n`;
@@ -642,7 +642,7 @@ module.exports = {
           if (idsArr?.length > 5) {
             return interaction.editReply({
               content:
-                'A maximum of 5 twitter accounts can be set to put for follow requirement.',
+                'Only a maximum of 5 Twitter accounts can be set for follow requirement.',
             });
           }
           let sent;
@@ -712,7 +712,7 @@ module.exports = {
           }
           if (roles - 1 !== commas)
             return interaction.editReply(
-              `Please enter the blacklisted roles in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``
+              `Please enter the blacklisted roles in the correct format.\n\nFor 1 role: Tag the role\nFor example - @role\n\nFor multiple roles: The first step is the same as for one role, you tag role 1. Then separate role 1 and role 2 with a comma and space repeat the first step for role 2, so on and so forth.\nFor example - @role1, @role2, @role3, …`
             );
         }
         if (bonus) {
@@ -729,12 +729,12 @@ module.exports = {
           }
           if (roles - 1 !== commas)
             return interaction.editReply(
-              `Please enter the bonus roles in correct format.\nexample:\nFor 1 role: \`@role 5\`\nFor multiple roles: Mention the roles and state number of entries ( **separated by space** ) and the roles **must be separated by commas ","**:\n\`@role1 5, @role2 6, @role3 7 ( ... )\``
+              `Please enter the bonus roles in the correct format.\n\nFor 1 role: Tag the role, hit spacebar, and state the number of entries.\nFor example - @role 5\n\nFor multiple roles: The first step is the same as for one role, you tag role 1, hit spacebar, and state the number of entries. Then separate role 1 and role 2 with a comma and space repeat the first step for role 2, so on and so forth.\nFor example - @role1 5, @role2 6, @role3 7, …`
             );
         }
         if (balReq && !walletReq)
           return interaction.editReply(
-            'Minimum balance requirement is only supported in giveaways with wallet required set to true.'
+            'Minimum balance requirement is only supported in giveaways with the wallet required option set to true.'
           );
         if (reqRoles) {
           let roles = 0;
@@ -750,7 +750,7 @@ module.exports = {
           }
           if (roles - 1 !== commas)
             return interaction.editReply(
-              `Please enter the role requirements in correct format.\nexample:\nFor 1 role: \`@role\`\nFor multiple roles: Mention all roles and they **must be separated by commas ","**:\n\`@role1, @role2, @role3 ( ... )\``
+              `Please enter the role requirements in the correct format.\n\nFor 1 role: Tag the role\nFor example - @role\n\nFor multiple roles: The first step is the same as for one role, you tag role 1. Then separate role 1 and role 2 with a comma and space repeat the first step for role 2, so on and so forth.\nFor example - @role1, @role2, @role3, …`
             );
         }
         let followRequirement;
@@ -802,7 +802,7 @@ module.exports = {
           const position = botRole.comparePositionTo(roleFromId);
           if (position < 0) {
             return interaction.editReply(
-              'My bot role should be higher than the winner role to let me assign it to users. Please go to server settings and drag my role above the winner role.'
+              'My bot role should be higher than the winner role to let me assign it to users. Please go to role settings and place my role above the winner role.'
             );
           }
           descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole}>\n\n`;
@@ -852,7 +852,7 @@ module.exports = {
         if (idsArr?.length > 5) {
           return interaction.editReply({
             content:
-              'A maximum of 5 twitter accounts can be set to put for follow requirement.',
+              'Only a maximum of 5 Twitter accounts can be set for follow requirement.',
           });
         }
         let sent;
@@ -912,7 +912,7 @@ module.exports = {
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,
@@ -920,7 +920,7 @@ module.exports = {
       } else {
         await interaction.reply({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,

@@ -36,7 +36,7 @@ module.exports = {
       interaction
         .reply({
           content:
-            'I am having some trouble, the dev has been informed about it. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           ephemeral: true,
         })
         .then(() => {

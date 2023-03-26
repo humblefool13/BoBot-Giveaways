@@ -217,7 +217,7 @@ module.exports = {
   once: true,
   async execute(client) {
     console.log(`!!!!! ${client.user.tag} IS ON !!!!!`);
-    client.user.setActivity('Your Giveaways!', { type: ActivityType.Watching });
+    client.user.setActivity('your giveaways!', { type: ActivityType.Watching });
 
     //////////////////////// GIVEAWAYS ////////////////////////
 
@@ -436,12 +436,12 @@ module.exports = {
                       .setStyle(ButtonStyle.Link)
                       .setURL(sent.url)
                   );
-                  let postDescription = `Giveaway Ended\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n👤 Unique Entries: ${unique}`;
+                  let postDescription = `Giveaway Results\n:gift: Prize: **${prize}**\n:medal: Number of Winners: **${numWinners}**\n👤 Unique Entries: ${unique}`;
                   if (unique !== entries.length) {
                     postDescription += `\n👥 Total Entries: ${entries.length}`;
                   }
                   postDescription +=
-                    "\n\nYou can export winners' data in 4 formats using buttons below:\n1) Wallet Address of Winners Only\n2) Wallet Address and Discord User Tag of Winners Only\n3) Wallet Address, Discord ID and Discord User Tag of Winners\n4) Wallet Address, Discord ID, Discord User Tag and Twitter Username of Winners.\n\nWinners' data will be available for 30 days.";
+                    "\n\nYou can export winners' data in 4 formats using buttons below:\n1) Wallet Address of Winners\n2) Wallet Address and Discord User Tag of Winners\n3) Wallet Address, Discord ID and Discord User Tag of Winners\n4) Wallet Address, Discord ID, Discord User Tag and Twitter Username of Winners.\n\nWinners' data will be available for 30 days.";
                   await postChannel.send({
                     embeds: [
                       new EmbedBuilder()
@@ -516,7 +516,7 @@ module.exports = {
           );
           const endTimestamp =
             Number(giveawayWinnerData.reminderTimestamp) + 10 * 60 * 1000;
-          let description = `⏰ REMINDER ⏰\n**${
+          let description = `⏰ **REMINDER** ⏰\n**${
             giveawayWinnerData.prize_name
           }** is minting soon - <t:${parseInt(
             endTimestamp / 1000

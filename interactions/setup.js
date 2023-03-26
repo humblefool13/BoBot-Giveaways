@@ -14,7 +14,7 @@ function makeEmbed(name, guild_icon, guild_id) {
   const embed = new EmbedBuilder()
     .setTitle('Account Configuration')
     .setDescription(
-      `Hello there! :wave:\n\n<a:hexstar:1002639618409250836> __**${name}**__ uses ST6's Giveaway Bot for most advanced giveaways and post giveaways operations.\n<a:hexstar:1002639618409250836> Everytime you win a giveaway, your wallet address is instantly and automatically submitted.\n\nTo faciliate above please submit your wallet using the **Submit** button below!\n\nPlease make sure you enter the wallet address you want to be submitted to projects for the WLs you win.\n\n**[ :warning: Burner wallet highly recommended :warning: ]**`
+      `Welcome to SnapBot! :wave:\n\n<a:hexstar:1002639618409250836> __${name}__ uses **SnapBot** for the most advanced and user-friendly giveaway operations.\n\n<a:hexstar:1002639618409250836> Everytime you win a giveaway, your wallet addresses are instantly and automatically recorded.\n\nPlease follow these instructions for account configuration:\nStep 1: Click the button of the **corresponding blockchains** below and submit your wallets! We highly recommend you use burner wallets.\nStep 2: Click the **Authorize Discord & Twitter** button and connect your Discord and Twitter accounts. (You are free to revoke this access anytime, you can do so by simply clicking on the **Revoke Discord & Twitter** button.)\n\nYou are now good to go. You can click the **Check Saved Info** button to see if all the information you have submitted is correct! If you want to change your information, please repeat Step 1 or Step 2.`
     )
     .setColor('#35FF6E');
   if (guild_icon.startsWith('a_') && guild_icon !== 'N') {
@@ -104,7 +104,7 @@ module.exports = {
         return interaction.editReply({
           embeds: [
             MakeEmbedDes(
-              'This command can only be used by you in a Discord Server where either of the following apply:\n1) You are the Owner of the Discord Server.\n2) You have the **ADMINISTRATOR** permission in the server.\n3) You have the **MANAGE SERVER** permission in the server.'
+              'You do not have access to this command.\nYou must fulfill one of the following conditions:\n1) You are the Owner of this Discord Server.\n2) You have the **ADMINISTRATOR** permission on the server.\n3) You have the **MANAGE SERVER** permission on the server.'
             ),
           ],
           ephemeral: true,
@@ -116,12 +116,12 @@ module.exports = {
         return interaction.editReply({
           embeds: [
             MakeEmbedDes(
-              'This discord server does not has a valid subscription. Please contact at [BoBot Labs Support Server](https://discord.gg/HweZtrzAnX) to get a subscription/renew an expired subscription.'
+              'SnapBot subscription for this server has expired, please contact ST6 to continue using our services.'
             ),
           ],
         });
       const category = await interaction.guild.channels.create({
-        name: 'ST6 GIVEAWAYS',
+        name: 'SNAPBOT',
         type: ChannelType.GuildCategory,
       });
       const role = await interaction.guild.roles.create({
@@ -142,6 +142,7 @@ module.exports = {
             allow: [
               PermissionsBitField.Flags.ViewChannel,
               PermissionsBitField.Flags.SendMessages,
+              PermissionsBitField.Flags.EmbedLinks,
               PermissionsBitField.Flags.AttachFiles,
             ],
           },
@@ -164,8 +165,13 @@ module.exports = {
             allow: [
               PermissionsBitField.Flags.ViewChannel,
               PermissionsBitField.Flags.SendMessages,
+              PermissionsBitField.Flags.EmbedLinks,
               PermissionsBitField.Flags.AttachFiles,
             ],
+          },
+          {
+            id: role.id,
+            allow: [PermissionsBitField.Flags.ViewChannel],
           },
         ],
       });
@@ -182,6 +188,7 @@ module.exports = {
             allow: [
               PermissionsBitField.Flags.ViewChannel,
               PermissionsBitField.Flags.SendMessages,
+              PermissionsBitField.Flags.EmbedLinks,
               PermissionsBitField.Flags.AttachFiles,
             ],
           },
@@ -204,6 +211,7 @@ module.exports = {
             allow: [
               PermissionsBitField.Flags.ViewChannel,
               PermissionsBitField.Flags.SendMessages,
+              PermissionsBitField.Flags.EmbedLinks,
               PermissionsBitField.Flags.AttachFiles,
             ],
           },
@@ -226,6 +234,7 @@ module.exports = {
             allow: [
               PermissionsBitField.Flags.ViewChannel,
               PermissionsBitField.Flags.SendMessages,
+              PermissionsBitField.Flags.EmbedLinks,
               PermissionsBitField.Flags.AttachFiles,
             ],
           },
@@ -262,29 +271,32 @@ module.exports = {
         embeds: [embed],
         components: [row1, row2, row3],
       });
-      let des = `:ledger: Please read the following instructions:\n\n1) I have made a role <@&${role.id}> who will be able to use management commands. Giving the role to anyone will allow them to start giveaways and add/edit/remove number of entries for roles. Please head to server settings and put the role on high hierarchy position for safety. You can rename the role or change color but if the role gets deleted you will have to \`/setup\` again.\n\n2) I have made 2 channels:\n:white_small_square: <#${setupChannel.id}>:\nThis channel will be used by people to submit the wallets and view the wallet submitted. Please change the permission of channel and allow the required role to "View Channel".\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel you will receive the file/link with winners' details every time a giveaway ends. Always make sure I have permission to "View Channel", "Send Messages" and "Attach Files". Keep this channel private, the giveaway manager role I created can see the channel by default while others cannot.\nFeel free to rename the channels or move them to another location/category but if gets deleted you will have to \`/setup\` again.\n\n3) Once your subscription ends, I will keep all configurations and wallets saved for 7 days. If you renew within 7 days, eveything will be smooth and keep working fine with old channels/roles/wallets and no data will be lost. But if the subscription is not renewed within 7 days, I will erase all data **permanently**, after which if you decide to use the bot, the users will have to submit wallets again and you will have to \`/setup\` again.`;
+
+      const stepTwo = `2) I have made 5 channels:\n:white_small_square: <#${setupChannel.id}>:\nThis is the channel where your community members will be able to submit and check their information. Please make sure the desired roles have these permissions enabled in this channel: "View Channel" and "Read Message History".\n\n:white_small_square: <#${giveawaysChannel.id}>:\nAll SnapBot giveaways will be posted in this channel. Please make sure the desired roles have these permissions enabled in this channel: "View Channel" and "Read Message History".:\n\n:white_small_square: <#${winnerChannel.id}>:\nThis is the channel where the winners of every giveaway will be announced. Please make sure the desired roles have these permissions enabled in this channel: "View Channel" and "Read Message History". Please also make sure that SnapBot always has these permissions enabled in this channel: "View Channel", "Send Messages", "Embed Links" and "Mention @everyone, @here and All Roles".\n\n:white_small_square: <#${reminderChannel.id}>:\nThis is the channel where the winners of every giveaway will be pinged 10 minutes before a project mints. Please make sure the desired roles have these permissions enabled in this channel: "View Channel" and "Read Message History". Please also make sure that SnapBot always has these permissions enabled in this channel: "View Channel", "Send Messages", "Embedded Links" and "Mention @everyone, @here and All Roles".\n\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel where you will receive the files with winners' details after the end of every giveaway. Please make sure that SnapBot always has these permissions enabled: "View Channel", "Send Messages", "Embedded Links" and "Attach Files". Keep this channel private, <@&${role.id}> I created, the Discord server owner, and roles with "ADMINISTRATOR" permission can see the channel by default while everyone else will not be able to.\n\nYou can change the name or the position of the channels but if you delete any one of the channels you will have to perform the \`/setup\` command again.`;
+
+      let des = [':ledger: Welcome to SnapBot! Please read the following instructions before you begin:', `1) I have made a role <@&${role.id}> who will be able to use giveaway management commands. Please head over to server settings and put the role in a high hierarchical position to ensure the bot functions correctly. A member must have this role in order to set up giveaways and be able to access giveaway results. You can change the name or the color of the role but if you delete the role you will have to perform the  \`/setup\` command again.`, stepTwo, `3) If you need help with setting up a giveaway, please perform the  \`/help\` command.\n\n4) Once your subscription ends, I will keep all configurations and user information saved for 7 days. Everything will continue to function correctly as long as you renew your subscription within 7 days. If the subscription is not renewed within 7 days, SnapBot will erase all data **permanently**. After which if you decide to use SnapBot again, you will have to perform the \`/setup\` command again and your community will have to resubmit their information.`].join("\n\n");
       await interaction.editReply(
-        ':ledger: Please read the following instructions:'
+        ':ledger: Welcome to SnapBot! Please read the following instructions before you begin:'
       );
       await wait(2000);
       await interaction.followUp({
-        content: `1) I have made a role <@&${role.id}> who will be able to use management commands. Giving the role to anyone will allow them to start giveaways and add/edit/remove number of entries for roles. Please head to server settings and put the role on high hierarchy position for safety. You can rename the role or change color but if the role gets deleted you will have to \`/setup\` again.`,
+        content: `1) I have made a role <@&${role.id}> who will be able to use giveaway management commands. Please head over to server settings and put the role in a high hierarchical position to ensure the bot functions correctly. A member must have this role in order to set up giveaways and be able to access giveaway results. You can change the name or the color of the role but if you delete the role you will have to perform the  \`/setup\` command again.`,
         ephemeral: true,
       });
       await wait(2000);
       await interaction.followUp({
-        content: `2) I have made 2 channels :\n:white_small_square: <#${setupChannel.id}>:\nThis channel will be used by people to submit the wallets and view the wallet submitted. Please change the permission of channel and allow the required role to "View Channel".\n\n:white_small_square: <#${outputChannel.id}>:\nThis is the channel you will receive the file/link with winners' details every time a giveaway ends. Always make sure I have permission to "View Channel", "Send Messages" and "Attach Files". Keep this channel private, the giveaway manager role I created can see the channel by default while others cannot.\n\nFeel free to rename the channels or move them to another location/category but if gets deleted you will have to \`/setup\` again.`,
+        content: stepTwo,
         ephemeral: true,
       });
       await wait(2000);
       await interaction.followUp({
-        content: `3) Once your subscription ends, I will keep all configurations and wallets saved for 7 days. If you renew within 7 days, eveything will be smooth and keep working fine with old channels/roles/wallets and no data will be lost. But if the subscription is not renewed within 7 days, I will erase all data **permanently**, after which if you decide to use the bot, the users will have to submit wallets again and you will have to \`/setup\` again.`,
+        content: `3) If you need help with setting up a giveaway, please perform the  \`/help\` command.\n\n4) Once your subscription ends, I will keep all configurations and user information saved for 7 days. Everything will continue to function correctly as long as you renew your subscription within 7 days. If the subscription is not renewed within 7 days, SnapBot will erase all data **permanently**. After which if you decide to use SnapBot again, you will have to perform the \`/setup\` command again and your community will have to resubmit their information.`,
         ephemeral: true,
       });
       await wait(2000);
       await outputChannel.send({ embeds: [MakeEmbedDes(des)] });
       return await interaction.followUp({
-        content: `I have sent a copy of above instructions in <#${outputChannel.id}> for future reference and for other team members to refer to.\n\nIf you ever face any issues, please contact us in our discord server.\nHappy Raffling! :slight_smile:`,
+        content: `I have sent a copy of above instructions in <#${outputChannel.id}> for future reference and for other team members to refer to.\n\nIf you ever face any issues, please contact ST6.\nHappy Raffling! :slight_smile:`,
         ephemeral: true,
       });
     } catch (e) {
@@ -292,7 +304,7 @@ module.exports = {
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,
@@ -300,7 +312,7 @@ module.exports = {
       } else {
         await interaction.reply({
           content:
-            'I am facing some trouble, the dev has been informed. Please try again in some hours.',
+            'I am having some trouble, the developer has been informed. Please try again in a few hours.',
           embeds: [],
           components: [],
           ephemeral: true,
