@@ -242,8 +242,7 @@ module.exports = {
       const followReq = getTwitterUsernames(followReqLinks);
       const likeReq = interaction.options.getString('like-rt-twit-req');
       const rtReq = likeReq;
-      const guildMemberReq =
-        interaction.options.getString('discord-member-req');
+      const guildMemberReq = interaction.options.getString('discord-member-req');
       const chain = interaction.options.getString('blockchain');
       const type = interaction.options.getString('type');
       const socialDiscord = interaction.options.getString('socials-discord');
