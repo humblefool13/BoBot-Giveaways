@@ -286,12 +286,12 @@ module.exports = {
       });
       await wait(2000);
       await interaction.followUp({
-        content: stepTwo.slice(0, 2000),
+        content: stepTwoPart1,
         ephemeral: true,
       });
       await wait(2000);
       await interaction.followUp({
-        content: stepTwo,
+        content: stepTwoPart2,
         ephemeral: true,
       });
       await wait(2000);
