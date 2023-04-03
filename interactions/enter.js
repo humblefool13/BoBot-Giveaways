@@ -37,6 +37,9 @@ function makeEmbed(messageEmbed, entries) {
     .setTitle(messageEmbed.title)
     .setDescription(messageEmbed.description)
     .setColor(messageEmbed.hexColor)
+    .setFooter({
+      text: `${entries} Entries`,
+    });
   if (messageEmbed.image) {
     embed.setImage(messageEmbed.image.url);
   }
