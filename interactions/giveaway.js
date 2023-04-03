@@ -239,7 +239,10 @@ module.exports = {
       let winnerRole = interaction.options.getRole('winner-role-add');
       const picture = interaction.options.getAttachment('attach-picture');
       const followReqLinks = interaction.options.getString('follow-twit-req');
-      const followReq = getTwitterUsernames(followReqLinks);
+      let followReq;
+      if (followReqLinks) {
+        followReq = getTwitterUsernames(followReqLinks);
+      }
       const likeReq = interaction.options.getString('like-rt-twit-req');
       const rtReq = likeReq;
       const guildMemberReq = interaction.options.getString('discord-member-req');
