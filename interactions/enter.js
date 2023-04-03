@@ -37,11 +37,6 @@ function makeEmbed(messageEmbed, entries) {
     .setTitle(messageEmbed.title)
     .setDescription(messageEmbed.description)
     .setColor(messageEmbed.hexColor)
-    .setFooter({
-      text: `${entries} Entries`,
-      iconURL:
-        'https://cdn.discordapp.com/attachments/1003741555993100378/1003742971000266752/gif.gif',
-    });
   if (messageEmbed.image) {
     embed.setImage(messageEmbed.image.url);
   }
