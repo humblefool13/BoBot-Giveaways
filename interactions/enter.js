@@ -412,7 +412,7 @@ module.exports = {
           );
           if (
             !serverWallet &&
-            wallet.wallet_global_eth === 'Not Submitted Yet.'
+            (wallet.wallet_global_eth === 'Not Submitted Yet.' || !wallet.wallet_global_eth)
           )
             return interaction.editReply(
               'You need to submit a server Ethereum wallet to enter this giveaway.'
@@ -429,7 +429,7 @@ module.exports = {
           );
           if (
             !serverWallet &&
-            wallet.wallet_global_sol === 'Not Submitted Yet.'
+            (wallet.wallet_global_sol === 'Not Submitted Yet.' || !wallet.wallet_global_sol)
           )
             return interaction.editReply(
               'You need to submit a server Solana wallet to enter this giveaway.'
@@ -446,7 +446,7 @@ module.exports = {
           );
           if (
             !serverWallet &&
-            wallet.wallet_global_apt === 'Not Submitted Yet.'
+            (wallet.wallet_global_apt === 'Not Submitted Yet.' || !wallet.wallet_global_apt)
           )
             return interaction.editReply(
               'You need to submit a server Aptos wallet to enter this giveaway.'
@@ -463,7 +463,7 @@ module.exports = {
           );
           if (
             !serverWallet &&
-            wallet.wallet_global_mulx === 'Not Submitted Yet.'
+            (wallet.wallet_global_mulx === 'Not Submitted Yet.' || !wallet.wallet_global_mulx)
           )
             return interaction.editReply(
               'You need to submit a server MultiversX wallet to enter this giveaway.'
