@@ -453,7 +453,8 @@ module.exports = {
                   });
                   if (winnerRole !== 'NA') {
                     for (let winner in winners) {
-                      winner.roles.add(winnerRole).catch((e) => {});
+                      let winnerUser = await guild.members.fetch(winner);
+                      winnerUser.roles.add(winnerRole).catch((e) => {});
                     }
                   }
                 } else {
