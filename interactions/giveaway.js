@@ -597,7 +597,7 @@ module.exports = {
                 'My bot role should be higher than the winner role to let me assign it to users. Please go to role settings and place my role above the winner role.'
               );
             }
-            descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole}>\n\n`;
+            descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole.id}>\n\n`;
           }
           descriptionString += `<:wallet:1030387510372741150> **Wallet Required**: ${walletReq ? 'Yes' : 'No'
             }\n\n`;
@@ -670,7 +670,7 @@ module.exports = {
             walletReq ? 'YES' : 'NO',
             endTimestamp,
             balReq ? balReq : 'NA',
-            winnerRole ? winnerRole : 'NA',
+            winnerRole ? winnerRole.id : 'NA',
             reqRoles ? parseRoles(reqRoles).join(',') : 'NA',
             blacklistedRoles ? parseRoles(blacklistedRoles).join(',') : 'NA',
             bonus ? processBonus(bonus) : 'NA',
@@ -806,7 +806,7 @@ module.exports = {
               'My bot role should be higher than the winner role to let me assign it to users. Please go to role settings and place my role above the winner role.'
             );
           }
-          descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole}>\n\n`;
+          descriptionString += `:military_medal: **Role Awarded to Winners**: <@&${winnerRole.id}>\n\n`;
         }
         descriptionString += `<:wallet:1030387510372741150> **Wallet Required**: ${walletReq ? 'Yes' : 'No'
           }\n\n`;
