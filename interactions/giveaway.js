@@ -590,8 +590,8 @@ module.exports = {
             descriptionString = descriptionString + '\n';
           }
           if (winnerRole) {
-            const roleFromId = interaction.guild.roles.cache.get(winnerRole);
-            const position = botRole.comparePositionTo(roleFromId);
+
+            const position = botRole.comparePositionTo(winnerRole);
             if (position < 0) {
               return interaction.editReply(
                 'My bot role should be higher than the winner role to let me assign it to users. Please go to role settings and place my role above the winner role.'
@@ -800,8 +800,7 @@ module.exports = {
           descriptionString = descriptionString + '\n';
         }
         if (winnerRole) {
-          const roleFromId = interaction.guild.roles.cache.get(winnerRole);
-          const position = botRole.comparePositionTo(roleFromId);
+          const position = botRole.comparePositionTo(winnerRole);
           if (position < 0) {
             return interaction.editReply(
               'My bot role should be higher than the winner role to let me assign it to users. Please go to role settings and place my role above the winner role.'
