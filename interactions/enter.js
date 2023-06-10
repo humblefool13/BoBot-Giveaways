@@ -260,14 +260,12 @@ async function follow(creds, targetIDs_separated) {
       }
     );
     let twitterResult = await twitterResponse.json();
-    console.log(twitterResult);
     if (
       twitterResult?.data?.following ||
       twitterResponse?.data?.pending_follow
     ) {
       followSuccess.push(true);
     } else {
-      console.log("refreshing");
       const newTokens = await refreshTwitterCreds(refreshTokenTwitter);
       refreshed = true;
       accessTokenTwitter = newTokens.access_token;
@@ -284,7 +282,6 @@ async function follow(creds, targetIDs_separated) {
         }
       );
       twitterResult = await twitterResponse.json();
-      console.log(twitterResult);
       const find = await twitter.findOne({
         twitter_id: twitter_id,
       });
